@@ -222,7 +222,8 @@
     let currentLevelIndex = 0;
     let practiceTracker = {};
     const PRACTICE_GOAL = 2;
-    const speedMap = { '1': 0.06, '2': 0.09, '3': 0.12, '4': 0.18, '5': 0.24 };
+    // CAMBIO: Aumento en la velocidad de crecimiento para darle más "fuerza" al slider
+    const speedMap = { '1': 0.07, '2': 0.10, '3': 0.15, '4': 0.25, '5': 0.36 };
 
     let recognition;
 
@@ -399,7 +400,6 @@
         currentLevelIndex = 0;
         startLevel();
     });
-    // CAMBIO: Event listener para que el slider actualice la velocidad en tiempo real
     speedSlider.addEventListener('input', () => {
         const newGrowthRate = speedMap[speedSlider.value];
         numbersOnScreen.forEach(num => {
