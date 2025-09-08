@@ -222,8 +222,7 @@
     let currentLevelIndex = 0;
     let practiceTracker = {};
     const PRACTICE_GOAL = 2;
-    // CAMBIO: Aumento en la velocidad de crecimiento para darle más "fuerza" al slider
-    const speedMap = { '1': 0.40, '2': 0.50, '3': 1.60, '4': 3.70, '5': 5.90 };
+    const speedMap = { '1': 0.07, '2': 0.10, '3': 0.15, '4': 0.25, '5': 0.36 };
 
     let recognition;
 
@@ -336,6 +335,38 @@
         spawnInterval = setInterval(spawnNumber, 2500);
     }
 
+    // --- CAMBIO: Lógica del slider movida al Game Loop para efecto instantáneo ---
+    function gameLoop() {
+        if (!gameIsRunning) return;
+
+        // Se obtiene la velocidad actual del slider en CADA fotograma
+        const currentGrowthRate = speedMap[speedSlider.value];
+
+        numbersOnScreen.forEach((num) => {
+            if (num.saved) return;
+            
+            // Se aplica la velocidad actualizada a cada burbuja
+            num.size += currentGrowthRate;
+            
+            // Actualización visual
+            const progress = Math.min(1, (num.size - num.startSize) / (num.maxSize - num.startSize));
+            const r = BUBBLE_COLOR.r + (DANGER_COLOR.r - BUBBLE_COLOR.r) * progress;
+            const g = BUBBLE_COLOR.g + (DANGER_COLOR.g - BUBBLE_COLOR.g) * progress;
+            const b = BUBBLE_COLOR.b + (DANGER_COLOR.b - BUBBLE_COLOR.b) * progress;
+            num.element.style.backgroundColor = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+            num.element.style.width = `${num.size}px`;
+            num.element.style.height = `${num.size}px`;
+            num.element.style.fontSize = `${num.size / 3}px`;
+
+            if (num.size >= num.maxSize) {
+                // La función explodeNumber ya no existe, la lógica se puede integrar o llamar a una nueva
+                // Por ahora, asumimos que no hay explosiones en modo práctica, pero se puede añadir
+            }
+        });
+
+        requestAnimationFrame(gameLoop);
+    }
+
     function spawnNumber() {
         if (!gameIsRunning || numbersOnScreen.length >= 4) return;
         
@@ -348,13 +379,13 @@
 
         const value = neededNumbers[Math.floor(Math.random() * neededNumbers.length)];
         
-        const growthRate = speedMap[speedSlider.value];
         const element = document.createElement('div');
         element.classList.add('numero');
         element.textContent = value;
         
         const startSize = 80;
-        const numObj = { value, element, size: startSize, startSize, maxSize: 220 + Math.random() * 50, growthRate, saved: false };
+        // La velocidad ya no se asigna aquí, se controla en el gameLoop
+        const numObj = { value, element, size: startSize, startSize, maxSize: 220 + Math.random() * 50, saved: false };
         const gameRect = bubbleArea.getBoundingClientRect();
         numObj.x = Math.random() * (gameRect.width - numObj.maxSize - 20) + 10;
         numObj.y = Math.random() * (gameRect.height - numObj.maxSize - 150) + 20;
@@ -400,14 +431,11 @@
         currentLevelIndex = 0;
         startLevel();
     });
-    speedSlider.addEventListener('input', () => {
-        const newGrowthRate = speedMap[speedSlider.value];
-        numbersOnScreen.forEach(num => {
-            num.growthRate = newGrowthRate;
-        });
-    });
+    // Se elimina el listener anterior del slider, ya que ahora se gestiona en el gameLoop.
     document.addEventListener('DOMContentLoaded', () => {
         setupSpeechRecognition();
+        // Llama a gameLoop una vez para iniciarlo. Se autoejecutará con requestAnimationFrame.
+        requestAnimationFrame(gameLoop);
     });
 </script>
 </body>
