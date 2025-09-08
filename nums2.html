@@ -80,6 +80,13 @@
             grid-column: 2 / 3;
         }
 
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
         .assignment-panel {
             width: 250px;
             padding: 20px;
@@ -113,6 +120,28 @@
         .draggable-name:active {
             cursor: grabbing;
         }
+        
+        #resetButton {
+            display: none; /* Oculto por defecto */
+            padding: 10px 20px;
+            font-family: 'Roboto Slab', serif;
+            font-size: 1.2em;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 3px 3px 7px rgba(0,0,0,0.2);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        #resetButton:hover {
+            background-color: #0056b3;
+        }
+
+        #resetButton:active {
+            transform: scale(0.98);
+        }
     </style>
 </head>
 <body>
@@ -132,20 +161,23 @@
         </div>
     </div>
 
-    <div class="assignment-panel">
-        <h3>Arrastra el nombre a su número</h3>
-        <div id="name-list">
-            <div class="draggable-name" id="name-cero" data-name="cero" draggable="true">CERO</div>
-            <div class="draggable-name" id="name-uno" data-name="uno" draggable="true">UNO</div>
-            <div class="draggable-name" id="name-dos" data-name="dos" draggable="true">DOS</div>
-            <div class="draggable-name" id="name-tres" data-name="tres" draggable="true">TRES</div>
-            <div class="draggable-name" id="name-cuatro" data-name="cuatro" draggable="true">CUATRO</div>
-            <div class="draggable-name" id="name-cinco" data-name="cinco" draggable="true">CINCO</div>
-            <div class="draggable-name" id="name-seis" data-name="seis" draggable="true">SEIS</div>
-            <div class="draggable-name" id="name-siete" data-name="siete" draggable="true">SIETE</div>
-            <div class="draggable-name" id="name-ocho" data-name="ocho" draggable="true">OCHO</div>
-            <div class="draggable-name" id="name-nueve" data-name="nueve" draggable="true">NUEVE</div>
+    <div class="right-panel">
+        <div class="assignment-panel">
+            <h3>Arrastra el nombre a su número</h3>
+            <div id="name-list">
+                <div class="draggable-name" id="name-cero" data-name="cero" draggable="true">CERO</div>
+                <div class="draggable-name" id="name-uno" data-name="uno" draggable="true">UNO</div>
+                <div class="draggable-name" id="name-dos" data-name="dos" draggable="true">DOS</div>
+                <div class="draggable-name" id="name-tres" data-name="tres" draggable="true">TRES</div>
+                <div class="draggable-name" id="name-cuatro" data-name="cuatro" draggable="true">CUATRO</div>
+                <div class="draggable-name" id="name-cinco" data-name="cinco" draggable="true">CINCO</div>
+                <div class="draggable-name" id="name-seis" data-name="seis" draggable="true">SEIS</div>
+                <div class="draggable-name" id="name-siete" data-name="siete" draggable="true">SIETE</div>
+                <div class="draggable-name" id="name-ocho" data-name="ocho" draggable="true">OCHO</div>
+                <div class="draggable-name" id="name-nueve" data-name="nueve" draggable="true">NUEVE</div>
+            </div>
         </div>
+        <button id="resetButton">Reiniciar 🔁</button>
     </div>
 
     <script>
@@ -158,7 +190,9 @@
 
         const keys = document.querySelectorAll('.key');
         const draggableNames = document.querySelectorAll('.draggable-name');
+        const resetButton = document.getElementById('resetButton');
         let spanishVoice = null;
+        let correctCount = 0; // Contador de aciertos
 
         function loadVoices() {
             const voices = window.speechSynthesis.getVoices();
@@ -181,11 +215,9 @@
                     if (spanishVoice) {
                         utterance.voice = spanishVoice;
                     }
-
                     if (navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
-                        utterance.rate = 0.8; // Más lento en Mac (el valor normal es 1)
+                        utterance.rate = 0.8;
                     }
-
                     window.speechSynthesis.speak(utterance);
                 }
             });
@@ -205,14 +237,8 @@
         });
 
         keys.forEach(key => {
-            key.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                key.classList.add('drag-over');
-            });
-
-            key.addEventListener('dragleave', () => {
-                key.classList.remove('drag-over');
-            });
+            key.addEventListener('dragover', (e) => { e.preventDefault(); key.classList.add('drag-over'); });
+            key.addEventListener('dragleave', () => { key.classList.remove('drag-over'); });
 
             key.addEventListener('drop', (e) => {
                 e.preventDefault();
@@ -229,9 +255,36 @@
                     if (draggedElement) {
                         draggedElement.style.display = 'none';
                     }
+                    
+                    correctCount++; // Aumenta el contador de aciertos
+                    // Si todos los números son correctos, muestra el botón de reinicio
+                    if (correctCount === 10) {
+                        resetButton.style.display = 'block';
+                    }
                 }
             });
         });
+
+        // 3. Funcionalidad del botón de Reinicio
+        resetButton.addEventListener('click', () => {
+            // Reiniciar las teclas a su estado original
+            keys.forEach(key => {
+                key.classList.remove('correct');
+                key.textContent = key.dataset.number;
+                // Reactivamos los eventos de puntero que deshabilitamos
+                key.style.pointerEvents = 'auto'; 
+            });
+
+            // Volver a mostrar todos los nombres de los números
+            draggableNames.forEach(nameElem => {
+                nameElem.style.display = 'block';
+            });
+
+            // Reiniciar el contador y ocultar el botón
+            correctCount = 0;
+            resetButton.style.display = 'none';
+        });
+
     </script>
 
 </body>
