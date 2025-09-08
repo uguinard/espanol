@@ -32,8 +32,6 @@
         }
         .control-btn:hover { transform: scale(1.1); background-color: rgba(255,255,255,0.3); }
         .control-btn:disabled { cursor: not-allowed; opacity: 0.5; }
-        
-        /* --- NUEVOS ESTILOS PARA LOS BOTONES DE RANGO --- */
         .range-selector {
             display: flex;
             gap: 10px;
@@ -64,7 +62,6 @@
             border-color: rgba(255, 255, 255, 0.7);
             box-shadow: 0 0 10px var(--accent-color);
         }
-        
         .game-container { margin-top: 10px; display: flex; justify-content: center; align-items: flex-start; gap: 40px; flex-wrap: wrap; }
         .card {
             background: var(--card-bg); border-radius: var(--card-radius);
@@ -88,7 +85,7 @@
         .key.drag-over { border-color: var(--accent-color); transform: scale(1.05); }
         .key.correct { background: var(--correct-color); color: white; font-size: 1.1em; text-align: center; padding: 5px; font-weight: 700; }
         .key.hint-highlight { box-shadow: 0 0 20px 5px var(--hint-color); }
-        #key-0 { grid-column: 2 / 3; }
+        .key.key-pos-0 { grid-column: 2 / 3; }
         .assignment-panel { width: 250px; }
         .assignment-panel h3 { text-align: center; margin-top: 0; color: var(--text-light-color); padding-bottom: 10px; margin-bottom: 10px; font-size: 1.3em; }
         #name-list { min-height: 295px; }
@@ -153,12 +150,7 @@
 
     <div class="game-container">
         <div class="card keypad-card">
-            <div class="keypad">
-                <div class="key" id="key-1" data-number="1">1</div><div class="key" id="key-2" data-number="2">2</div><div class="key" id="key-3" data-number="3">3</div>
-                <div class="key" id="key-4" data-number="4">4</div><div class="key" id="key-5" data-number="5">5</div><div class="key" id="key-6" data-number="6">6</div>
-                <div class="key" id="key-7" data-number="7">7</div><div class="key" id="key-8" data-number="8">8</div><div class="key" id="key-9" data-number="9">9</div>
-                <div class="key" id="key-0" data-number="0">0</div>
-            </div>
+            <div class="keypad" id="keypad-container"></div>
         </div>
         <div class="card names-card">
             <div class="assignment-panel">
@@ -179,38 +171,17 @@
         </div>
     </div>
     
-    <div id="instructionsModal" class="modal"><div class="modal-content"><h2>Instrucciones</h2><p class="lang-es"><strong>Objetivo:</strong> Aprende los números en español. Arrastra o selecciona el nombre del número y colócalo sobre la tecla que corresponda a su <strong>última cifra</strong>.</p><p class="lang-en"><strong>Objective:</strong> Learn the numbers in Spanish. Drag or select the number name and place it on the key that matches its <strong>last digit</strong>.</p></div></div>
+    <div id="instructionsModal" class="modal"><div class="modal-content"><h2>Instrucciones</h2><p class="lang-es"><strong>Objetivo:</strong> Aprende los números en español. Arrastra o selecciona el nombre del número y colócalo sobre su tecla correspondiente.</p><p class="lang-en"><strong>Objective:</strong> Learn the numbers in Spanish. Drag or select the number name and place it on its matching key.</p></div></div>
 
     <script>
-        // --- CAMBIO #1: Estructura de datos para todos los rangos de números ---
         const allNumberMaps = {
-            '0-9': {
-                '0': {name: 'cero', text: 'CERO'}, '1': {name: 'uno', text: 'UNO'}, '2': {name: 'dos', text: 'DOS'},
-                '3': {name: 'tres', text: 'TRES'}, '4': {name: 'cuatro', text: 'CUATRO'}, '5': {name: 'cinco', text: 'CINCO'},
-                '6': {name: 'seis', text: 'SEIS'}, '7': {name: 'siete', text: 'SIETE'}, '8': {name: 'ocho', text: 'OCHO'},
-                '9': {name: 'nueve', text: 'NUEVE'}
-            },
-            '10-19': {
-                '10': {name: 'diez', text: 'DIEZ'}, '11': {name: 'once', text: 'ONCE'}, '12': {name: 'doce', text: 'DOCE'},
-                '13': {name: 'trece', text: 'TRECE'}, '14': {name: 'catorce', text: 'CATORCE'}, '15': {name: 'quince', text: 'QUINCE'},
-                '16': {name: 'dieciséis', text: 'DIECISÉIS'}, '17': {name: 'diecisiete', text: 'DIECISIETE'}, '18': {name: 'dieciocho', text: 'DIECIOCHO'},
-                '19': {name: 'diecinueve', text: 'DIECINUEVE'}
-            },
-            '20-29': {
-                '20': {name: 'veinte', text: 'VEINTE'}, '21': {name: 'veintiuno', text: 'VEINTIUNO'}, '22': {name: 'veintidós', text: 'VEINTIDÓS'},
-                '23': {name: 'veintitrés', text: 'VEINTITRÉS'}, '24': {name: 'veinticuatro', text: 'VEINTICUATRO'}, '25': {name: 'veinticinco', text: 'VEINTICINCO'},
-                '26': {name: 'veintiséis', text: 'VEINTISÉIS'}, '27': {name: 'veintisiete', text: 'VEINTISIETE'}, '28': {name: 'veintiocho', text: 'VEINTIOCHO'},
-                '29': {name: 'veintinueve', text: 'VEINTINUEVE'}
-            },
-            '30-39': {
-                '30': {name: 'treinta', text: 'TREINTA'}, '31': {name: 'treinta y uno', text: 'TREINTA Y UNO'}, '32': {name: 'treinta y dos', text: 'TREINTA Y DOS'},
-                '33': {name: 'treinta y tres', text: 'TREINTA Y TRES'}, '34': {name: 'treinta y cuatro', text: 'TREINTA Y CUATRO'}, '35': {name: 'treinta y cinco', text: 'TREINTA Y CINCO'},
-                '36': {name: 'treinta y seis', text: 'TREINTA Y SEIS'}, '37': {name: 'treinta y siete', text: 'TREINTA Y SIETE'}, '38': {name: 'treinta y ocho', text: 'TREINTA Y OCHO'},
-                '39': {name: 'treinta y nueve', text: 'TREINTA Y NUEVE'}
-            }
+            '0-9': { '0':{name:'cero',text:'CERO'},'1':{name:'uno',text:'UNO'},'2':{name:'dos',text:'DOS'},'3':{name:'tres',text:'TRES'},'4':{name:'cuatro',text:'CUATRO'},'5':{name:'cinco',text:'CINCO'},'6':{name:'seis',text:'SEIS'},'7':{name:'siete',text:'SIETE'},'8':{name:'ocho',text:'OCHO'},'9':{name:'nueve',text:'NUEVE'} },
+            '10-19': { '10':{name:'diez',text:'DIEZ'},'11':{name:'once',text:'ONCE'},'12':{name:'doce',text:'DOCE'},'13':{name:'trece',text:'TRECE'},'14':{name:'catorce',text:'CATORCE'},'15':{name:'quince',text:'QUINCE'},'16':{name:'dieciséis',text:'DIECISÉIS'},'17':{name:'diecisiete',text:'DIECISIETE'},'18':{name:'dieciocho',text:'DIECIOCHO'},'19':{name:'diecinueve',text:'DIECINUEVE'} },
+            '20-29': { '20':{name:'veinte',text:'VEINTE'},'21':{name:'veintiuno',text:'VEINTIUNO'},'22':{name:'veintidós',text:'VEINTIDÓS'},'23':{name:'veintitrés',text:'VEINTITRÉS'},'24':{name:'veinticuatro',text:'VEINTICUATRO'},'25':{name:'veinticinco',text:'VEINTINCO'},'26':{name:'veintiséis',text:'VEINTISÉIS'},'27':{name:'veintisiete',text:'VEINTISIETE'},'28':{name:'veintiocho',text:'VEINTIOCHO'},'29':{name:'veintinueve',text:'VEINTINUEVE'} },
+            '30-39': { '30':{name:'treinta',text:'TREINTA'},'31':{name:'treinta y uno',text:'TREINTA Y UNO'},'32':{name:'treinta y dos',text:'TREINTA Y DOS'},'33':{name:'treinta y tres',text:'TREINTA Y TRES'},'34':{name:'treinta y cuatro',text:'TREINTA Y CUATRO'},'35':{name:'treinta y cinco',text:'TREINTA Y CINCO'},'36':{name:'treinta y seis',text:'TREINTA Y SEIS'},'37':{name:'treinta y siete',text:'TREINTA Y SIETE'},'38':{name:'treinta y ocho',text:'TREINTA Y OCHO'},'39':{name:'treinta y nueve',text:'TREINTA Y NUEVE'} }
         };
 
-        const keys = document.querySelectorAll('.key');
+        const keypadContainer = document.getElementById('keypad-container');
         const rangeButtons = document.querySelectorAll('.range-btn');
         const resetButton = document.getElementById('resetButton');
         const nameListContainer = document.getElementById('name-list');
@@ -226,29 +197,31 @@
         let score = 0;
         let spanishVoice = null, correctCount = 0, audioCtx, selectedNameElement = null;
         let availableNames = [], visibleNames = [];
-        let currentRange = '0-9'; // Rango por defecto
-        let activeNumberMap = {}; // Mapa de números activo
+        let currentRange = '0-9';
+        let activeNumberMap = {};
 
         function initializeGame() {
             setupControlListeners();
-            setupKeyListeners();
             setupRangeSelector();
             resetGame();
             loadVoices();
             document.body.addEventListener('click', initAudioContext, { once: true });
         }
         
-        // --- CAMBIO #2: La función resetGame ahora usa el rango seleccionado ---
+        // --- CAMBIO #1: resetGame AHORA GENERA EL TECLADO DINÁMICAMENTE ---
         function resetGame() {
             activeNumberMap = allNumberMaps[currentRange];
-            
-            keys.forEach(key => {
-                key.classList.remove('correct', 'shake', 'hint-highlight');
-                key.textContent = key.dataset.number;
-                key.style.pointerEvents = 'auto';
-                delete key.dataset.correctNumber; // Limpiar el número correcto guardado
-            });
-            
+            keypadContainer.innerHTML = ''; // Limpiar el teclado anterior
+
+            // Crear las nuevas teclas
+            const numbers = Object.keys(activeNumberMap);
+            if (currentRange === '0-9') { // Mantener el orden visual para 0-9
+                const order = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+                order.forEach(num => createKey(num));
+            } else {
+                numbers.forEach(num => createKey(num));
+            }
+
             const allNames = Object.values(activeNumberMap).map(num => num.name);
             allNames.sort(() => Math.random() - 0.5);
             availableNames = [...allNames];
@@ -271,21 +244,36 @@
             updateCharacter('neutral');
         }
 
+        // --- NUEVO: Función para crear una tecla individual y añadir sus listeners ---
+        function createKey(number) {
+            const key = document.createElement('div');
+            key.className = 'key';
+            key.id = `key-${number}`;
+            key.dataset.number = number;
+            key.textContent = number;
+
+            if (number === '0') {
+                key.classList.add('key-pos-0'); // Clase para posicionar el 0
+            }
+
+            key.addEventListener('click', handleKeyClick);
+            key.addEventListener('dragover', (e) => { e.preventDefault(); key.classList.add('drag-over'); });
+            key.addEventListener('dragleave', () => { key.classList.remove('drag-over', 'shake'); });
+            key.addEventListener('drop', handleDrop);
+            
+            keypadContainer.appendChild(key);
+        }
+
         function getNumberFromName(name) {
             return Object.keys(activeNumberMap).find(num => activeNumberMap[num].name === name);
         }
 
         function checkCompletion() {
             if (correctCount === Object.keys(activeNumberMap).length) {
-                let message = '';
-                let emoji = '';
-                if (score >= 8) {
-                    message = '¡Muy bien! ¡Magnífico! ¡Excelente!'; emoji = '🥳';
-                } else if (score >= 4) {
-                    message = '¡Puedes mejorar! Repite la actividad'; emoji = '😐';
-                } else {
-                    message = 'Practica más, repite la actividad'; emoji = '😟';
-                }
+                let message = '', emoji = '';
+                if (score >= 8) { message = '¡Muy bien! ¡Magnífico!'; emoji = '🥳';
+                } else if (score >= 4) { message = '¡Puedes mejorar!'; emoji = '😐';
+                } else { message = 'Practica más'; emoji = '😟'; }
                 document.getElementById('victory-message').innerHTML = `${message} <br> ${emoji}`;
                 speakText(message, true);
                 victoryModal.classList.add('visible');
@@ -312,7 +300,6 @@
 
         function updateProgress(){progressTitle.textContent=`Aciertos: ${correctCount} / ${Object.keys(activeNumberMap).length}`}
         
-        // --- CAMBIO #3: placeNumber ahora guarda el número completo y usa su texto ---
         function placeNumber(key, nameData) {
             playSuccessSound();
             const placedElement = document.getElementById(`name-${nameData.replace(/\s/g, '-')}`);
@@ -320,7 +307,7 @@
 
             key.textContent = activeNumberMap[fullNumber].text;
             key.classList.add('correct');
-            key.dataset.correctNumber = fullNumber; // Guardar el número completo
+            key.style.pointerEvents = 'none'; // Desactivar la tecla
             
             if (placedElement) { placedElement.classList.add('hidden') }
             const indexToRemove = visibleNames.indexOf(nameData);
@@ -344,8 +331,7 @@
 
         function showScoreChange(amount) {
             const changeElement = document.createElement('div');
-            const sign = amount > 0 ? '+' : '';
-            changeElement.textContent = `${sign}${amount}`;
+            changeElement.textContent = `${amount > 0 ? '+' : ''}${amount}`;
             changeElement.className = `score-change ${amount > 0 ? 'score-plus' : 'score-minus'}`;
             const scoreRect = scoreDisplay.getBoundingClientRect();
             document.body.appendChild(changeElement);
@@ -357,17 +343,11 @@
         function updateCharacter(state) {
             let emoji = '😐';
             characterStatus.style.transform = 'scale(1)';
-            if (state === 'happy') {
-                emoji = '😊'; characterStatus.style.transform = 'scale(1.25) rotate(8deg)';
-            } else if (state === 'sad') {
-                emoji = '😟'; characterStatus.style.transform = 'scale(0.9) rotate(-5deg)';
-            }
+            if (state === 'happy') { emoji = '😊'; characterStatus.style.transform = 'scale(1.25) rotate(8deg)';
+            } else if (state === 'sad') { emoji = '😟'; characterStatus.style.transform = 'scale(0.9) rotate(-5deg)';}
             characterStatus.textContent = emoji;
             if (state !== 'neutral') {
-                setTimeout(() => {
-                    characterStatus.textContent = '😐';
-                    characterStatus.style.transform = 'scale(1) rotate(0deg)';
-                }, 1500);
+                setTimeout(() => { characterStatus.textContent = '😐'; characterStatus.style.transform = 'scale(1) rotate(0deg)'; }, 1500);
             }
         }
 
@@ -379,16 +359,15 @@
             speakText('Intenta de nuevo');
         }
         
-        // --- CAMBIO #4: giveHint adaptado a la nueva lógica ---
+        // --- CAMBIO #2: giveHint ahora busca el ID de la tecla correcta ---
         function giveHint(){
-            if(visibleNames.length===0) return;
-            hintButton.disabled=true;
-            const randomVisibleName = visibleNames[Math.floor(Math.random()*visibleNames.length)];
+            if(visibleNames.length === 0) return;
+            hintButton.disabled = true;
+            const randomVisibleName = visibleNames[Math.floor(Math.random() * visibleNames.length)];
             const nameElement = document.getElementById(`name-${randomVisibleName.replace(/\s/g, '-')}`);
             
             const correctFullNumber = getNumberFromName(randomVisibleName);
-            const lastDigit = correctFullNumber % 10;
-            const keyElement = document.getElementById(`key-${lastDigit}`);
+            const keyElement = document.getElementById(`key-${correctFullNumber}`);
 
             if(nameElement && keyElement && !keyElement.classList.contains('correct')){
                 nameElement.classList.add('hint-highlight');
@@ -408,11 +387,9 @@
         function playSuccessSound(){if(!audioCtx)return;const now=audioCtx.currentTime,gainNode=audioCtx.createGain();gainNode.connect(audioCtx.destination);gainNode.gain.setValueAtTime(.2,now);const osc1=audioCtx.createOscillator();osc1.type='triangle';osc1.frequency.setValueAtTime(523.25,now);osc1.connect(gainNode);const osc2=audioCtx.createOscillator();osc2.type='triangle';osc2.frequency.setValueAtTime(659.25,now+.1);osc2.connect(gainNode);osc1.start(now);osc2.start(now+.1);gainNode.gain.setTargetAtTime(0,now+.2,.015);osc1.stop(now+.3);osc2.stop(now+.3)}
         function speakText(text,isAnimated=false){const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';if(spanishVoice)u.voice=spanishVoice;if(navigator.platform.toUpperCase().indexOf('MAC')>=0&&!isAnimated)u.rate=.8;if(isAnimated){u.pitch=1.2;u.rate=1.1}window.speechSynthesis.speak(u)}
         function loadVoices(){const s=()=>{const v=window.speechSynthesis.getVoices();spanishVoice=v.find(v=>v.name==='Google español')||v.find(v=>v.lang.startsWith('es'))};s();if(window.speechSynthesis.onvoiceschanged!==undefined){window.speechSynthesis.onvoiceschanged=s}}
-        function setupKeyListeners(){keys.forEach(key=>{key.addEventListener('click',handleKeyClick);key.addEventListener('dragover',(e)=>{e.preventDefault();key.classList.add('drag-over')});key.addEventListener('dragleave',()=>{key.classList.remove('drag-over','shake')});key.addEventListener('drop',handleDrop)})}
         function setupDragListeners(element){element.addEventListener('dragstart',(e)=>{e.dataTransfer.setData('text/plain',element.dataset.name)})}
         function setupControlListeners(){resetButton.addEventListener('click',resetGame);gameResetButton.addEventListener('click',resetGame);hintButton.addEventListener('click',giveHint);instructionsToggle.addEventListener('click',()=>instructionsModal.classList.add('visible'));instructionsModal.addEventListener('click',()=>instructionsModal.classList.remove('visible'))}
         
-        // --- NUEVO: Función para configurar los botones de rango ---
         function setupRangeSelector() {
             rangeButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -426,22 +403,16 @@
         
         function handleNameClick(event){event.stopPropagation();const t=event.currentTarget;if(selectedNameElement===t){selectedNameElement.classList.remove('selected');selectedNameElement=null}else{if(selectedNameElement)selectedNameElement.classList.remove('selected');t.classList.add('selected');selectedNameElement=t}}
         
-        // --- CAMBIO #5: handleKeyClick adaptado para la nueva lógica ---
+        // --- CAMBIO #3: handleKeyClick ahora hace una comparación directa ---
         function handleKeyClick(event) {
             const key = event.currentTarget;
-            const keyDigit = key.dataset.number;
-
-            if (key.classList.contains('correct')) {
-                const correctNumData = activeNumberMap[key.dataset.correctNumber];
-                if (correctNumData) speakText(correctNumData.name);
-                return;
-            }
+            if (key.classList.contains('correct')) { return; }
 
             if (selectedNameElement) {
                 const selectedName = selectedNameElement.dataset.name;
                 const fullNumber = getNumberFromName(selectedName);
 
-                if (fullNumber % 10 == keyDigit) { // Comprobar la última cifra
+                if (fullNumber === key.dataset.number) { // Comparación directa
                     placeNumber(key, selectedName);
                 } else {
                     key.classList.add('shake');
@@ -453,16 +424,15 @@
             }
         }
 
-        // --- CAMBIO #6: handleDrop adaptado para la nueva lógica ---
+        // --- CAMBIO #4: handleDrop ahora hace una comparación directa ---
         function handleDrop(event) {
             event.preventDefault();
             const key = event.currentTarget;
             key.classList.remove('drag-over');
             const droppedName = event.dataTransfer.getData('text/plain');
             const fullNumber = getNumberFromName(droppedName);
-            const keyDigit = key.dataset.number;
-
-            if (fullNumber % 10 == keyDigit) { // Comprobar la última cifra
+            
+            if (fullNumber === key.dataset.number) { // Comparación directa
                 placeNumber(key, droppedName);
             } else {
                 key.classList.add('shake');
