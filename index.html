@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Números en Español - Teléfono Interactivo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Roboto Slab', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #e0d8c7;
+            margin: 0;
+            gap: 60px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .phone {
+            width: 320px;
+            background-color: #c7b299;
+            border-radius: 15px;
+            border: 2px solid #5a4a3a;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.3), inset 0 0 15px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .key {
+            height: 70px;
+            background: linear-gradient(145deg, #e6cba6, #bfa886);
+            color: #5a4a3a;
+            border-radius: 10px;
+            border: 2px solid #a38f78;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2), inset 0 0 5px rgba(255,255,255,0.3);
+            user-select: none;
+        }
+
+        .key:hover {
+            border-color: #7a6a5a;
+        }
+
+        .key:active {
+            transform: scale(0.95);
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2), inset 0 0 8px rgba(0,0,0,0.1);
+        }
+        
+        .key.drag-over {
+            border-color: #007bff;
+            transform: scale(1.05);
+        }
+        
+        .key.correct {
+            background: #28a745;
+            color: white;
+            border-color: #1e7e34;
+            font-size: 1.5em;
+            padding: 5px;
+            line-height: 1.2;
+            pointer-events: none;
+        }
+
+        #key-0 {
+            grid-column: 2 / 3;
+        }
+
+        .assignment-panel {
+            width: 250px;
+            padding: 20px;
+            background-color: #d1c5b4;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+            border: 2px solid #5a4a3a;
+        }
+
+        .assignment-panel h3 {
+            text-align: center;
+            margin-top: 0;
+            color: #5a4a3a;
+            border-bottom: 2px solid #a38f78;
+            padding-bottom: 10px;
+        }
+
+        .draggable-name {
+            background-color: #8c785d;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            cursor: grab;
+            box-shadow: 3px 3px 7px rgba(0,0,0,0.2);
+            transition: opacity 0.3s;
+        }
+
+        .draggable-name:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone">
+        <div class="keypad">
+            <div class="key" id="key-1" data-number="1">1</div>
+            <div class="key" id="key-2" data-number="2">2</div>
+            <div class="key" id="key-3" data-number="3">3</div>
+            <div class="key" id="key-4" data-number="4">4</div>
+            <div class="key" id="key-5" data-number="5">5</div>
+            <div class="key" id="key-6" data-number="6">6</div>
+            <div class="key" id="key-7" data-number="7">7</div>
+            <div class="key" id="key-8" data-number="8">8</div>
+            <div class="key" id="key-9" data-number="9">9</div>
+            <div class="key" id="key-0" data-number="0">0</div>
+        </div>
+    </div>
+
+    <div class="assignment-panel">
+        <h3>Arrastra el nombre a su número</h3>
+        <div id="name-list">
+            <div class="draggable-name" id="name-cero" data-name="cero" draggable="true">CERO</div>
+            <div class="draggable-name" id="name-uno" data-name="uno" draggable="true">UNO</div>
+            <div class="draggable-name" id="name-dos" data-name="dos" draggable="true">DOS</div>
+            <div class="draggable-name" id="name-tres" data-name="tres" draggable="true">TRES</div>
+            <div class="draggable-name" id="name-cuatro" data-name="cuatro" draggable="true">CUATRO</div>
+            <div class="draggable-name" id="name-cinco" data-name="cinco" draggable="true">CINCO</div>
+            <div class="draggable-name" id="name-seis" data-name="seis" draggable="true">SEIS</div>
+            <div class="draggable-name" id="name-siete" data-name="siete" draggable="true">SIETE</div>
+            <div class="draggable-name" id="name-ocho" data-name="ocho" draggable="true">OCHO</div>
+            <div class="draggable-name" id="name-nueve" data-name="nueve" draggable="true">NUEVE</div>
+        </div>
+    </div>
+
+    <script>
+        const numberMap = {
+            '0': { name: 'cero' }, '1': { name: 'uno' }, '2': { name: 'dos' },
+            '3': { name: 'tres' }, '4': { name: 'cuatro' }, '5': { name: 'cinco' },
+            '6': { name: 'seis' }, '7': { name: 'siete' }, '8': { name: 'ocho' },
+            '9': { name: 'nueve' }
+        };
+
+        const keys = document.querySelectorAll('.key');
+        const draggableNames = document.querySelectorAll('.draggable-name');
+        let spanishVoice = null;
+
+        function loadVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            spanishVoice = voices.find(voice => voice.name === 'Google español')
+                           || voices.find(voice => voice.lang.startsWith('es'));
+        }
+
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+        loadVoices();
+
+        // 1. Funcionalidad de SÍNTESIS DE VOZ al hacer clic
+        keys.forEach(key => {
+            key.addEventListener('click', () => {
+                const number = key.dataset.number;
+                const numberName = numberMap[number]?.name;
+
+                if (numberName) {
+                    const utterance = new SpeechSynthesisUtterance(numberName);
+                    utterance.lang = 'es-ES';
+                    if (spanishVoice) {
+                        utterance.voice = spanishVoice;
+                    }
+
+                    if (navigator.platform.toUpperCase().indexOf('MAC') >= 0) {
+                        utterance.rate = 0.8; // Más lento en Mac (el valor normal es 1)
+                    }
+
+                    window.speechSynthesis.speak(utterance);
+                }
+            });
+        });
+
+        // 2. Funcionalidad de Arrastrar y Soltar
+        draggableNames.forEach(nameElem => {
+            nameElem.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', nameElem.dataset.name);
+                e.dataTransfer.setData('element-id', nameElem.id);
+                setTimeout(() => { nameElem.style.opacity = '0.5'; }, 0);
+            });
+            
+            nameElem.addEventListener('dragend', (e) => {
+                e.target.style.opacity = '1';
+            });
+        });
+
+        keys.forEach(key => {
+            key.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                key.classList.add('drag-over');
+            });
+
+            key.addEventListener('dragleave', () => {
+                key.classList.remove('drag-over');
+            });
+
+            key.addEventListener('drop', (e) => {
+                e.preventDefault();
+                key.classList.remove('drag-over');
+
+                const keyNumber = key.dataset.number;
+                const droppedName = e.dataTransfer.getData('text/plain');
+                const draggedElementId = e.dataTransfer.getData('element-id');
+                const draggedElement = document.getElementById(draggedElementId);
+
+                if (numberMap[keyNumber]?.name === droppedName) {
+                    key.textContent = draggedElement.textContent;
+                    key.classList.add('correct');
+                    if (draggedElement) {
+                        draggedElement.style.display = 'none';
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
