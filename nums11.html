@@ -151,7 +151,6 @@
 
     <script>
         const numberMap={'0':{name:'cero',text:'CERO'},'1':{name:'uno',text:'UNO'},'2':{name:'dos',text:'DOS'},'3':{name:'tres',text:'TRES'},'4':{name:'cuatro',text:'CUATRO'},'5':{name:'cinco',text:'CINCO'},'6':{name:'seis',text:'SEIS'},'7':{name:'siete',text:'SIETE'},'8':{name:'ocho',text:'OCHO'},'9':{name:'nueve',text:'NUEVE'}};
-        const dtmfFrequencies={'1':{f1:697,f2:1209},'2':{f1:697,f2:1336},'3':{f1:697,f2:1477},'4':{f1:770,f2:1209},'5':{f1:770,f2:1336},'6':{f1:770,f2:1477},'7':{f1:852,f2:1209},'8':{f1:852,f2:1336},'9':{f1:852,f2:1477},'0':{f1:941,f2:1336}};
         
         const keys=document.querySelectorAll('.key');
         const resetButton=document.getElementById('resetButton');
@@ -172,46 +171,54 @@
         function addNextNameToVisibleList(){if(availableNames.length===0)return;const nameToAdd=availableNames.shift();visibleNames.push(nameToAdd);const num=Object.values(numberMap).find(n=>n.name===nameToAdd);const div=document.createElement('div');div.className='draggable-name';div.id=`name-${num.name}`;div.dataset.name=num.name;div.draggable=true;div.textContent=num.text;setupDragListeners(div);div.addEventListener('click',handleNameClick);nameListContainer.appendChild(div)}
         function updateProgress(){progressTitle.textContent=`Aciertos: ${correctCount} / ${keys.length}`}
         function checkCompletion(){if(correctCount===keys.length){speakText('¡Felicidades!',true);victoryModal.classList.add('visible');hintButton.disabled=true}}
-        function placeNumber(key,nameData){playSuccessSound();const placedElement=document.getElementById(`name-${nameData}`);key.textContent=numberMap[key.dataset.number].text;key.classList.add('correct');if(placedElement){placedElement.classList.add('hidden')}const indexToRemove=visibleNames.indexOf(nameData);if(indexToRemove>-1){visibleNames.splice(indexToRemove,1)}setTimeout(()=>{if(placedElement)placedElement.remove();addNextNameToVisibleList()},400);correctCount++;updateProgress();checkCompletion()}
         
-        function giveHint() {
-            if (visibleNames.length === 0) return;
-            hintButton.disabled = true; 
-            const randomVisibleName = visibleNames[Math.floor(Math.random() * visibleNames.length)];
-            const nameElement = document.getElementById(`name-${randomVisibleName}`);
-            
-            const correctNumber = Object.keys(numberMap).find(key => numberMap[key].name === randomVisibleName);
-            const keyElement = document.getElementById(`key-${correctNumber}`);
-
-            if (nameElement && keyElement && !keyElement.classList.contains('correct')) {
-                nameElement.classList.add('hint-highlight');
-                keyElement.classList.add('hint-highlight');
-
-                setTimeout(() => {
-                    nameElement.classList.remove('hint-highlight');
-                    keyElement.classList.remove('hint-highlight');
-                    placeNumber(keyElement, randomVisibleName);
-                    if (correctCount < keys.length) {
-                        hintButton.disabled = false;
-                    }
-                }, 1000);
-            } else {
-                 hintButton.disabled = false;
-            }
+        function placeNumber(key,nameData){
+            speakText(nameData); // NUEVO: Se dice el nombre del número al acertar.
+            playSuccessSound();
+            const placedElement=document.getElementById(`name-${nameData}`);
+            key.textContent=numberMap[key.dataset.number].text;
+            key.classList.add('correct');
+            if(placedElement){placedElement.classList.add('hidden')}
+            const indexToRemove=visibleNames.indexOf(nameData);
+            if(indexToRemove>-1){visibleNames.splice(indexToRemove,1)}
+            setTimeout(()=>{if(placedElement)placedElement.remove();addNextNameToVisibleList()},400);
+            correctCount++;
+            updateProgress();
+            checkCompletion();
         }
-
+        
+        function giveHint(){if(visibleNames.length===0)return;hintButton.disabled=true;const randomVisibleName=visibleNames[Math.floor(Math.random()*visibleNames.length)];const nameElement=document.getElementById(`name-${randomVisibleName}`);const correctNumber=Object.keys(numberMap).find(key=>numberMap[key].name===randomVisibleName);const keyElement=document.getElementById(`key-${correctNumber}`);if(nameElement&&keyElement&&!keyElement.classList.contains('correct')){nameElement.classList.add('hint-highlight');keyElement.classList.add('hint-highlight');setTimeout(()=>{nameElement.classList.remove('hint-highlight');keyElement.classList.remove('hint-highlight');placeNumber(keyElement,randomVisibleName);if(correctCount<keys.length){hintButton.disabled=false}},1000)}else{hintButton.disabled=false}}
+        
         function initAudioContext(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
         function playSuccessSound(){if(!audioCtx)return;const now=audioCtx.currentTime,gainNode=audioCtx.createGain();gainNode.connect(audioCtx.destination);gainNode.gain.setValueAtTime(0.2,now);const osc1=audioCtx.createOscillator();osc1.type='triangle';osc1.frequency.setValueAtTime(523.25,now);osc1.connect(gainNode);const osc2=audioCtx.createOscillator();osc2.type='triangle';osc2.frequency.setValueAtTime(659.25,now+0.1);osc2.connect(gainNode);osc1.start(now);osc2.start(now+0.1);gainNode.gain.setTargetAtTime(0,now+0.2,0.015);osc1.stop(now+0.3);osc2.stop(now+0.3)}
-        function playDTMFTone(num){if(!audioCtx||!dtmfFrequencies[num])return;const f=dtmfFrequencies[num],g=audioCtx.createGain(),o1=audioCtx.createOscillator(),o2=audioCtx.createOscillator();g.gain.setValueAtTime(0.25,audioCtx.currentTime);g.connect(audioCtx.destination);o1.type=o2.type='sine';o1.frequency.setValueAtTime(f.f1,audioCtx.currentTime);o2.frequency.setValueAtTime(f.f2,audioCtx.currentTime);o1.connect(g);o2.connect(g);o1.start();o2.start();o1.stop(audioCtx.currentTime+0.15);o2.stop(audioCtx.currentTime+0.15)}
         function speakText(text,isAnimated=false){const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';if(spanishVoice)u.voice=spanishVoice;if(navigator.platform.toUpperCase().indexOf('MAC')>=0&&!isAnimated)u.rate=0.8;if(isAnimated){u.pitch=1.2;u.rate=1.1}window.speechSynthesis.speak(u)}
         function loadVoices(){const s=()=>{const v=window.speechSynthesis.getVoices();spanishVoice=v.find(v=>v.name==='Google español')||v.find(v=>v.lang.startsWith('es'))};s();if(window.speechSynthesis.onvoiceschanged!==undefined){window.speechSynthesis.onvoiceschanged=s}}
         
         function setupKeyListeners(){keys.forEach(key=>{key.addEventListener('click',handleKeyClick);key.addEventListener('dragover',(e)=>{e.preventDefault();key.classList.add('drag-over')});key.addEventListener('dragleave',()=>{key.classList.remove('drag-over','shake')});key.addEventListener('drop',handleDrop)})}
         function setupDragListeners(element){element.addEventListener('dragstart',(e)=>{e.dataTransfer.setData('text/plain',element.dataset.name)})}
-        function setupControlListeners(){resetButton.addEventListener('click',resetGame);gameResetButton.addEventListener('click',resetGame);hintButton.addEventListener('click',giveHint);instructionsToggle.addEventListener('click',()=>instructionsModal.classList.add('visible'));instructionsModal.addEventListener('click', (e) => { if (e.target === instructionsModal) { instructionsModal.classList.remove('visible'); } });}
+        function setupControlListeners(){resetButton.addEventListener('click',resetGame);gameResetButton.addEventListener('click',resetGame);hintButton.addEventListener('click',giveHint);instructionsToggle.addEventListener('click',()=>instructionsModal.classList.add('visible'));instructionsModal.addEventListener('click',(e)=>{if(e.target===instructionsModal){instructionsModal.classList.remove('visible')}})}
 
         function handleNameClick(event){event.stopPropagation();const t=event.currentTarget;if(selectedNameElement===t){selectedNameElement.classList.remove('selected');selectedNameElement=null}else{if(selectedNameElement)selectedNameElement.classList.remove('selected');t.classList.add('selected');selectedNameElement=t}}
-        function handleKeyClick(event){const key=event.currentTarget;const num=key.dataset.number;playDTMFTone(num);if(selectedNameElement){const selName=selectedNameElement.dataset.name;if(numberMap[num]?.name===selName){placeNumber(key,selName)}else{key.classList.add('shake');speakText('Intenta de nuevo')}selectedNameElement.classList.remove('selected');selectedNameElement=null}else if(!key.classList.contains('correct')){speakText(numberMap[num]?.name)}}
+        
+        function handleKeyClick(event){
+            const key=event.currentTarget;
+            const num=key.dataset.number;
+            // Se elimina el bip DTMF de esta sección.
+            if(selectedNameElement){
+                const selName=selectedNameElement.dataset.name;
+                if(numberMap[num]?.name===selName){
+                    placeNumber(key,selName);
+                } else {
+                    key.classList.add('shake');
+                    speakText('Intenta de nuevo');
+                }
+                selectedNameElement.classList.remove('selected');
+                selectedNameElement=null;
+            } else if(!key.classList.contains('correct')){
+                speakText(numberMap[num]?.name);
+            }
+        }
+
         function handleDrop(event){event.preventDefault();const key=event.currentTarget;key.classList.remove('drag-over');const droppedName=event.dataTransfer.getData('text/plain');if(numberMap[key.dataset.number]?.name===droppedName){placeNumber(key,droppedName)}else{key.classList.add('shake');speakText('Intenta de nuevo')}}
         
         document.addEventListener('DOMContentLoaded',initializeGame);
