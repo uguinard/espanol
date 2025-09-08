@@ -3,247 +3,444 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Numbers in Spanish - Interactive Keypad</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Burbujas de Voz Múltiple</title>
     <style>
         :root {
-            --accent-color: #007bff;
-            --correct-color: #28a745;
-            --error-color: #dc3545;
-            --card-bg: rgba(255, 255, 255, 0.2);
-            --border-color: rgba(255, 255, 255, 0.3);
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --primary-color: #007aff;
+            --text-color: #333;
+            --text-light-color: #fff;
+            --danger-color: #ff3b30;
+            --safe-color: #34c759;
+            --card-bg: rgba(255, 255, 255, 0.6);
             --shadow-color: rgba(0, 0, 0, 0.1);
-            --text-color: #1a1a1a;
-            --text-light-color: #f0f0f0;
+            --blur-amount: 10px;
         }
-
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-
+        *, *::before, *::after { box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #game-wrapper {
+            height: 95vh;
+            width: 95vw;
+            max-width: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #game-container {
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            position: relative;
+            box-shadow: 0 8px 32px 0 var(--shadow-color);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            overflow: hidden;
+        }
+        .numero { 
+            position: absolute; 
+            font-weight: 700; 
+            color: var(--text-color); 
+            background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+            border-radius: 50%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
+            transition: transform 0.3s ease, background-color 0.5s linear; 
+            border: 1px solid rgba(255,255,255,0.8);
+        }
+        .numero.exploding { animation: explode 0.5s forwards; }
+        @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+
+        #ui-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0;
-            padding: 20px;
+            gap: 10px;
+            background: linear-gradient(to top, rgba(0,0,0,0.1), transparent);
         }
-
-        #instructions-container {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 15px 25px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 8px 32px 0 var(--shadow-color);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: opacity 0.5s ease-out;
-        }
-
-        #instructions-container p {
-            margin: 5px 0;
-            font-weight: 500;
-        }
-        #instructions-container .lang-es { color: var(--text-light-color); }
-        #instructions-container .lang-en { color: #d1c8e1; font-size: 0.9em; }
-
-        .game-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 40px;
-            flex-wrap: wrap;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 8px 32px 0 var(--shadow-color);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-
-        .key {
-            width: 75px;
-            height: 75px;
-            background: rgba(255, 255, 255, 0.25);
-            color: var(--text-color);
+        
+        #voice-input-button {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
             border-radius: 50%;
-            border: 1px solid transparent;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 2.5rem;
+            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 2.2em;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        #voice-input-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+        }
+        #voice-input-button:disabled {
+            cursor: not-allowed;
+            background-color: #999;
+        }
+        #voice-input-button.listening {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(0, 122, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0); }
+        }
+        
+        #ui-bar p {
+            margin: 0;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease, background-color 0.4s, color 0.4s;
-            user-select: none;
+            color: var(--text-color);
+            opacity: 0.8;
         }
 
-        .key:active { transform: scale(0.95); }
-        
-        .shake { animation: shake 0.5s ease-in-out; border-color: var(--error-color) !important; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
-
-        .key.drag-over { border-color: var(--accent-color); transform: scale(1.05); }
-        .key.correct {
-            background: var(--correct-color);
-            color: white;
-            font-size: 1.2em;
-            font-weight: 700;
-            line-height: 1.2;
-            pointer-events: none;
+        #info-bar {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            padding: 0 30px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-shadow: 1px 1px 3px rgba(255,255,255,0.5);
         }
-
-        #key-0 { grid-column: 2 / 3; }
-        
-        .assignment-panel { width: 250px; }
-        .assignment-panel h3, .assignment-panel p { text-align: center; margin-top: 0; color: var(--text-light-color); }
-        .assignment-panel h3 { padding-bottom: 10px; margin-bottom: 10px; font-size: 1.3em; }
-
-        #name-list { min-height: 295px; }
-        .draggable-name {
-            background: rgba(255, 255, 255, 0.25);
-            color: var(--text-light-color);
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 10px;
+        .screen {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--card-bg);
+            backdrop-filter: blur(var(--blur-amount));
+            -webkit-backdrop-filter: blur(var(--blur-amount));
+            color: var(--text-color);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 30px;
             text-align: center;
-            font-size: 1.2em;
-            font-weight: 500;
-            cursor: grab;
-            transition: opacity 0.4s, transform 0.4s, box-shadow 0.2s, background-color 0.2s;
-            border: 2px solid transparent;
         }
-        
-        .draggable-name.selected {
-            background: var(--accent-color);
-            box-shadow: 0 0 15px 0 var(--accent-color);
-            border-color: rgba(255, 255, 255, 0.8);
-            transform: scale(1.05);
-        }
-
-        .draggable-name.hidden { opacity: 0; transform: scale(0.5); pointer-events: none; margin-bottom: -55px; }
-
-        #victoryModal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-            display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease-in-out; z-index: 1000;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-        }
-        
-        #victoryModal.visible { opacity: 1; pointer-events: auto; }
-        
-        .modal-content {
-            background: rgba(255, 255, 255, 0.7);
-            padding: 30px 40px; border-radius: 20px;
-            text-align: center; color: #333;
-            box-shadow: 0 8px 32px 0 var(--shadow-color);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            transform: scale(0.9);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        #victoryModal.visible .modal-content { transform: scale(1); }
-        .modal-content h2 { margin: 0 0 20px 0; font-size: 2.5em; color: var(--correct-color); }
-        
-        #resetButton {
-            padding: 12px 25px; font-family: inherit; font-size: 1.2em;
+        #start-screen { display: flex; }
+        .screen h2 { font-size: 2.5rem; margin-bottom: 15px; }
+        .screen p { font-size: 1.2rem; max-width: 500px; margin-bottom: 25px; }
+        .screen button {
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-family: 'Poppins', sans-serif;
             font-weight: 600;
-            color: white; background-color: var(--accent-color);
-            border: none; border-radius: 12px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 20px;
+            background-color: var(--primary-color);
+            color: var(--text-light-color);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
         }
+        .screen button:hover { transform: translateY(-3px); box-shadow: 0 7px 20px rgba(0, 122, 255, 0.4); }
+        .screen .button-group { display: flex; gap: 20px; }
+        .difficulty-selector { margin: 20px 0; }
+        .difficulty-selector select { font-size: 1rem; padding: 10px 15px; border-radius: 10px; border: 1px solid #ccc; background-color: #fff; }
+        #high-score-display { font-size: 1.2rem; font-weight: 600; color: var(--primary-color); }
+        #review-screen-content { display: flex; gap: 30px; width: 100%; max-width: 800px; height: 60%; }
+        .review-column { flex: 1; background-color: rgba(255,255,255,0.5); border-radius: 15px; padding: 20px; overflow-y: auto; }
+        .review-column h3 { margin-top: 0; padding-bottom: 10px; font-size: 1.5rem; }
+        .review-column ul { list-style: none; padding: 0; }
+        #review-correct-list li { background: var(--safe-color); color: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; text-align: center; font-weight: 600; }
+        #review-incorrect-list li { background: var(--danger-color); color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+        .review-item-number { font-size: 1.5rem; font-weight: 700; }
+        .review-item-text { font-style: italic; font-size: 1.1rem; }
+        .speak-button { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: white; vertical-align: middle; transition: transform 0.2s; }
+        .speak-button:hover { transform: scale(1.2); }
     </style>
 </head>
 <body>
-
-    <div id="instructions-container">
-        <p class="lang-es"><strong>Objetivo:</strong> Aprende los números en español. Arrastra o selecciona cada nombre y colócalo en su tecla correspondiente.</p>
-        <p class="lang-en"><strong>Objective:</strong> Learn the numbers in Spanish. Drag or select each name and place it on its matching key.</p>
-    </div>
-
-    <div class="game-container">
-        <div class="card keypad-card">
-            <div class="keypad">
-                <div class="key" id="key-1" data-number="1">1</div><div class="key" id="key-2" data-number="2">2</div><div class="key" id="key-3" data-number="3">3</div>
-                <div class="key" id="key-4" data-number="4">4</div><div class="key" id="key-5" data-number="5">5</div><div class="key" id="key-6" data-number="6">6</div>
-                <div class="key" id="key-7" data-number="7">7</div><div class="key" id="key-8" data-number="8">8</div><div class="key" id="key-9" data-number="9">9</div>
-                <div class="key" id="key-0" data-number="0">0</div>
+    <div id="game-wrapper">
+        <div id="game-container">
+            <div id="info-bar">
+                <div id="score">Puntos: 0</div>
+                <div id="lives">Vidas: 3</div>
+            </div>
+            <div id="start-screen" class="screen">
+                <h2>Burbujas de Voz</h2>
+                <p>Observa los números en las burbujas y <b>dilos en voz alta</b> antes de que exploten.</p>
+                <div class="difficulty-selector">
+                    <label for="difficulty-select">Elige un nivel:</label>
+                    <select id="difficulty-select">
+                        <option value="a">Nivel A (0-10)</option>
+                        <option value="b" selected>Nivel B (0-20)</option>
+                        <option value="c">Nivel C (0-30)</option>
+                        <option value="d">Nivel D (Decenas)</option>
+                    </select>
+                </div>
+                <div id="high-score-display">Récord: 0</div>
+                <button id="start-button">Empezar a Jugar</button>
+            </div>
+            <div id="game-over-screen" class="screen">
+                <h2>Juego Terminado</h2>
+                <p id="final-score"></p>
+                <div class="button-group">
+                    <button id="review-button">Ver Resultados</button>
+                </div>
+            </div>
+            <div id="review-screen" class="screen">
+                <h2>Resultados y Práctica</h2>
+                <div id="review-screen-content">
+                    <div class="review-column">
+                        <h3 style="color: var(--safe-color);">Correctos</h3>
+                        <ul id="review-correct-list"></ul>
+                    </div>
+                    <div class="review-column">
+                        <h3 style="color: var(--danger-color);">A Repasar</h3>
+                        <ul id="review-incorrect-list"></ul>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button id="restart-from-review-button">Jugar de Nuevo</button>
+                    <button id="home-from-review-button">Ir al Inicio</button>
+                </div>
+            </div>
+            
+            <div id="ui-bar">
+                <button id="voice-input-button" title="Ingresar por voz">🎤</button>
+                <p>Presiona para hablar</p>
             </div>
         </div>
-        <div class="card names-card">
-            <div class="assignment-panel">
-                <h3 id="progress-title"></h3>
-                <div id="name-list"></div>
-            </div>
-        </div>
     </div>
+<script>
+    // --- CONFIGURACIÓN ---
+    const gameContainer = document.getElementById('game-container');
+    const scoreEl = document.getElementById('score'), livesEl = document.getElementById('lives');
+    const startScreen = document.getElementById('start-screen'), gameOverScreen = document.getElementById('game-over-screen');
+    const reviewScreen = document.getElementById('review-screen');
+    const startButton = document.getElementById('start-button'), restartButton = document.getElementById('restart-from-review-button');
+    const homeButton = document.getElementById('home-from-review-button');
+    const reviewButton = document.getElementById('review-button');
+    const finalScoreEl = document.getElementById('final-score'), difficultySelect = document.getElementById('difficulty-select');
+    const highScoreDisplay = document.getElementById('high-score-display');
+    const voiceInputButton = document.getElementById('voice-input-button');
+    const reviewCorrectList = document.getElementById('review-correct-list'), reviewIncorrectList = document.getElementById('review-incorrect-list');
+
+    const popSound = new Audio('https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3');
+    const explodeSound = new Audio('https://s3.amazonaws.com/freecodecamp/drums/punchy_kick_1.mp3');
+    popSound.volume = 0.5;
+    const backgroundMusic = new Audio('https://ianertson.com/apps/breakout/sounds/music.mp3');
+    backgroundMusic.loop = true;
+    backgroundMusic.volume = 0.2;
+
+    let score = 0, lives = 3, gameIsRunning = false;
+    let numbersOnScreen = [], spawnInterval;
+    let correctNumbersThisRound = [], incorrectNumbersThisRound = [];
+    let spawnTracker = {};
+    const difficultySettings = { a: { min: 0, max: 10 }, b: { min: 0, max: 20 }, c: { min: 0, max: 30 }, d: { type: 'tens', values: [10, 20, 30, 40, 50, 60, 70, 80, 90] } };
+    let currentDifficulty = 'b';
+    const BUBBLE_COLOR = { r: 255, g: 255, b: 255 }, DANGER_COLOR = { r: 255, g: 59, b: 48 };
+    const HIGH_SCORES_KEY = 'burbujasDictadoHighScores';
+    let highScores = { a: 0, b: 0, c: 0, d: 0 };
     
-    <div id="victoryModal">
-        <div class="modal-content">
-            <h2>¡Muy bien!<br>¡Felicidades! 🎉</h2>
-            <button id="resetButton">Jugar de Nuevo 🔁</button>
-        </div>
-    </div>
+    // --- FUNCIONES AUXILIARES ---
+    function numberToWords(n){const u=['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'],e=['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve'],d=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];if(n>=0&&n<10)return u[n];if(n<20)return e[n-10];if(n<30)return n===20?'veinte':'veinti'+u[n%10];if(n<100){const t=Math.floor(n/10),o=n%10;return d[t]+(o>0?' y '+u[o]:'')}return n.toString()}
+    function loadHighScores() { const s = localStorage.getItem(HIGH_SCORES_KEY); if (s) { highScores = JSON.parse(s); } updateHighScoreDisplay(); }
+    function updateHighScoreDisplay() { const d = difficultySelect.value; highScoreDisplay.textContent = `Récord: ${highScores[d] || 0}`; }
+    function saveHighScore() { if (score > highScores[currentDifficulty]) { highScores[currentDifficulty] = score; localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(highScores)); } }
 
-    <script>
-        const numberMap={'0':{name:'cero',text:'CERO'},'1':{name:'uno',text:'UNO'},'2':{name:'dos',text:'DOS'},'3':{name:'tres',text:'TRES'},'4':{name:'cuatro',text:'CUATRO'},'5':{name:'cinco',text:'CINCO'},'6':{name:'seis',text:'SEIS'},'7':{name:'siete',text:'SIETE'},'8':{name:'ocho',text:'OCHO'},'9':{name:'nueve',text:'NUEVE'}};
-        const dtmfFrequencies={'1':{f1:697,f2:1209},'2':{f1:697,f2:1336},'3':{f1:697,f2:1477},'4':{f1:770,f2:1209},'5':{f1:770,f2:1336},'6':{f1:770,f2:1477},'7':{f1:852,f2:1209},'8':{f1:852,f2:1336},'9':{f1:852,f2:1477},'0':{f1:941,f2:1336}};
-        
-        const keys=document.querySelectorAll('.key');
-        const resetButton=document.getElementById('resetButton');
-        const nameListContainer=document.getElementById('name-list');
-        const victoryModal=document.getElementById('victoryModal');
-        const progressTitle=document.getElementById('progress-title');
-        const instructionsContainer=document.getElementById('instructions-container');
-        
-        let spanishVoice=null,correctCount=0,audioCtx,selectedNameElement=null;
-        let availableNames = [];
-        let visibleNames = [];
+    // --- LÓGICA DE RECONOCIMIENTO DE VOZ ---
+    function setupSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            voiceInputButton.style.display = 'none';
+            console.warn("La API de Reconocimiento de Voz no es soportada en este navegador.");
+            return;
+        }
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'es-MX';
+        recognition.continuous = false;
+        recognition.interimResults = false;
 
-        function initializeGame(){setupKeyListeners();resetButton.addEventListener('click',resetGame);resetGame();loadVoices();document.body.addEventListener('click',initAudioContext,{once:true})}
-        function resetGame(){keys.forEach(key=>{key.classList.remove('correct','shake');key.textContent=key.dataset.number;key.style.pointerEvents='auto'});const allNames=Object.values(numberMap).map(num=>num.name);allNames.sort(()=>Math.random()-.5);availableNames=[...allNames];visibleNames=[];nameListContainer.innerHTML='';for(let i=0;i<5;i++){addNextNameToVisibleList()}correctCount=0;updateProgress();instructionsContainer.style.opacity=1;victoryModal.classList.remove('visible');if(selectedNameElement){selectedNameElement.classList.remove('selected');selectedNameElement=null}}
-        
-        function addNextNameToVisibleList(){if(availableNames.length===0)return;const nameToAdd=availableNames.shift();visibleNames.push(nameToAdd);const num=Object.values(numberMap).find(n=>n.name===nameToAdd);const div=document.createElement('div');div.className='draggable-name';div.id=`name-${num.name}`;div.dataset.name=num.name;div.draggable=true;div.textContent=num.text;setupDragListeners(div);div.addEventListener('click',handleNameClick);nameListContainer.appendChild(div)}
-        function updateProgress(){progressTitle.textContent=`Aciertos: ${correctCount} / ${keys.length}`;if(correctCount>=1){instructionsContainer.style.opacity=0}}
-        function checkCompletion(){if(correctCount===keys.length){speakText('¡Muy bien! ¡Felicidades!',true);victoryModal.classList.add('visible')}}
-        function placeNumber(key,nameData){playSuccessSound();const placedElement=document.getElementById(`name-${nameData}`);key.textContent=numberMap[key.dataset.number].text;key.classList.add('correct');if(placedElement){placedElement.classList.add('hidden')}const indexToRemove=visibleNames.indexOf(nameData);if(indexToRemove>-1){visibleNames.splice(indexToRemove,1)}setTimeout(()=>{if(placedElement)placedElement.remove();addNextNameToVisibleList()},400);correctCount++;updateProgress();checkCompletion()}
-        
-        function initAudioContext(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
-        function playSuccessSound(){if(!audioCtx)return;const now=audioCtx.currentTime,gainNode=audioCtx.createGain();gainNode.connect(audioCtx.destination);gainNode.gain.setValueAtTime(0.2,now);const osc1=audioCtx.createOscillator();osc1.type='triangle';osc1.frequency.setValueAtTime(523.25,now);osc1.connect(gainNode);const osc2=audioCtx.createOscillator();osc2.type='triangle';osc2.frequency.setValueAtTime(659.25,now+0.1);osc2.connect(gainNode);osc1.start(now);osc2.start(now+0.1);gainNode.gain.setTargetAtTime(0,now+0.2,0.015);osc1.stop(now+0.3);osc2.stop(now+0.3)}
-        function playDTMFTone(num){if(!audioCtx||!dtmfFrequencies[num])return;const f=dtmfFrequencies[num],g=audioCtx.createGain(),o1=audioCtx.createOscillator(),o2=audioCtx.createOscillator();g.gain.setValueAtTime(0.25,audioCtx.currentTime);g.connect(audioCtx.destination);o1.type=o2.type='sine';o1.frequency.setValueAtTime(f.f1,audioCtx.currentTime);o2.frequency.setValueAtTime(f.f2,audioCtx.currentTime);o1.connect(g);o2.connect(g);o1.start();o2.start();o1.stop(audioCtx.currentTime+0.15);o2.stop(audioCtx.currentTime+0.15)}
-        function speakText(text,isAnimated=false){const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';if(spanishVoice)u.voice=spanishVoice;if(navigator.platform.toUpperCase().indexOf('MAC')>=0&&!isAnimated)u.rate=0.8;if(isAnimated){u.pitch=1.2;u.rate=1.1}window.speechSynthesis.speak(u)}
-        function loadVoices(){const s=()=>{const v=window.speechSynthesis.getVoices();spanishVoice=v.find(v=>v.name==='Google español')||v.find(v=>v.lang.startsWith('es'))};s();if(window.speechSynthesis.onvoiceschanged!==undefined){window.speechSynthesis.onvoiceschanged=s}}
-        
-        function setupKeyListeners(){keys.forEach(key=>{key.addEventListener('click',handleKeyClick);key.addEventListener('dragover',(e)=>{e.preventDefault();key.classList.add('drag-over')});key.addEventListener('dragleave',()=>{key.classList.remove('drag-over','shake')});key.addEventListener('drop',handleDrop)})}
-        function setupDragListeners(element){element.addEventListener('dragstart',(e)=>{e.dataTransfer.setData('text/plain',element.dataset.name)})}
-        
-        function handleNameClick(event){const t=event.currentTarget;if(selectedNameElement===t){selectedNameElement.classList.remove('selected');selectedNameElement=null}else{if(selectedNameElement)selectedNameElement.classList.remove('selected');t.classList.add('selected');selectedNameElement=t}}
-        function handleKeyClick(event){const key=event.currentTarget;const num=key.dataset.number;playDTMFTone(num);if(selectedNameElement){const selName=selectedNameElement.dataset.name;if(numberMap[num]?.name===selName){placeNumber(key,selName)}else{key.classList.add('shake');speakText('Intenta de nuevo');}selectedNameElement.classList.remove('selected');selectedNameElement=null}else if(!key.classList.contains('correct')){speakText(numberMap[num]?.name)}}
-        function handleDrop(event){event.preventDefault();const key=event.currentTarget;key.classList.remove('drag-over');const droppedName=event.dataTransfer.getData('text/plain');if(numberMap[key.dataset.number]?.name===droppedName){placeNumber(key,droppedName)}else{key.classList.add('shake');speakText('Intenta de nuevo');}}
-        
-        document.addEventListener('DOMContentLoaded',initializeGame);
-    </script>
+        voiceInputButton.addEventListener('click', () => {
+            if (gameIsRunning) {
+                recognition.start();
+            }
+        });
 
+        recognition.onstart = () => {
+            voiceInputButton.classList.add('listening');
+            voiceInputButton.disabled = true;
+        };
+        
+        // --- LÓGICA MODIFICADA PARA ACEPTAR MÚLTIPLES NÚMEROS ---
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript.toLowerCase();
+            
+            // Itera sobre una copia de las burbujas en pantalla
+            [...numbersOnScreen].forEach(num => {
+                if (num.saved) return; // Si ya fue acertada, la ignora
+
+                const numAsWord = numberToWords(num.value);
+                
+                // Si la transcripción de la voz incluye el nombre del número, se considera un acierto
+                if (transcript.includes(numAsWord)) {
+                    saveNumber(num);
+                }
+            });
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Error en el reconocimiento de voz:", event.error);
+            alert("Hubo un error con el micrófono. Asegúrate de darle permiso.");
+        };
+
+        recognition.onend = () => {
+            voiceInputButton.classList.remove('listening');
+            voiceInputButton.disabled = false;
+        };
+    }
+
+    // --- LÓGICA PRINCIPAL DEL JUEGO ---
+    function startGame() {
+        score = 0; lives = 3; numbersOnScreen = [];
+        correctNumbersThisRound = []; incorrectNumbersThisRound = [];
+        spawnTracker = {};
+        currentDifficulty = difficultySelect.value;
+        updateUI();
+        startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; reviewScreen.style.display = 'none';
+        gameContainer.querySelectorAll('.numero').forEach(n => n.remove());
+        gameIsRunning = true;
+        backgroundMusic.currentTime = 0;
+        backgroundMusic.play();
+        spawnInterval = setInterval(spawnNumber, 3500);
+        gameLoop();
+    }
+    function gameOver() {
+        gameIsRunning = false;
+        clearInterval(spawnInterval);
+        saveHighScore();
+        finalScoreEl.textContent = `Puntuación Final: ${score}`;
+        gameOverScreen.style.display = 'flex';
+        backgroundMusic.pause();
+    }
+    function showReviewScreen() {
+        gameOverScreen.style.display = 'none';
+        reviewCorrectList.innerHTML = '';
+        reviewIncorrectList.innerHTML = '';
+        correctNumbersThisRound.sort((a, b) => a - b).forEach(num => { reviewCorrectList.innerHTML += `<li>${num}</li>`; });
+        // En la pantalla de revisión, sí leemos el número para practicarlo
+        incorrectNumbersThisRound.sort((a, b) => a - b).forEach(num => {
+            const numAsWord = numberToWords(num);
+            reviewIncorrectList.innerHTML += `<li><div class="review-item-number">${num}</div><div class="review-item-text">${numAsWord}</div><button class="speak-button" onclick="speakReview('${numAsWord}')">🔊</button></li>`;
+        });
+        reviewScreen.style.display = 'flex';
+    }
+    // Función de voz específica para la revisión, para no interferir con la del juego.
+    function speakReview(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-MX';
+        utterance.pitch = 1;
+        utterance.rate = 1;
+        window.speechSynthesis.speak(utterance);
+    }
+    function gameLoop() {
+        if (!gameIsRunning) return;
+        numbersOnScreen.forEach((num, index) => {
+            if (num.saved) return;
+            num.size += num.growthRate;
+            const progress = Math.min(1, (num.size - num.startSize) / (num.maxSize - num.startSize));
+            const r = BUBBLE_COLOR.r + (DANGER_COLOR.r - BUBBLE_COLOR.r) * progress;
+            const g = BUBBLE_COLOR.g + (DANGER_COLOR.g - BUBBLE_COLOR.g) * progress;
+            const b = BUBBLE_COLOR.b + (DANGER_COLOR.b - BUBBLE_COLOR.b) * progress;
+            num.element.style.backgroundColor = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+            num.element.style.width = `${num.size}px`; num.element.style.height = `${num.size}px`;
+            num.element.style.fontSize = `${num.size / 3}px`;
+            if (num.size >= num.maxSize) { explodeNumber(num, index); }
+        });
+        requestAnimationFrame(gameLoop);
+    }
+    function spawnNumber() {
+        if (!gameIsRunning || numbersOnScreen.length >= 5) return;
+        const settings = difficultySettings[currentDifficulty];
+        let value, attempts = 0, maxAttempts = 50;
+        do {
+            if (settings.type === 'tens') {
+                value = settings.values[Math.floor(Math.random() * settings.values.length)];
+            } else {
+                value = Math.floor(Math.random() * (settings.max - settings.min + 1)) + settings.min;
+            }
+            attempts++;
+        } while ((spawnTracker[value] >= 2) && attempts < maxAttempts);
+        spawnTracker[value] = (spawnTracker[value] || 0) + 1;
+        const element = document.createElement('div');
+        element.classList.add('numero');
+        element.textContent = value;
+        const startSize = 40;
+        const numObj = { value, element, size: startSize, startSize, maxSize: 150 + Math.random() * 50, growthRate: 0.075, saved: false };
+        const gameRect = gameContainer.getBoundingClientRect();
+        numObj.x = Math.random() * (gameRect.width - numObj.maxSize - 20) + 10;
+        numObj.y = Math.random() * (gameRect.height - numObj.maxSize - 150) + 20;
+        element.style.top = `${numObj.y}px`; element.style.left = `${numObj.x}px`;
+        numbersOnScreen.push(numObj);
+        gameContainer.appendChild(element);
+        // La línea que leía el número (speak) se ha eliminado de aquí.
+    }
+    function saveNumber(num) {
+        num.saved = true; score += 10; updateUI();
+        popSound.currentTime = 0; popSound.play();
+        correctNumbersThisRound.push(num.value);
+        setTimeout(() => { num.element.remove(); numbersOnScreen = numbersOnScreen.filter(n => n !== num); }, 500);
+    }
+    function explodeNumber(num, index) {
+        lives--; updateUI();
+        explodeSound.currentTime = 0; explodeSound.play();
+        incorrectNumbersThisRound.push(num.value);
+        num.element.classList.add('exploding');
+        setTimeout(() => { num.element.remove(); }, 500);
+        numbersOnScreen.splice(index, 1);
+        if (lives <= 0) { gameOver(); }
+    }
+    function updateUI() { scoreEl.textContent = `Puntos: ${score}`; livesEl.textContent = `Vidas: ${lives}`; }
+
+    // --- EVENT LISTENERS ---
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', startGame);
+    reviewButton.addEventListener('click', showReviewScreen);
+    homeButton.addEventListener('click', () => {
+        reviewScreen.style.display = 'none';
+        startScreen.style.display = 'flex';
+        backgroundMusic.pause();
+    });
+    difficultySelect.addEventListener('change', updateHighScoreDisplay);
+    document.addEventListener('DOMContentLoaded', () => {
+        loadHighScores();
+        setupSpeechRecognition();
+    });
+</script>
 </body>
 </html>
