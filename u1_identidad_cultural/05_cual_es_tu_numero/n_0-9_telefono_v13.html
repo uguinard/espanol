@@ -208,14 +208,12 @@
             document.body.addEventListener('click', initAudioContext, { once: true });
         }
         
-        // --- CAMBIO #1: resetGame AHORA GENERA EL TECLADO DINÁMICAMENTE ---
         function resetGame() {
             activeNumberMap = allNumberMaps[currentRange];
-            keypadContainer.innerHTML = ''; // Limpiar el teclado anterior
+            keypadContainer.innerHTML = ''; 
 
-            // Crear las nuevas teclas
             const numbers = Object.keys(activeNumberMap);
-            if (currentRange === '0-9') { // Mantener el orden visual para 0-9
+            if (currentRange === '0-9') {
                 const order = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
                 order.forEach(num => createKey(num));
             } else {
@@ -244,7 +242,6 @@
             updateCharacter('neutral');
         }
 
-        // --- NUEVO: Función para crear una tecla individual y añadir sus listeners ---
         function createKey(number) {
             const key = document.createElement('div');
             key.className = 'key';
@@ -253,7 +250,7 @@
             key.textContent = number;
 
             if (number === '0') {
-                key.classList.add('key-pos-0'); // Clase para posicionar el 0
+                key.classList.add('key-pos-0');
             }
 
             key.addEventListener('click', handleKeyClick);
@@ -307,7 +304,7 @@
 
             key.textContent = activeNumberMap[fullNumber].text;
             key.classList.add('correct');
-            key.style.pointerEvents = 'none'; // Desactivar la tecla
+            // key.style.pointerEvents = 'none'; // --- CAMBIO #1: ELIMINADA ESTA LÍNEA PARA PERMITIR CLICS ---
             
             if (placedElement) { placedElement.classList.add('hidden') }
             const indexToRemove = visibleNames.indexOf(nameData);
@@ -359,7 +356,6 @@
             speakText('Intenta de nuevo');
         }
         
-        // --- CAMBIO #2: giveHint ahora busca el ID de la tecla correcta ---
         function giveHint(){
             if(visibleNames.length === 0) return;
             hintButton.disabled = true;
@@ -403,16 +399,23 @@
         
         function handleNameClick(event){event.stopPropagation();const t=event.currentTarget;if(selectedNameElement===t){selectedNameElement.classList.remove('selected');selectedNameElement=null}else{if(selectedNameElement)selectedNameElement.classList.remove('selected');t.classList.add('selected');selectedNameElement=t}}
         
-        // --- CAMBIO #3: handleKeyClick ahora hace una comparación directa ---
+        // --- CAMBIO #2: RESTAURADA LA LÓGICA DE VOZ PARA TECLAS CORRECTAS ---
         function handleKeyClick(event) {
             const key = event.currentTarget;
-            if (key.classList.contains('correct')) { return; }
+
+            if (key.classList.contains('correct')) {
+                const numberData = activeNumberMap[key.dataset.number];
+                if (numberData) {
+                    speakText(numberData.name);
+                }
+                return; 
+            }
 
             if (selectedNameElement) {
                 const selectedName = selectedNameElement.dataset.name;
-                const fullNumber = getNumberFromName(selectedName);
+                const fullNumberFromName = getNumberFromName(selectedName);
 
-                if (fullNumber === key.dataset.number) { // Comparación directa
+                if (fullNumberFromName === key.dataset.number) {
                     placeNumber(key, selectedName);
                 } else {
                     key.classList.add('shake');
@@ -424,7 +427,6 @@
             }
         }
 
-        // --- CAMBIO #4: handleDrop ahora hace una comparación directa ---
         function handleDrop(event) {
             event.preventDefault();
             const key = event.currentTarget;
@@ -432,7 +434,7 @@
             const droppedName = event.dataTransfer.getData('text/plain');
             const fullNumber = getNumberFromName(droppedName);
             
-            if (fullNumber === key.dataset.number) { // Comparación directa
+            if (fullNumber === key.dataset.number) {
                 placeNumber(key, droppedName);
             } else {
                 key.classList.add('shake');
