@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF--8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Números en Español - Teléfono Interactivo</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap');
+
+        :root {
+            --phone-bg: #c7b299;
+            --key-bg-gradient-start: #e6cba6;
+            --key-bg-gradient-end: #bfa886;
+            --text-color: #5a4a3a;
+            --border-color: #a38f78;
+            --correct-color: #28a745;
+            --error-color: #dc3545;
+            --accent-color: #007bff;
+        }
+
+        body {
+            font-family: 'Roboto Slab', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #e0d8c7;
+            margin: 0;
+            gap: 60px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .phone {
+            width: 320px;
+            background-color: var(--phone-bg);
+            border-radius: 15px;
+            border: 2px solid var(--text-color);
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.3), inset 0 0 15px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .key {
+            height: 70px;
+            background: linear-gradient(145deg, var(--key-bg-gradient-start), var(--key-bg-gradient-end));
+            color: var(--text-color);
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease, background-color 0.4s, color 0.4s;
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2), inset 0 0 5px rgba(255,255,255,0.3);
+            user-select: none;
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+            border-color: var(--error-color) !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        .key.drag-over {
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+        
+        .key.correct {
+            background: var(--correct-color);
+            color: white;
+            border-color: #1e7e34;
+            font-size: 1.5em;
+            padding: 5px;
+            line-height: 1.2;
+            pointer-events: none;
+        }
+
+        #key-0 {
+            grid-column: 2 / 3;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .assignment-panel {
+            width: 250px;
+            padding: 20px;
+            background-color: #d1c5b4;
+            border-radius: 10px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+            border: 2px solid var(--text-color);
+        }
+
+        .assignment-panel h3, .assignment-panel p {
+            text-align: center;
+            margin-top: 0;
+            color: var(--text-color);
+        }
+
+        .assignment-panel h3 {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        
+        .assignment-panel p {
+            font-size: 0.9em;
+            min-height: 2.2em;
+            transition: opacity 0.5s;
+        }
+        
+        #name-list {
+            /* Fija la altura para que el diseño no salte al cambiar elementos */
+            min-height: 295px; 
+        }
+
+        .draggable-name {
+            background-color: #8c785d;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            cursor: grab;
+            box-shadow: 3px 3px 7px rgba(0,0,0,0.2);
+            transition: opacity 0.4s, transform 0.4s, box-shadow 0.2s;
+            border: 3px solid transparent;
+        }
+        
+        .draggable-name.selected {
+            box-shadow: 0 0 15px 5px var(--accent-color);
+            border-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .draggable-name.hidden {
+            opacity: 0;
+            transform: scale(0.5);
+            pointer-events: none;
+            margin-bottom: -55px; /* Compensa la altura para que no deje un hueco al desaparecer */
+        }
+
+        #victoryModal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease-in-out; z-index: 1000;
+        }
+        
+        #victoryModal.visible { opacity: 1; pointer-events: auto; }
+        
+        .modal-content {
+            background-color: white; padding: 30px 40px; border-radius: 15px;
+            text-align: center; color: #333;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+            transform: scale(0.9);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #victoryModal.visible .modal-content { transform: scale(1); }
+        .modal-content h2 { margin: 0 0 20px 0; font-size: 2.5em; color: var(--correct-color); }
+        
+        #resetButton {
+            padding: 12px 25px; font-family: 'Roboto Slab', serif; font-size: 1.2em;
+            color: white; background-color: var(--accent-color);
+            border: none; border-radius: 8px; cursor: pointer;
+            box-shadow: 3px 3px 7px rgba(0,0,0,0.2);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone"><div class="keypad"><div class="key" id="key-1" data-number="1">1</div><div class="key" id="key-2" data-number="2">2</div><div class="key" id="key-3" data-number="3">3</div><div class="key" id="key-4" data-number="4">4</div><div class="key" id="key-5" data-number="5">5</div><div class="key" id="key-6" data-number="6">6</div><div class="key" id="key-7" data-number="7">7</div><div class="key" id="key-8" data-number="8">8</div><div class="key" id="key-9" data-number="9">9</div><div class="key" id="key-0" data-number="0">0</div></div></div>
+    <div class="right-panel"><div class="assignment-panel"><h3 id="progress-title"></h3><p id="instructions"></p><div id="name-list"></div></div></div>
+    <div id="victoryModal"><div class="modal-content"><h2>¡Muy bien!<br>¡Felicidades! 🎉</h2><button id="resetButton">Jugar de Nuevo 🔁</button></div></div>
+
+    <script>
+        const numberMap={'0':{name:'cero',text:'CERO'},'1':{name:'uno',text:'UNO'},'2':{name:'dos',text:'DOS'},'3':{name:'tres',text:'TRES'},'4':{name:'cuatro',text:'CUATRO'},'5':{name:'cinco',text:'CINCO'},'6':{name:'seis',text:'SEIS'},'7':{name:'siete',text:'SIETE'},'8':{name:'ocho',text:'OCHO'},'9':{name:'nueve',text:'NUEVE'}};
+        const dtmfFrequencies={'1':{f1:697,f2:1209},'2':{f1:697,f2:1336},'3':{f1:697,f2:1477},'4':{f1:770,f2:1209},'5':{f1:770,f2:1336},'6':{f1:770,f2:1477},'7':{f1:852,f2:1209},'8':{f1:852,f2:1336},'9':{f1:852,f2:1477},'0':{f1:941,f2:1336}};
+        
+        const keys=document.querySelectorAll('.key');
+        const resetButton=document.getElementById('resetButton');
+        const nameListContainer=document.getElementById('name-list');
+        const victoryModal=document.getElementById('victoryModal');
+        const progressTitle=document.getElementById('progress-title');
+        const instructions=document.getElementById('instructions');
+        
+        let spanishVoice=null,correctCount=0,audioCtx,selectedNameElement=null;
+        let availableNames = [];
+        let visibleNames = [];
+
+        function initializeGame(){setupKeyListeners();resetButton.addEventListener('click',resetGame);resetGame();loadVoices();document.body.addEventListener('click',initAudioContext,{once:true})}
+        function resetGame(){keys.forEach(key=>{key.classList.remove('correct','shake');key.textContent=key.dataset.number;key.style.pointerEvents='auto'});const allNames=Object.values(numberMap).map(num=>num.name);allNames.sort(()=>Math.random()-.5);availableNames=[...allNames];visibleNames=[];nameListContainer.innerHTML='';for(let i=0;i<5;i++){addNextNameToVisibleList()}correctCount=0;updateProgress();instructions.textContent='Arrastra o selecciona un nombre.';instructions.style.opacity=1;victoryModal.classList.remove('visible');if(selectedNameElement){selectedNameElement.classList.remove('selected');selectedNameElement=null}}
+        
+        function addNextNameToVisibleList() {
+            if (availableNames.length === 0) return;
+            const nameToAdd = availableNames.shift();
+            visibleNames.push(nameToAdd);
+            
+            const num = Object.values(numberMap).find(n => n.name === nameToAdd);
+            const div = document.createElement('div');
+            div.className = 'draggable-name';
+            div.id = `name-${num.name}`;
+            div.dataset.name = num.name;
+            div.draggable = true;
+            div.textContent = num.text;
+            setupDragListeners(div);
+            div.addEventListener('click', handleNameClick);
+            nameListContainer.appendChild(div);
+        }
+        
+        function updateProgress(){progressTitle.textContent=`Aciertos: ${correctCount} / ${keys.length}`;if(correctCount>=1){instructions.style.opacity=0}}
+        function checkCompletion(){if(correctCount===keys.length){speakText('¡Muy bien! ¡Felicidades!',true);victoryModal.classList.add('visible')}}
+        
+        function placeNumber(key,nameData){playSuccessSound();const placedElement=document.getElementById(`name-${nameData}`);key.textContent=numberMap[key.dataset.number].text;key.classList.add('correct');if(placedElement){placedElement.classList.add('hidden')}const indexToRemove=visibleNames.indexOf(nameData);if(indexToRemove>-1){visibleNames.splice(indexToRemove,1)}setTimeout(()=>{if(placedElement)placedElement.remove();addNextNameToVisibleList()},400);correctCount++;updateProgress();checkCompletion()}
+        
+        function initAudioContext(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
+        
+        function playSuccessSound() {
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const gainNode = audioCtx.createGain();
+            gainNode.connect(audioCtx.destination);
+            gainNode.gain.setValueAtTime(0.2, now);
+            
+            const osc1 = audioCtx.createOscillator();
+            osc1.type = 'triangle';
+            osc1.frequency.setValueAtTime(523.25, now); // C5
+            osc1.connect(gainNode);
+            
+            const osc2 = audioCtx.createOscillator();
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(659.25, now + 0.1); // E5
+            osc2.connect(gainNode);
+
+            osc1.start(now);
+            osc2.start(now + 0.1);
+            
+            gainNode.gain.setTargetAtTime(0, now + 0.2, 0.01);
+            osc1.stop(now + 0.3);
+            osc2.stop(now + 0.3);
+        }
+
+        function playDTMFTone(num){if(!audioCtx||!dtmfFrequencies[num])return;const f=dtmfFrequencies[num],g=audioCtx.createGain(),o1=audioCtx.createOscillator(),o2=audioCtx.createOscillator();g.gain.setValueAtTime(0.25,audioCtx.currentTime);g.connect(audioCtx.destination);o1.type=o2.type='sine';o1.frequency.setValueAtTime(f.f1,audioCtx.currentTime);o2.frequency.setValueAtTime(f.f2,audioCtx.currentTime);o1.connect(g);o2.connect(g);o1.start();o2.start();o1.stop(audioCtx.currentTime+0.15);o2.stop(audioCtx.currentTime+0.15)}
+        
+        function speakText(text,isAnimated=false){const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';if(spanishVoice)u.voice=spanishVoice;if(navigator.platform.toUpperCase().indexOf('MAC')>=0&&!isAnimated)u.rate=0.8;if(isAnimated){u.pitch=1.2;u.rate=1.1}window.speechSynthesis.speak(u)}
+        function loadVoices(){const s=()=>{const v=window.speechSynthesis.getVoices();spanishVoice=v.find(v=>v.name==='Google español')||v.find(v=>v.lang.startsWith('es'))};s();if(window.speechSynthesis.onvoiceschanged!==undefined){window.speechSynthesis.onvoiceschanged=s}}
+        
+        function setupKeyListeners(){keys.forEach(key=>{key.addEventListener('click',handleKeyClick);key.addEventListener('dragover',(e)=>{e.preventDefault();key.classList.add('drag-over')});key.addEventListener('dragleave',()=>{key.classList.remove('drag-over','shake')});key.addEventListener('drop',handleDrop)})}
+        function setupDragListeners(element){element.addEventListener('dragstart',(e)=>{e.dataTransfer.setData('text/plain',element.dataset.name)})}
+        
+        function handleNameClick(event){const t=event.currentTarget;if(selectedNameElement===t){selectedNameElement.classList.remove('selected');selectedNameElement=null}else{if(selectedNameElement)selectedNameElement.classList.remove('selected');t.classList.add('selected');selectedNameElement=t}}
+        function handleKeyClick(event){const key=event.currentTarget;const num=key.dataset.number;playDTMFTone(num);if(selectedNameElement){const selName=selectedNameElement.dataset.name;if(numberMap[num]?.name===selName){placeNumber(key,selName)}else{key.classList.add('shake')}selectedNameElement.classList.remove('selected');selectedNameElement=null}else if(!key.classList.contains('correct')){speakText(numberMap[num]?.name)}}
+        function handleDrop(event){event.preventDefault();const key=event.currentTarget;key.classList.remove('drag-over');const droppedName=event.dataTransfer.getData('text/plain');if(numberMap[key.dataset.number]?.name===droppedName){placeNumber(key,droppedName)}else{key.classList.add('shake')}}
+        
+        document.addEventListener('DOMContentLoaded',initializeGame);
+    </script>
+</body>
+</html>
