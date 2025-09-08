@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <title>Burbujas de Voz Continua</title>
+    <title>Burbujas de Práctica por Niveles</title>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -15,6 +15,7 @@
             --text-light-color: #fff;
             --danger-color: #ff3b30;
             --safe-color: #34c759;
+            --mastered-color: #ffcc00;
             --card-bg: rgba(255, 255, 255, 0.6);
             --shadow-color: rgba(0, 0, 0, 0.1);
             --blur-amount: 10px;
@@ -34,7 +35,7 @@
         #game-wrapper {
             height: 95vh;
             width: 95vw;
-            max-width: 1000px;
+            max-width: 1200px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -50,226 +51,267 @@
             backdrop-filter: blur(var(--blur-amount));
             -webkit-backdrop-filter: blur(var(--blur-amount));
             overflow: hidden;
+            display: flex;
         }
+        
+        /* --- PANEL DE PROGRESO --- */
+        #progress-panel {
+            width: 300px;
+            flex-shrink: 0;
+            background: rgba(0,0,0,0.05);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        #progress-panel h3 {
+            margin: 0 0 15px 0;
+            text-align: center;
+            color: var(--primary-color);
+        }
+        #progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 15px;
+        }
+        .progress-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .progress-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 5px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ddd;
+        }
+        .dot.p1 { background-color: var(--primary-color); }
+        .dot.p2 { background-color: var(--mastered-color); } /* Nivel de maestría */
+
+        /* --- ÁREA DE JUEGO (BURBUJAS) --- */
+        #bubble-area {
+            flex-grow: 1;
+            position: relative;
+            height: 100%;
+        }
+
         .numero { 
-            position: absolute; 
-            font-weight: 700; 
-            color: var(--text-color); 
+            position: absolute; font-weight: 700; color: var(--text-color); 
             background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
-            border-radius: 50%; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1); 
-            transition: transform 0.3s ease, background-color 0.5s linear; 
+            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease; 
             border: 1px solid rgba(255,255,255,0.8);
         }
         .numero.exploding { animation: explode 0.5s forwards; }
         @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
 
         #ui-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            padding: 15px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(to top, rgba(0,0,0,0.1), transparent);
+            position: absolute; bottom: 0; left: 300px; right: 0;
+            padding: 15px; box-sizing: border-box; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; gap: 10px;
         }
-        
         #live-transcript {
-            height: 30px;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            opacity: 0.9;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
-            transition: opacity 0.5s;
-            text-align: center;
+            height: 30px; font-size: 1.5rem; font-weight: 600; color: var(--primary-color);
+            opacity: 0.9; text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+            transition: opacity 0.5s; text-align: center;
         }
-
         #voice-input-button {
-            width: 70px;
-            height: 70px;
-            flex-shrink: 0;
-            border-radius: 50%;
-            border: none;
-            background-color: var(--primary-color);
-            color: white;
-            font-size: 2.5rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
-            transition: background-color 0.3s;
+            width: 70px; height: 70px; flex-shrink: 0; border-radius: 50%; border: none;
+            background-color: var(--primary-color); color: white; font-size: 2.5rem;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); transition: background-color 0.3s;
         }
-        #voice-input-button.listening {
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(0, 122, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0); }
-        }
+        #voice-input-button.listening { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,122,255,0.7); } 70% { box-shadow: 0 0 0 20px rgba(0,122,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,122,255,0); } }
         
         #info-bar {
-            position: absolute;
-            top: 20px;
-            width: 100%;
-            padding: 0 30px;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--primary-color);
-            text-shadow: 1px 1px 3px rgba(255,255,255,0.5);
+            position: absolute; top: 20px; width: 100%; padding: 0 30px;
+            box-sizing: border-box; display: flex; justify-content: space-around;
+            font-size: 1.8rem; font-weight: 600; color: var(--primary-color);
         }
         .screen {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--card-bg);
-            backdrop-filter: blur(var(--blur-amount));
-            -webkit-backdrop-filter: blur(var(--blur-amount));
-            color: var(--text-color);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-            padding: 30px;
-            text-align: center;
+            background-color: var(--card-bg); backdrop-filter: blur(var(--blur-amount));
+            color: var(--text-color); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 10;
+            padding: 30px; text-align: center;
         }
         #start-screen { display: flex; }
         .screen h2 { font-size: 2.5rem; margin-bottom: 15px; }
         .screen p { font-size: 1.2rem; max-width: 500px; margin-bottom: 25px; }
-        .screen button {
-            padding: 15px 35px;
-            font-size: 1.1rem;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            margin-top: 20px;
-            background-color: var(--primary-color);
-            color: var(--text-light-color);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        .screen button, #next-level-button {
+            padding: 15px 35px; font-size: 1.1rem; font-family: 'Poppins', sans-serif;
+            font-weight: 600; margin-top: 20px; background-color: var(--primary-color);
+            color: var(--text-light-color); border: none; border-radius: 50px; cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0,122,255,0.3);
         }
-        .screen button:hover { transform: translateY(-3px); box-shadow: 0 7px 20px rgba(0, 122, 255, 0.4); }
-        .screen .button-group { display: flex; gap: 20px; }
-        .difficulty-selector { margin: 20px 0; }
-        .difficulty-selector select { font-size: 1rem; padding: 10px 15px; border-radius: 10px; border: 1px solid #ccc; background-color: #fff; }
-        #high-score-display { font-size: 1.2rem; font-weight: 600; color: var(--primary-color); }
-        #review-screen-content { display: flex; gap: 30px; width: 100%; max-width: 800px; height: 60%; }
-        .review-column { flex: 1; background-color: rgba(255,255,255,0.5); border-radius: 15px; padding: 20px; overflow-y: auto; }
-        .review-column h3 { margin-top: 0; padding-bottom: 10px; font-size: 1.5rem; }
-        .review-column ul { list-style: none; padding: 0; }
-        #review-correct-list li { background: var(--safe-color); color: white; padding: 10px; border-radius: 8px; margin-bottom: 8px; text-align: center; font-weight: 600; }
-        #review-incorrect-list li { background: var(--danger-color); color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
-        .review-item-number { font-size: 1.5rem; font-weight: 700; }
-        .review-item-text { font-style: italic; font-size: 1.1rem; }
-        .speak-button { font-size: 1.5rem; background: none; border: none; cursor: pointer; color: white; vertical-align: middle; transition: transform 0.2s; }
-        .speak-button:hover { transform: scale(1.2); }
+        .screen button:hover, #next-level-button:hover { transform: translateY(-3px); box-shadow: 0 7px 20px rgba(0,122,255,0.4); }
+        
+        #next-level-button {
+            background-color: var(--safe-color);
+            box-shadow: 0 4px 15px rgba(52, 199, 89, 0.4);
+        }
+        #next-level-button:hover {
+             box-shadow: 0 7px 20px rgba(52, 199, 89, 0.5);
+        }
+
+        /* --- ESTILOS PARA EL SLIDER DE VELOCIDAD --- */
+        .speed-slider-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+        }
+        .speed-slider-container label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .speed-slider-container .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #speed-slider { -webkit-appearance: none; width: 100%; height: 8px; background: #ddd; border-radius: 5px; outline: none; }
+        #speed-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: var(--primary-color); border-radius: 50%; cursor: pointer; }
+        #speed-slider::-moz-range-thumb { width: 24px; height: 24px; background: var(--primary-color); border-radius: 50%; cursor: pointer; }
+
     </style>
 </head>
 <body>
     <div id="game-wrapper">
         <div id="game-container">
-            <div id="info-bar">
-                <div id="score">Puntos: 0</div>
-                <div id="lives">Vidas: 3</div>
+            <div id="progress-panel">
+                <h3 id="level-title">Nivel 1</h3>
+                <div id="progress-grid"></div>
             </div>
-            <div id="start-screen" class="screen">
-                <h2>Burbujas de Voz</h2>
-                <p>Observa los números en las burbujas y <b>dilos en voz alta</b> antes de que exploten.</p>
-                <div class="difficulty-selector">
-                    <label for="difficulty-select">Elige un nivel:</label>
-                    <select id="difficulty-select">
-                        <option value="a">Nivel A (0-10)</option>
-                        <option value="b" selected>Nivel B (0-20)</option>
-                        <option value="c">Nivel C (0-30)</option>
-                        <option value="d">Nivel D (Decenas)</option>
-                    </select>
+            <div id="bubble-area">
+                 <div id="info-bar">
+                    <div id="score">Puntos: 0</div>
                 </div>
-                <div id="high-score-display">Récord: 0</div>
-                <button id="start-button">Empezar a Jugar</button>
-            </div>
-            <div id="game-over-screen" class="screen">
-                <h2>Juego Terminado</h2>
-                <p id="final-score"></p>
-                <div class="button-group">
-                    <button id="review-button">Ver Resultados</button>
-                </div>
-            </div>
-            <div id="review-screen" class="screen">
-                <h2>Resultados y Práctica</h2>
-                <div id="review-screen-content">
-                    <div class="review-column">
-                        <h3 style="color: var(--safe-color);">Correctos</h3>
-                        <ul id="review-correct-list"></ul>
+                <div id="start-screen" class="screen">
+                    <h2>Burbujas de Práctica</h2>
+                    <p>Domina los números diciéndolos en voz alta. <b>¡Acierta cada número 2 veces para avanzar de nivel!</b></p>
+                    
+                    <div class="speed-slider-container">
+                        <label for="speed-slider">Velocidad de Burbujas</label>
+                        <div class="slider-wrapper">
+                            <span>Lento</span>
+                            <input type="range" id="speed-slider" min="1" max="5" value="3">
+                            <span>Rápido</span>
+                        </div>
                     </div>
-                    <div class="review-column">
-                        <h3 style="color: var(--danger-color);">A Repasar</h3>
-                        <ul id="review-incorrect-list"></ul>
-                    </div>
+
+                    <button id="start-button">Empezar a Jugar</button>
                 </div>
-                <div class="button-group">
-                    <button id="restart-from-review-button">Jugar de Nuevo</button>
-                    <button id="home-from-review-button">Ir al Inicio</button>
+                 <div id="game-complete-screen" class="screen">
+                    <h2>¡Felicidades!</h2>
+                    <p>¡Has completado todos los niveles de práctica!</p>
+                    <button id="restart-game-button">Volver a Empezar</button>
                 </div>
-            </div>
-            
-            <div id="ui-bar">
-                <div id="live-transcript"></div>
-                <div id="voice-input-button" title="Estado del micrófono">🎤</div>
+                <div id="ui-bar">
+                    <div id="live-transcript"></div>
+                    <div id="voice-input-button" title="Estado del micrófono">🎤</div>
+                    <button id="next-level-button" style="display: none;">Siguiente Nivel</button>
+                </div>
             </div>
         </div>
     </div>
 <script>
     // --- CONFIGURACIÓN ---
-    const gameContainer = document.getElementById('game-container');
-    const scoreEl = document.getElementById('score'), livesEl = document.getElementById('lives');
-    const startScreen = document.getElementById('start-screen'), gameOverScreen = document.getElementById('game-over-screen');
-    const reviewScreen = document.getElementById('review-screen');
-    const startButton = document.getElementById('start-button'), restartButton = document.getElementById('restart-from-review-button');
-    const homeButton = document.getElementById('home-from-review-button');
-    const reviewButton = document.getElementById('review-button');
-    const finalScoreEl = document.getElementById('final-score'), difficultySelect = document.getElementById('difficulty-select');
-    const highScoreDisplay = document.getElementById('high-score-display');
+    const scoreEl = document.getElementById('score');
+    const startScreen = document.getElementById('start-screen'), gameCompleteScreen = document.getElementById('game-complete-screen');
+    const startButton = document.getElementById('start-button'), restartGameButton = document.getElementById('restart-game-button');
     const voiceInputButton = document.getElementById('voice-input-button');
     const liveTranscriptEl = document.getElementById('live-transcript');
-    const reviewCorrectList = document.getElementById('review-correct-list'), reviewIncorrectList = document.getElementById('review-incorrect-list');
+    const progressGrid = document.getElementById('progress-grid');
+    const levelTitle = document.getElementById('level-title');
+    const nextLevelButton = document.getElementById('next-level-button');
+    const bubbleArea = document.getElementById('bubble-area');
+    const speedSlider = document.getElementById('speed-slider');
 
     const popSound = new Audio('https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3');
-    const explodeSound = new Audio('https://s3.amazonaws.com/freecodecamp/drums/punchy_kick_1.mp3');
     popSound.volume = 0.5;
-    const backgroundMusic = new Audio('https://ianertson.com/apps/breakout/sounds/music.mp3');
-    backgroundMusic.loop = true;
-    backgroundMusic.volume = 0.2;
 
-    let score = 0, lives = 3, gameIsRunning = false;
+    let score = 0, gameIsRunning = false;
     let numbersOnScreen = [], spawnInterval;
-    let correctNumbersThisRound = [], incorrectNumbersThisRound = [];
-    let spawnTracker = {};
-    const difficultySettings = { a: { min: 0, max: 10 }, b: { min: 0, max: 20 }, c: { min: 0, max: 30 }, d: { type: 'tens', values: [10, 20, 30, 40, 50, 60, 70, 80, 90] } };
-    let currentDifficulty = 'b';
-    const BUBBLE_COLOR = { r: 255, g: 255, b: 255 }, DANGER_COLOR = { r: 255, g: 59, b: 48 };
-    const HIGH_SCORES_KEY = 'burbujasDictadoHighScores';
-    let highScores = { a: 0, b: 0, c: 0, d: 0 };
     
+    // --- ESTRUCTURA DE NIVELES Y PROGRESO ---
+    const gameLevels = [
+        { name: "Nivel 1", min: 0, max: 9 },
+        { name: "Nivel 2", min: 10, max: 29 },
+        { name: "Nivel 3", min: 30, max: 39 }
+    ];
+    let currentLevelIndex = 0;
+    let practiceTracker = {};
+    const PRACTICE_GOAL = 2; // CAMBIO: Objetivo de práctica reducido a 2
+    const speedMap = { '1': 0.04, '2': 0.06, '3': 0.08, '4': 0.12, '5': 0.16 };
+
     let recognition;
 
     // --- FUNCIONES AUXILIARES ---
     function numberToWords(n){const u=['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'],e=['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve'],d=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];if(n>=0&&n<10)return u[n];if(n<20)return e[n-10];if(n<30)return n===20?'veinte':'veinti'+u[n%10];if(n<100){const t=Math.floor(n/10),o=n%10;return d[t]+(o>0?' y '+u[o]:'')}return n.toString()}
-    function loadHighScores() { const s = localStorage.getItem(HIGH_SCORES_KEY); if (s) { highScores = JSON.parse(s); } updateHighScoreDisplay(); }
-    function updateHighScoreDisplay() { const d = difficultySelect.value; highScoreDisplay.textContent = `Récord: ${highScores[d] || 0}`; }
-    function saveHighScore() { if (score > highScores[currentDifficulty]) { highScores[currentDifficulty] = score; localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(highScores)); } }
+    
+    // --- FUNCIONES DEL SISTEMA DE PROGRESO ---
+    function initializePracticeTracker() {
+        practiceTracker = {};
+        const level = gameLevels[currentLevelIndex];
+        for (let i = level.min; i <= level.max; i++) {
+            practiceTracker[i] = 0;
+        }
+    }
+
+    function updateProgressGrid() {
+        const level = gameLevels[currentLevelIndex];
+        progressGrid.innerHTML = '';
+        levelTitle.textContent = level.name;
+
+        for (let i = level.min; i <= level.max; i++) {
+            const count = practiceTracker[i];
+            const item = document.createElement('div');
+            item.className = 'progress-item';
+            
+            let dotsHTML = '';
+            for (let j = 1; j <= PRACTICE_GOAL; j++) {
+                let dotClass = 'dot';
+                if (j <= count) dotClass += ` p${j}`;
+                dotsHTML += `<span class="${dotClass}"></span>`;
+            }
+
+            item.innerHTML = `<span class="progress-number">${i}</span><div class="dots">${dotsHTML}</div>`;
+            progressGrid.appendChild(item);
+        }
+    }
+
+    function checkLevelCompletion() {
+        const level = gameLevels[currentLevelIndex];
+        for (let i = level.min; i <= level.max; i++) {
+            if (practiceTracker[i] < PRACTICE_GOAL) return false;
+        }
+        return true;
+    }
+
+    function levelComplete() {
+        gameIsRunning = false;
+        if (recognition) { recognition.stop(); }
+        clearInterval(spawnInterval);
+        liveTranscriptEl.textContent = "¡Nivel Completado!";
+        numbersOnScreen.forEach(num => num.element.remove());
+        numbersOnScreen = [];
+        nextLevelButton.style.display = 'block';
+    }
 
     // --- LÓGICA DE RECONOCIMIENTO DE VOZ ---
     function setupSpeechRecognition() {
@@ -282,181 +324,117 @@
         recognition = new SpeechRecognition();
         recognition.lang = 'es-MX';
         recognition.continuous = true;
-        // --- CAMBIO: Habilitar resultados interinos para feedback en tiempo real ---
         recognition.interimResults = true;
-
-        recognition.onstart = () => {
-            voiceInputButton.classList.add('listening');
-        };
-        
-        // --- CAMBIO: Lógica mejorada para mostrar feedback y procesar resultados finales ---
+        recognition.onstart = () => { voiceInputButton.classList.add('listening'); };
         recognition.onresult = (event) => {
-            let interim_transcript = '';
-            let final_transcript = '';
-
+            let interim_transcript = '', final_transcript = '';
             for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) {
-                    final_transcript += event.results[i][0].transcript;
-                } else {
-                    interim_transcript += event.results[i][0].transcript;
-                }
+                if (event.results[i].isFinal) final_transcript += event.results[i][0].transcript;
+                else interim_transcript += event.results[i][0].transcript;
             }
-            
-            // Muestra en pantalla lo que el micrófono está escuchando AHORA MISMO
             liveTranscriptEl.textContent = interim_transcript;
-
-            // Solo procesa la respuesta cuando el usuario ha terminado de hablar (resultado final)
             if (final_transcript) {
                 liveTranscriptEl.textContent = final_transcript;
                 const cleaned_transcript = final_transcript.toLowerCase().trim();
-                
                 [...numbersOnScreen].forEach(num => {
                     if (num.saved) return;
                     const numAsWord = numberToWords(num.value);
-                    if (cleaned_transcript.includes(numAsWord)) {
-                        saveNumber(num);
-                    }
+                    if (cleaned_transcript.includes(numAsWord)) saveNumber(num);
                 });
-                // Limpia el texto después de un segundo para que no se quede en pantalla
-                setTimeout(() => { liveTranscriptEl.textContent = ''; }, 1000);
+                setTimeout(() => { if(gameIsRunning) liveTranscriptEl.textContent = ''; }, 1000);
             }
         };
-
-        recognition.onerror = (event) => {
-            console.error("Error en el reconocimiento de voz:", event.error);
-        };
-
+        recognition.onerror = (event) => console.error("Error en el reconocimiento de voz:", event.error);
         recognition.onend = () => {
-            if (gameIsRunning) {
-                recognition.start();
-            } else {
-                voiceInputButton.classList.remove('listening');
-            }
+            voiceInputButton.classList.remove('listening');
+            if (gameIsRunning) recognition.start();
         };
     }
 
     // --- LÓGICA PRINCIPAL DEL JUEGO ---
-    function startGame() {
-        score = 0; lives = 3; numbersOnScreen = [];
-        correctNumbersThisRound = []; incorrectNumbersThisRound = [];
-        spawnTracker = {};
-        liveTranscriptEl.textContent = '';
-        currentDifficulty = difficultySelect.value;
+    function startLevel() {
+        score = 0;
         updateUI();
-        startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; reviewScreen.style.display = 'none';
-        gameContainer.querySelectorAll('.numero').forEach(n => n.remove());
+        initializePracticeTracker();
+        updateProgressGrid();
+        
+        startScreen.style.display = 'none';
+        gameCompleteScreen.style.display = 'none';
+        nextLevelButton.style.display = 'none';
+        liveTranscriptEl.textContent = '';
+        bubbleArea.querySelectorAll('.numero').forEach(n => n.remove());
+        
         gameIsRunning = true;
-        if (recognition) {
-            recognition.start();
-        }
-        backgroundMusic.currentTime = 0;
-        backgroundMusic.play();
-        spawnInterval = setInterval(spawnNumber, 3500);
-        gameLoop();
+        if (recognition) recognition.start();
+        
+        spawnInterval = setInterval(spawnNumber, 2500);
     }
-    function gameOver() {
-        gameIsRunning = false;
-        if (recognition) {
-            recognition.stop();
-        }
-        clearInterval(spawnInterval);
-        saveHighScore();
-        finalScoreEl.textContent = `Puntuación Final: ${score}`;
-        gameOverScreen.style.display = 'flex';
-        backgroundMusic.pause();
-    }
-    function showReviewScreen() {
-        gameOverScreen.style.display = 'none';
-        reviewCorrectList.innerHTML = '';
-        reviewIncorrectList.innerHTML = '';
-        correctNumbersThisRound.sort((a, b) => a - b).forEach(num => { reviewCorrectList.innerHTML += `<li>${num}</li>`; });
-        incorrectNumbersThisRound.sort((a, b) => a - b).forEach(num => {
-            const numAsWord = numberToWords(num);
-            reviewIncorrectList.innerHTML += `<li><div class="review-item-number">${num}</div><div class="review-item-text">${numAsWord}</div><button class="speak-button" onclick="speakReview('${numAsWord}')">🔊</button></li>`;
-        });
-        reviewScreen.style.display = 'flex';
-    }
-    function speakReview(text) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'es-MX';
-        utterance.pitch = 1;
-        utterance.rate = 1;
-        window.speechSynthesis.speak(utterance);
-    }
-    function gameLoop() {
-        if (!gameIsRunning) return;
-        numbersOnScreen.forEach((num, index) => {
-            if (num.saved) return;
-            num.size += num.growthRate;
-            const progress = Math.min(1, (num.size - num.startSize) / (num.maxSize - num.startSize));
-            const r = BUBBLE_COLOR.r + (DANGER_COLOR.r - BUBBLE_COLOR.r) * progress;
-            const g = BUBBLE_COLOR.g + (DANGER_COLOR.g - BUBBLE_COLOR.g) * progress;
-            const b = BUBBLE_COLOR.b + (DANGER_COLOR.b - BUBBLE_COLOR.b) * progress;
-            num.element.style.backgroundColor = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
-            num.element.style.width = `${num.size}px`; num.element.style.height = `${num.size}px`;
-            num.element.style.fontSize = `${num.size / 3}px`;
-            if (num.size >= num.maxSize) { explodeNumber(num, index); }
-        });
-        requestAnimationFrame(gameLoop);
-    }
+
     function spawnNumber() {
-        if (!gameIsRunning || numbersOnScreen.length >= 5) return;
-        const settings = difficultySettings[currentDifficulty];
-        let value, attempts = 0, maxAttempts = 50;
-        do {
-            if (settings.type === 'tens') {
-                value = settings.values[Math.floor(Math.random() * settings.values.length)];
-            } else {
-                value = Math.floor(Math.random() * (settings.max - settings.min + 1)) + settings.min;
-            }
-            attempts++;
-        } while ((spawnTracker[value] >= 2) && attempts < maxAttempts);
-        spawnTracker[value] = (spawnTracker[value] || 0) + 1;
+        if (!gameIsRunning || numbersOnScreen.length >= 4) return;
+        
+        const level = gameLevels[currentLevelIndex];
+        const neededNumbers = [];
+        for (let i = level.min; i <= level.max; i++) {
+            if (practiceTracker[i] < PRACTICE_GOAL) neededNumbers.push(i);
+        }
+        if (neededNumbers.length === 0) return;
+
+        const value = neededNumbers[Math.floor(Math.random() * neededNumbers.length)];
+        
+        const growthRate = speedMap[speedSlider.value]; // CAMBIO: Obtiene la velocidad del slider
+
         const element = document.createElement('div');
         element.classList.add('numero');
         element.textContent = value;
-        const startSize = 40;
-        const numObj = { value, element, size: startSize, startSize, maxSize: 150 + Math.random() * 50, growthRate: 0.075, saved: false };
-        const gameRect = gameContainer.getBoundingClientRect();
+        const startSize = 60;
+        const numObj = { value, element, size: startSize, startSize, maxSize: 180 + Math.random() * 50, growthRate, saved: false };
+        const gameRect = bubbleArea.getBoundingClientRect();
         numObj.x = Math.random() * (gameRect.width - numObj.maxSize - 20) + 10;
         numObj.y = Math.random() * (gameRect.height - numObj.maxSize - 150) + 20;
         element.style.top = `${numObj.y}px`; element.style.left = `${numObj.x}px`;
         numbersOnScreen.push(numObj);
-        gameContainer.appendChild(element);
+        bubbleArea.appendChild(element);
     }
     function saveNumber(num) {
-        num.saved = true; score += 10; updateUI();
-        popSound.currentTime = 0; popSound.play();
-        correctNumbersThisRound.push(num.value);
-        setTimeout(() => { num.element.remove(); numbersOnScreen = numbersOnScreen.filter(n => n !== num); }, 500);
+        if (num.saved) return; // Evita procesar el mismo número dos veces por un solo audio
+        num.saved = true;
+        score += 10;
+        updateUI();
+        popSound.currentTime = 0;
+        popSound.play();
+        
+        if (practiceTracker[num.value] < PRACTICE_GOAL) {
+            practiceTracker[num.value]++;
+        }
+        updateProgressGrid();
+        
+        setTimeout(() => {
+            if (num.element.parentElement) num.element.remove();
+            numbersOnScreen = numbersOnScreen.filter(n => n !== num);
+        }, 500);
+
+        if (checkLevelCompletion()) {
+            levelComplete();
+        }
     }
-    function explodeNumber(num, index) {
-        lives--; updateUI();
-        explodeSound.currentTime = 0; explodeSound.play();
-        incorrectNumbersThisRound.push(num.value);
-        num.element.classList.add('exploding');
-        setTimeout(() => { num.element.remove(); }, 500);
-        numbersOnScreen.splice(index, 1);
-        if (lives <= 0) { gameOver(); }
-    }
-    function updateUI() { scoreEl.textContent = `Puntos: ${score}`; livesEl.textContent = `Vidas: ${lives}`; }
+    function updateUI() { scoreEl.textContent = `Puntos: ${score}`; }
 
     // --- EVENT LISTENERS ---
-    startButton.addEventListener('click', startGame);
-    restartButton.addEventListener('click', startGame);
-    reviewButton.addEventListener('click', showReviewScreen);
-    homeButton.addEventListener('click', () => {
-        gameIsRunning = false;
-        if (recognition) {
-            recognition.stop();
+    startButton.addEventListener('click', startLevel);
+    nextLevelButton.addEventListener('click', () => {
+        currentLevelIndex++;
+        if (currentLevelIndex >= gameLevels.length) {
+            gameCompleteScreen.style.display = 'flex';
+        } else {
+            startLevel();
         }
-        reviewScreen.style.display = 'none';
-        startScreen.style.display = 'flex';
-        backgroundMusic.pause();
     });
-    difficultySelect.addEventListener('change', updateHighScoreDisplay);
+    restartGameButton.addEventListener('click', () => {
+        currentLevelIndex = 0;
+        startLevel();
+    });
     document.addEventListener('DOMContentLoaded', () => {
-        loadHighScores();
         setupSpeechRecognition();
     });
 </script>
