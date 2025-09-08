@@ -201,7 +201,7 @@
     
     <div id="victoryModal">
         <div class="modal-content">
-            <h2>¡Felicidades! 🎉</h2>
+            <h2>¡Muy bien!<br>¡Felicidades! 🎉</h2>
             <button id="resetButton">Jugar de Nuevo 🔁</button>
         </div>
     </div>
@@ -239,8 +239,8 @@
         function setupDragListeners(element){element.addEventListener('dragstart',(e)=>{e.dataTransfer.setData('text/plain',element.dataset.name)})}
         
         function handleNameClick(event){const t=event.currentTarget;if(selectedNameElement===t){selectedNameElement.classList.remove('selected');selectedNameElement=null}else{if(selectedNameElement)selectedNameElement.classList.remove('selected');t.classList.add('selected');selectedNameElement=t}}
-        function handleKeyClick(event){const key=event.currentTarget;const num=key.dataset.number;playDTMFTone(num);if(selectedNameElement){const selName=selectedNameElement.dataset.name;if(numberMap[num]?.name===selName){placeNumber(key,selName)}else{key.classList.add('shake')}selectedNameElement.classList.remove('selected');selectedNameElement=null}else if(!key.classList.contains('correct')){speakText(numberMap[num]?.name)}}
-        function handleDrop(event){event.preventDefault();const key=event.currentTarget;key.classList.remove('drag-over');const droppedName=event.dataTransfer.getData('text/plain');if(numberMap[key.dataset.number]?.name===droppedName){placeNumber(key,droppedName)}else{key.classList.add('shake')}}
+        function handleKeyClick(event){const key=event.currentTarget;const num=key.dataset.number;playDTMFTone(num);if(selectedNameElement){const selName=selectedNameElement.dataset.name;if(numberMap[num]?.name===selName){placeNumber(key,selName)}else{key.classList.add('shake');speakText('Intenta de nuevo');}selectedNameElement.classList.remove('selected');selectedNameElement=null}else if(!key.classList.contains('correct')){speakText(numberMap[num]?.name)}}
+        function handleDrop(event){event.preventDefault();const key=event.currentTarget;key.classList.remove('drag-over');const droppedName=event.dataTransfer.getData('text/plain');if(numberMap[key.dataset.number]?.name===droppedName){placeNumber(key,droppedName)}else{key.classList.add('shake');speakText('Intenta de nuevo');}}
         
         document.addEventListener('DOMContentLoaded',initializeGame);
     </script>
