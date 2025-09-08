@@ -226,7 +226,7 @@
         
         function addNextNameToVisibleList(){if(availableNames.length===0)return;const nameToAdd=availableNames.shift();visibleNames.push(nameToAdd);const num=Object.values(numberMap).find(n=>n.name===nameToAdd);const div=document.createElement('div');div.className='draggable-name';div.id=`name-${num.name}`;div.dataset.name=num.name;div.draggable=true;div.textContent=num.text;setupDragListeners(div);div.addEventListener('click',handleNameClick);nameListContainer.appendChild(div)}
         function updateProgress(){progressTitle.textContent=`Aciertos: ${correctCount} / ${keys.length}`;if(correctCount>=1){instructionsContainer.style.opacity=0}}
-        function checkCompletion(){if(correctCount===keys.length){speakText('¡Felicidades!',true);victoryModal.classList.add('visible')}}
+        function checkCompletion(){if(correctCount===keys.length){speakText('¡Muy bien! ¡Felicidades!',true);victoryModal.classList.add('visible')}}
         function placeNumber(key,nameData){playSuccessSound();const placedElement=document.getElementById(`name-${nameData}`);key.textContent=numberMap[key.dataset.number].text;key.classList.add('correct');if(placedElement){placedElement.classList.add('hidden')}const indexToRemove=visibleNames.indexOf(nameData);if(indexToRemove>-1){visibleNames.splice(indexToRemove,1)}setTimeout(()=>{if(placedElement)placedElement.remove();addNextNameToVisibleList()},400);correctCount++;updateProgress();checkCompletion()}
         
         function initAudioContext(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
