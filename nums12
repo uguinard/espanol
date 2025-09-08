@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numbers in Spanish - Interactive Keypad</title>
+    <style>
+        :root {
+            --accent-color: #0d6efd; --correct-color: #198754; --error-color: #dc3545; --hint-color: #fd7e14;
+            --card-bg: rgba(255, 255, 255, 0.2); --border-color: rgba(255, 255, 255, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1); --text-color: #1a1a1a; --text-light-color: #f0f0f0;
+            --blur-amount: 10px; --card-radius: 24px; --body-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-height: 100vh; background: var(--body-bg); margin: 0; padding: 20px;
+            transition: background 0.5s ease;
+        }
+
+        .game-controls {
+            position: absolute; top: 20px; right: 20px; z-index: 100;
+            display: flex; gap: 10px;
+        }
+
+        .control-btn {
+            width: 50px; height: 50px; background: var(--card-bg);
+            border: 1px solid var(--border-color); border-radius: 50%;
+            font-size: 24px; cursor: pointer; color: var(--text-light-color);
+            display: flex; justify-content: center; align-items: center;
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            transition: transform 0.2s ease, background-color 0.2s;
+        }
+        .control-btn:hover { transform: scale(1.1); background-color: rgba(255,255,255,0.3); }
+        .control-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+
+        .game-container { margin-top: 80px; display: flex; justify-content: center; align-items: flex-start; gap: 40px; flex-wrap: wrap; }
+        
+        .card {
+            background: var(--card-bg); border-radius: var(--card-radius);
+            padding: 25px; border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px 0 var(--shadow-color);
+            backdrop-filter: blur(var(--blur-amount)); -webkit-backdrop-filter: blur(var(--blur-amount));
+            transition: all 0.3s ease;
+        }
+
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .key {
+            width: 75px; height: 75px; background: rgba(255, 255, 255, 0.25);
+            color: var(--text-color); border-radius: 50%; border: 1px solid transparent;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 2.2em; font-weight: 600; cursor: pointer;
+            transition: all 0.2s ease, background-color 0.4s, color 0.4s, box-shadow 0.2s;
+            user-select: none;
+        }
+        .key:active { transform: scale(0.95); }
+        .shake { animation: shake 0.5s ease-in-out; border-color: var(--error-color) !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+        .key.drag-over { border-color: var(--accent-color); transform: scale(1.05); }
+        /* ----- CAMBIO #1: Se eliminó "pointer-events: none;" para que las teclas correctas sean clickeables ----- */
+        .key.correct { background: var(--correct-color); color: white; font-size: 1.2em; font-weight: 700; }
+        .key.hint-highlight { box-shadow: 0 0 20px 5px var(--hint-color); }
+        #key-0 { grid-column: 2 / 3; }
+        
+        .assignment-panel { width: 250px; }
+        .assignment-panel h3 { text-align: center; margin-top: 0; color: var(--text-light-color); padding-bottom: 10px; margin-bottom: 10px; font-size: 1.3em; }
+        #name-list { min-height: 295px; }
+        
+        .draggable-name {
+            background: rgba(255, 255, 255, 0.25); color: var(--text-light-color); padding: 12px;
+            border-radius: 12px; margin-bottom: 10px; text-align: center;
+            font-size: 1.2em; font-weight: 500; cursor: grab;
+            transition: opacity 0.4s, transform 0.4s, box-shadow 0.2s, background-color 0.2s;
+            border: 2px solid transparent;
+        }
+        .draggable-name.selected { background: var(--accent-color); box-shadow: 0 0 15px 0 var(--accent-color); border-color: rgba(255, 255, 255, 0.8); transform: scale(1.05); }
+        .draggable-name.hidden { opacity: 0; transform: scale(0.5); pointer-events: none; margin-bottom: -55px; }
+        .draggable-name.hint-highlight { box-shadow: 0 0 20px 5px var(--hint-color); }
+
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.4); display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; z-index: 1000;
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            cursor: pointer;
+        }
+        .modal.visible { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: rgba(255, 255, 255, 0.7); padding: 30px 40px; border-radius: var(--card-radius);
+            text-align: center; color: #333; box-shadow: 0 8px 32px 0 var(--shadow-color);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transform: scale(0.9); transition: transform 0.3s ease-in-out, border-radius 0.3s ease;
+            max-width: 500px; cursor: default;
+        }
+        .modal.visible .modal-content { transform: scale(1); }
+        .modal-content h2 { margin: 0 0 20px 0; font-size: 2em; color: var(--correct-color); }
+        #instructionsModal .modal-content h2 { color: var(--accent-color); }
+        #instructionsModal .modal-content p { margin: 5px 0; font-weight: 500; line-height: 1.6; }
+        #instructionsModal .modal-content .lang-en { opacity: 0.8; font-size: 0.9em; }
+
+        #resetButton {
+            padding: 12px 25px; font-family: inherit; font-size: 1.2em;
+            font-weight: 600; color: white; background-color: var(--accent-color);
+            border: none; border-radius: 12px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-controls">
+        <button id="instructions-toggle" class="control-btn" title="Instrucciones">❓</button>
+        <button id="hint-button" class="control-btn" title="Ayuda">💡</button>
+        <button id="game-reset-button" class="control-btn" title="Reiniciar">🔁</button>
+    </div>
+
+    <div class="game-container">
+        <div class="card keypad-card">
+            <div class="keypad">
+                <div class="key" id="key-1" data-number="1">1</div><div class="key" id="key-2" data-number="2">2</div><div class="key" id="key-3" data-number="3">3</div>
+                <div class="key" id="key-4" data-number="4">4</div><div class="key" id="key-5" data-number="5">5</div><div class="key" id="key-6" data-number="6">6</div>
+                <div class="key" id="key-7" data-number="7">7</div><div class="key" id="key-8" data-number="8">8</div><div class="key" id="key-9" data-number="9">9</div>
+                <div class="key" id="key-0" data-number="0">0</div>
+            </div>
+        </div>
+        <div class="card names-card">
+            <div class="assignment-panel">
+                <h3 id="progress-title"></h3>
+                <div id="name-list"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="victoryModal" class="modal">
+        <div class="modal-content">
+            <h2>¡Felicidades! 🎉</h2>
+            <button id="resetButton">Jugar de Nuevo</button>
+        </div>
+    </div>
+    
+    <div id="instructionsModal" class="modal">
+        <div class="modal-content">
+            <h2>Instrucciones</h2>
+            <p class="lang-es"><strong>Objetivo:</strong> Aprende los números en español. Arrastra o selecciona cada nombre y colócalo en su tecla correspondiente.</p>
+            <p class="lang-en"><strong>Objective:</strong> Learn the numbers in Spanish. Drag or select each name and place it on its matching key.</p>
+        </div>
+    </div>
+
+    <script>
+        const numberMap={'0':{name:'cero',text:'CERO'},'1':{name:'uno',text:'UNO'},'2':{name:'dos',text:'DOS'},'3':{name:'tres',text:'TRES'},'4':{name:'cuatro',text:'CUATRO'},'5':{name:'cinco',text:'CINCO'},'6':{name:'seis',text:'SEIS'},'7':{name:'siete',text:'SIETE'},'8':{name:'ocho',text:'OCHO'},'9':{name:'nueve',text:'NUEVE'}};
+        
+        const keys=document.querySelectorAll('.key');
+        const resetButton=document.getElementById('resetButton');
+        const nameListContainer=document.getElementById('name-list');
+        const victoryModal=document.getElementById('victoryModal');
+        const progressTitle=document.getElementById('progress-title');
+        const instructionsModal = document.getElementById('instructionsModal');
+        const instructionsToggle = document.getElementById('instructions-toggle');
+        const gameResetButton = document.getElementById('game-reset-button');
+        const hintButton = document.getElementById('hint-button');
+        
+        let spanishVoice=null,correctCount=0,audioCtx,selectedNameElement=null;
+        let availableNames = [], visibleNames = [];
+
+        function initializeGame() {
+            setupControlListeners();
+            setupKeyListeners();
+            resetGame();
+            loadVoices();
+            document.body.addEventListener('click', initAudioContext, { once: true });
+        }
+        
+        function resetGame(){keys.forEach(key=>{key.classList.remove('correct','shake','hint-highlight');key.textContent=key.dataset.number;key.style.pointerEvents='auto'});const allNames=Object.values(numberMap).map(num=>num.name);allNames.sort(()=>Math.random()-.5);availableNames=[...allNames];visibleNames=[];nameListContainer.innerHTML='';for(let i=0;i<5;i++){addNextNameToVisibleList()}correctCount=0;updateProgress();victoryModal.classList.remove('visible');if(selectedNameElement){selectedNameElement.classList.remove('selected');selectedNameElement=null};hintButton.disabled=false}
+        function addNextNameToVisibleList(){if(availableNames.length===0)return;const nameToAdd=availableNames.shift();visibleNames.push(nameToAdd);const num=Object.values(numberMap).find(n=>n.name===nameToAdd);const div=document.createElement('div');div.className='draggable-name';div.id=`name-${num.name}`;div.dataset.name=num.name;div.draggable=true;div.textContent=num.text;setupDragListeners(div);div.addEventListener('click',handleNameClick);nameListContainer.appendChild(div)}
+        function updateProgress(){progressTitle.textContent=`Aciertos: ${correctCount} / ${keys.length}`}
+        function checkCompletion(){if(correctCount===keys.length){speakText('¡Felicidades!',true);victoryModal.classList.add('visible');hintButton.disabled=true}}
+        function placeNumber(key,nameData){playSuccessSound();const placedElement=document.getElementById(`name-${nameData}`);key.textContent=numberMap[key.dataset.number].text;key.classList.add('correct');if(placedElement){placedElement.classList.add('hidden')}const indexToRemove=visibleNames.indexOf(nameData);if(indexToRemove>-1){visibleNames.splice(indexToRemove,1)}setTimeout(()=>{if(placedElement)placedElement.remove();addNextNameToVisibleList()},400);correctCount++;updateProgress();checkCompletion()}
+        
+        function giveHint(){if(visibleNames.length===0)return;hintButton.disabled=true;const randomVisibleName=visibleNames[Math.floor(Math.random()*visibleNames.length)];const nameElement=document.getElementById(`name-${randomVisibleName}`);const correctNumber=Object.keys(numberMap).find(key=>numberMap[key].name===randomVisibleName);const keyElement=document.getElementById(`key-${correctNumber}`);if(nameElement&&keyElement&&!keyElement.classList.contains('correct')){nameElement.classList.add('hint-highlight');keyElement.classList.add('hint-highlight');setTimeout(()=>{nameElement.classList.remove('hint-highlight');keyElement.classList.remove('hint-highlight');placeNumber(keyElement,randomVisibleName);if(correctCount<keys.length){hintButton.disabled=false}},1000)}else{hintButton.disabled=false}}
+        
+        function initAudioContext(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
+        function playSuccessSound(){if(!audioCtx)return;const now=audioCtx.currentTime,gainNode=audioCtx.createGain();gainNode.connect(audioCtx.destination);gainNode.gain.setValueAtTime(0.2,now);const osc1=audioCtx.createOscillator();osc1.type='triangle';osc1.frequency.setValueAtTime(523.25,now);osc1.connect(gainNode);const osc2=audioCtx.createOscillator();osc2.type='triangle';osc2.frequency.setValueAtTime(659.25,now+0.1);osc2.connect(gainNode);osc1.start(now);osc2.start(now+0.1);gainNode.gain.setTargetAtTime(0,now+0.2,0.015);osc1.stop(now+0.3);osc2.stop(now+0.3)}
+        function speakText(text,isAnimated=false){const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';if(spanishVoice)u.voice=spanishVoice;if(navigator.platform.toUpperCase().indexOf('MAC')>=0&&!isAnimated)u.rate=0.8;if(isAnimated){u.pitch=1.2;u.rate=1.1}window.speechSynthesis.speak(u)}
+        function loadVoices(){const s=()=>{const v=window.speechSynthesis.getVoices();spanishVoice=v.find(v=>v.name==='Google español')||v.find(v=>v.lang.startsWith('es'))};s();if(window.speechSynthesis.onvoiceschanged!==undefined){window.speechSynthesis.onvoiceschanged=s}}
+        
+        function setupKeyListeners(){keys.forEach(key=>{key.addEventListener('click',handleKeyClick);key.addEventListener('dragover',(e)=>{e.preventDefault();key.classList.add('drag-over')});key.addEventListener('dragleave',()=>{key.classList.remove('drag-over','shake')});key.addEventListener('drop',handleDrop)})}
+        function setupDragListeners(element){element.addEventListener('dragstart',(e)=>{e.dataTransfer.setData('text/plain',element.dataset.name)})}
+        function setupControlListeners(){resetButton.addEventListener('click',resetGame);gameResetButton.addEventListener('click',resetGame);hintButton.addEventListener('click',giveHint);instructionsToggle.addEventListener('click',()=>instructionsModal.classList.add('visible'));instructionsModal.addEventListener('click',()=>instructionsModal.classList.remove('visible'))}
+
+        function handleNameClick(event){event.stopPropagation();const t=event.currentTarget;if(selectedNameElement===t){selectedNameElement.classList.remove('selected');selectedNameElement=null}else{if(selectedNameElement)selectedNameElement.classList.remove('selected');t.classList.add('selected');selectedNameElement=t}}
+        
+        /* ----- CAMBIO #2: Se actualizó esta función para manejar el clic en teclas ya correctas ----- */
+        function handleKeyClick(event) {
+            const key = event.currentTarget;
+            const num = key.dataset.number;
+            const numberName = numberMap[num]?.name;
+
+            // Si la tecla ya es correcta, solo decimos su nombre y terminamos.
+            if (key.classList.contains('correct')) {
+                speakText(numberName);
+                return; 
+            }
+
+            // Si hay un nombre seleccionado de la lista...
+            if (selectedNameElement) {
+                const selectedName = selectedNameElement.dataset.name;
+                // Verificamos si es el correcto
+                if (numberName === selectedName) {
+                    placeNumber(key, selectedName);
+                } else {
+                    // Si no, la tecla tiembla y se avisa del error
+                    key.classList.add('shake');
+                    speakText('Intenta de nuevo');
+                }
+                // Deseleccionamos el nombre después del intento
+                selectedNameElement.classList.remove('selected');
+                selectedNameElement = null;
+            } else {
+                // Si no hay nombre seleccionado, solo decimos el número de la tecla.
+                speakText(numberName);
+            }
+        }
+
+        function handleDrop(event){event.preventDefault();const key=event.currentTarget;key.classList.remove('drag-over');const droppedName=event.dataTransfer.getData('text/plain');if(numberMap[key.dataset.number]?.name===droppedName){placeNumber(key,droppedName)}else{key.classList.add('shake');speakText('Intenta de nuevo')}}
+        
+        document.addEventListener('DOMContentLoaded',initializeGame);
+    </script>
+</body>
+</html>
