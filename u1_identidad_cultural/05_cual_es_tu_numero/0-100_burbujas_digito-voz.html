@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <title>Burbujas de Voz Múltiple</title>
+    <title>Burbujas de Voz Continua</title>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -91,20 +91,11 @@
             background-color: var(--primary-color);
             color: white;
             font-size: 2.5rem;
-            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
             box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        #voice-input-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
-        }
-        #voice-input-button:disabled {
-            cursor: not-allowed;
-            background-color: #999;
+            transition: background-color 0.3s;
         }
         #voice-input-button.listening {
             animation: pulse 1.5s infinite;
@@ -231,8 +222,8 @@
             </div>
             
             <div id="ui-bar">
-                <button id="voice-input-button" title="Ingresar por voz">🎤</button>
-                <p>Presiona para hablar</p>
+                <div id="voice-input-button" title="Estado del micrófono">🎤</div>
+                <p id="mic-status-text">Presiona "Empezar" para activar el micrófono</p>
             </div>
         </div>
     </div>
@@ -248,6 +239,7 @@
     const finalScoreEl = document.getElementById('final-score'), difficultySelect = document.getElementById('difficulty-select');
     const highScoreDisplay = document.getElementById('high-score-display');
     const voiceInputButton = document.getElementById('voice-input-button');
+    const micStatusText = document.getElementById('mic-status-text');
     const reviewCorrectList = document.getElementById('review-correct-list'), reviewIncorrectList = document.getElementById('review-incorrect-list');
 
     const popSound = new Audio('https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3');
@@ -267,6 +259,9 @@
     const HIGH_SCORES_KEY = 'burbujasDictadoHighScores';
     let highScores = { a: 0, b: 0, c: 0, d: 0 };
     
+    // --- NUEVO: Mueve la variable recognition a un alcance superior ---
+    let recognition;
+
     // --- FUNCIONES AUXILIARES ---
     function numberToWords(n){const u=['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'],e=['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve'],d=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];if(n>=0&&n<10)return u[n];if(n<20)return e[n-10];if(n<30)return n===20?'veinte':'veinti'+u[n%10];if(n<100){const t=Math.floor(n/10),o=n%10;return d[t]+(o>0?' y '+u[o]:'')}return n.toString()}
     function loadHighScores() { const s = localStorage.getItem(HIGH_SCORES_KEY); if (s) { highScores = JSON.parse(s); } updateHighScoreDisplay(); }
@@ -278,50 +273,49 @@
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
             voiceInputButton.style.display = 'none';
-            console.warn("La API de Reconocimiento de Voz no es soportada en este navegador.");
+            micStatusText.textContent = "Reconocimiento de voz no soportado en este navegador.";
             return;
         }
-        const recognition = new SpeechRecognition();
+        recognition = new SpeechRecognition();
         recognition.lang = 'es-MX';
-        recognition.continuous = false;
+        // --- CAMBIO: Habilitar modo continuo ---
+        recognition.continuous = true;
         recognition.interimResults = false;
-
-        voiceInputButton.addEventListener('click', () => {
-            if (gameIsRunning) {
-                recognition.start();
-            }
-        });
 
         recognition.onstart = () => {
             voiceInputButton.classList.add('listening');
-            voiceInputButton.disabled = true;
+            micStatusText.textContent = "¡Escuchando...!";
         };
         
-        // --- LÓGICA MODIFICADA PARA ACEPTAR MÚLTIPLES NÚMEROS ---
         recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript.toLowerCase();
-            
-            // Itera sobre una copia de las burbujas en pantalla
-            [...numbersOnScreen].forEach(num => {
-                if (num.saved) return; // Si ya fue acertada, la ignora
-
-                const numAsWord = numberToWords(num.value);
+            // Itera a través de todos los resultados recibidos desde el último reinicio
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript.toLowerCase().trim();
                 
-                // Si la transcripción de la voz incluye el nombre del número, se considera un acierto
-                if (transcript.includes(numAsWord)) {
-                    saveNumber(num);
+                if (transcript) {
+                     [...numbersOnScreen].forEach(num => {
+                        if (num.saved) return;
+                        const numAsWord = numberToWords(num.value);
+                        if (transcript.includes(numAsWord)) {
+                            saveNumber(num);
+                        }
+                    });
                 }
-            });
+            }
         };
 
         recognition.onerror = (event) => {
             console.error("Error en el reconocimiento de voz:", event.error);
-            alert("Hubo un error con el micrófono. Asegúrate de darle permiso.");
         };
 
+        // --- CAMBIO: Reiniciar automáticamente la escucha al terminar ---
         recognition.onend = () => {
-            voiceInputButton.classList.remove('listening');
-            voiceInputButton.disabled = false;
+            if (gameIsRunning) {
+                recognition.start(); // Vuelve a empezar a escuchar
+            } else {
+                voiceInputButton.classList.remove('listening');
+                micStatusText.textContent = "Presiona 'Empezar' para activar el micrófono";
+            }
         };
     }
 
@@ -334,14 +328,25 @@
         updateUI();
         startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; reviewScreen.style.display = 'none';
         gameContainer.querySelectorAll('.numero').forEach(n => n.remove());
+        
         gameIsRunning = true;
+        
+        // --- CAMBIO: Inicia la escucha al empezar el juego ---
+        if (recognition) {
+            recognition.start();
+        }
+
         backgroundMusic.currentTime = 0;
         backgroundMusic.play();
         spawnInterval = setInterval(spawnNumber, 3500);
         gameLoop();
     }
     function gameOver() {
-        gameIsRunning = false;
+        gameIsRunning = false; // Esta bandera detendrá el reinicio de la escucha
+        if (recognition) {
+            recognition.stop();
+        }
+
         clearInterval(spawnInterval);
         saveHighScore();
         finalScoreEl.textContent = `Puntuación Final: ${score}`;
@@ -353,14 +358,12 @@
         reviewCorrectList.innerHTML = '';
         reviewIncorrectList.innerHTML = '';
         correctNumbersThisRound.sort((a, b) => a - b).forEach(num => { reviewCorrectList.innerHTML += `<li>${num}</li>`; });
-        // En la pantalla de revisión, sí leemos el número para practicarlo
         incorrectNumbersThisRound.sort((a, b) => a - b).forEach(num => {
             const numAsWord = numberToWords(num);
             reviewIncorrectList.innerHTML += `<li><div class="review-item-number">${num}</div><div class="review-item-text">${numAsWord}</div><button class="speak-button" onclick="speakReview('${numAsWord}')">🔊</button></li>`;
         });
         reviewScreen.style.display = 'flex';
     }
-    // Función de voz específica para la revisión, para no interferir con la del juego.
     function speakReview(text) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'es-MX';
@@ -408,7 +411,6 @@
         element.style.top = `${numObj.y}px`; element.style.left = `${numObj.x}px`;
         numbersOnScreen.push(numObj);
         gameContainer.appendChild(element);
-        // La línea que leía el número (speak) se ha eliminado de aquí.
     }
     function saveNumber(num) {
         num.saved = true; score += 10; updateUI();
@@ -432,6 +434,10 @@
     restartButton.addEventListener('click', startGame);
     reviewButton.addEventListener('click', showReviewScreen);
     homeButton.addEventListener('click', () => {
+        gameIsRunning = false; // Detiene el bucle de reinicio del micrófono
+        if (recognition) {
+            recognition.stop();
+        }
         reviewScreen.style.display = 'none';
         startScreen.style.display = 'flex';
         backgroundMusic.pause();
