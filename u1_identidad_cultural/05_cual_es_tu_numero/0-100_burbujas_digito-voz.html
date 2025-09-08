@@ -54,12 +54,15 @@
             display: flex;
         }
         
+        /* --- PANEL DE PROGRESO Y CONTROLES --- */
         #progress-panel {
             width: 300px;
             flex-shrink: 0;
             background: rgba(0,0,0,0.05);
             padding: 20px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
         #progress-panel h3 {
             margin: 0 0 15px 0;
@@ -70,39 +73,33 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             gap: 15px;
+            flex-grow: 1;
         }
         .progress-item {
-            background: #fff;
-            border-radius: 8px;
-            padding: 8px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background: #fff; border-radius: 8px; padding: 8px;
+            text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .progress-number {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-        .dots {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            margin-top: 5px;
-        }
-        .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #ddd;
-        }
+        .progress-number { font-size: 1.5rem; font-weight: 700; }
+        .dots { display: flex; justify-content: center; gap: 4px; margin-top: 5px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; background-color: #ddd; }
         .dot.p1 { background-color: var(--primary-color); }
         .dot.p2 { background-color: var(--mastered-color); }
 
+        .speed-slider-container {
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        .speed-slider-container label { display: block; margin-bottom: 10px; font-weight: 600; text-align: center;}
+        .speed-slider-container .slider-wrapper { display: flex; align-items: center; gap: 10px; }
+        #speed-slider { -webkit-appearance: none; width: 100%; height: 8px; background: #ddd; border-radius: 5px; outline: none; }
+        #speed-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: var(--primary-color); border-radius: 50%; cursor: pointer; }
+        #speed-slider::-moz-range-thumb { width: 24px; height: 24px; background: var(--primary-color); border-radius: 50%; cursor: pointer; }
+
+        /* --- ÁREA DE JUEGO (BURBUJAS) --- */
         #bubble-area {
             flex-grow: 1;
             position: relative;
             height: 100%;
         }
-
         .numero { 
             position: absolute; font-weight: 700; color: var(--text-color); 
             background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
@@ -154,28 +151,8 @@
             transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0,122,255,0.3);
         }
         .screen button:hover, #next-level-button:hover { transform: translateY(-3px); box-shadow: 0 7px 20px rgba(0,122,255,0.4); }
-        
-        #next-level-button {
-            background-color: var(--safe-color);
-            box-shadow: 0 4px 15px rgba(52, 199, 89, 0.4);
-        }
-        #next-level-button:hover {
-             box-shadow: 0 7px 20px rgba(52, 199, 89, 0.5);
-        }
-
-        .speed-slider-container {
-            margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.5);
-            border-radius: 15px; width: 90%; max-width: 400px;
-        }
-        .speed-slider-container label {
-            display: block; margin-bottom: 10px; font-weight: 600;
-        }
-        .speed-slider-container .slider-wrapper {
-            display: flex; align-items: center; gap: 10px;
-        }
-        #speed-slider { -webkit-appearance: none; width: 100%; height: 8px; background: #ddd; border-radius: 5px; outline: none; }
-        #speed-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: var(--primary-color); border-radius: 50%; cursor: pointer; }
-        #speed-slider::-moz-range-thumb { width: 24px; height: 24px; background: var(--primary-color); border-radius: 50%; cursor: pointer; }
+        #next-level-button { background-color: var(--safe-color); box-shadow: 0 4px 15px rgba(52, 199, 89, 0.4); }
+        #next-level-button:hover { box-shadow: 0 7px 20px rgba(52, 199, 89, 0.5); }
     </style>
 </head>
 <body>
@@ -184,6 +161,15 @@
             <div id="progress-panel">
                 <h3 id="level-title">Nivel 1</h3>
                 <div id="progress-grid"></div>
+                
+                <div class="speed-slider-container">
+                    <label for="speed-slider">Velocidad de Burbujas</label>
+                    <div class="slider-wrapper">
+                        <span>Lento</span>
+                        <input type="range" id="speed-slider" min="1" max="5" value="3">
+                        <span>Rápido</span>
+                    </div>
+                </div>
             </div>
             <div id="bubble-area">
                  <div id="info-bar">
@@ -192,16 +178,6 @@
                 <div id="start-screen" class="screen">
                     <h2>Burbujas de Práctica</h2>
                     <p>Domina los números diciéndolos en voz alta. <b>¡Acierta cada número 2 veces para avanzar de nivel!</b></p>
-                    
-                    <div class="speed-slider-container">
-                        <label for="speed-slider">Velocidad de Burbujas</label>
-                        <div class="slider-wrapper">
-                            <span>Lento</span>
-                            <input type="range" id="speed-slider" min="1" max="5" value="3">
-                            <span>Rápido</span>
-                        </div>
-                    </div>
-
                     <button id="start-button">Empezar a Jugar</button>
                 </div>
                  <div id="game-complete-screen" class="screen">
@@ -237,7 +213,6 @@
     let numbersOnScreen = [], spawnInterval;
     
     // --- ESTRUCTURA DE NIVELES Y PROGRESO ---
-    // CAMBIO: Niveles ajustados a 0-9, 10-19, 20-29, etc.
     const gameLevels = [
         { name: "Nivel 1", min: 0, max: 9 },
         { name: "Nivel 2", min: 10, max: 19 },
@@ -247,7 +222,6 @@
     let currentLevelIndex = 0;
     let practiceTracker = {};
     const PRACTICE_GOAL = 2;
-    // CAMBIO: Velocidades de crecimiento aumentadas
     const speedMap = { '1': 0.06, '2': 0.09, '3': 0.12, '4': 0.18, '5': 0.24 };
 
     let recognition;
@@ -378,9 +352,7 @@
         element.classList.add('numero');
         element.textContent = value;
         
-        // CAMBIO: Tamaño inicial de la burbuja aumentado
         const startSize = 80;
-        
         const numObj = { value, element, size: startSize, startSize, maxSize: 220 + Math.random() * 50, growthRate, saved: false };
         const gameRect = bubbleArea.getBoundingClientRect();
         numObj.x = Math.random() * (gameRect.width - numObj.maxSize - 20) + 10;
@@ -426,6 +398,13 @@
     restartGameButton.addEventListener('click', () => {
         currentLevelIndex = 0;
         startLevel();
+    });
+    // CAMBIO: Event listener para que el slider actualice la velocidad en tiempo real
+    speedSlider.addEventListener('input', () => {
+        const newGrowthRate = speedMap[speedSlider.value];
+        numbersOnScreen.forEach(num => {
+            num.growthRate = newGrowthRate;
+        });
     });
     document.addEventListener('DOMContentLoaded', () => {
         setupSpeechRecognition();
