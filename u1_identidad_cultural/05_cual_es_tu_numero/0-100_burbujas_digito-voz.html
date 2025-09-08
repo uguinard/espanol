@@ -54,7 +54,6 @@
             display: flex;
         }
         
-        /* --- PANEL DE PROGRESO Y CONTROLES --- */
         #progress-panel {
             width: 300px;
             flex-shrink: 0;
@@ -85,16 +84,6 @@
         .dot.p1 { background-color: var(--primary-color); }
         .dot.p2 { background-color: var(--mastered-color); }
 
-        .speed-slider-container {
-            margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);
-        }
-        .speed-slider-container label { display: block; margin-bottom: 10px; font-weight: 600; text-align: center;}
-        .speed-slider-container .slider-wrapper { display: flex; align-items: center; gap: 10px; }
-        #speed-slider { -webkit-appearance: none; width: 100%; height: 8px; background: #ddd; border-radius: 5px; outline: none; }
-        #speed-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: var(--primary-color); border-radius: 50%; cursor: pointer; }
-        #speed-slider::-moz-range-thumb { width: 24px; height: 24px; background: var(--primary-color); border-radius: 50%; cursor: pointer; }
-
-        /* --- ÁREA DE JUEGO (BURBUJAS) --- */
         #bubble-area {
             flex-grow: 1;
             position: relative;
@@ -161,15 +150,6 @@
             <div id="progress-panel">
                 <h3 id="level-title">Nivel 1</h3>
                 <div id="progress-grid"></div>
-                
-                <div class="speed-slider-container">
-                    <label for="speed-slider">Velocidad de Burbujas</label>
-                    <div class="slider-wrapper">
-                        <span>Lento</span>
-                        <input type="range" id="speed-slider" min="1" max="5" value="3">
-                        <span>Rápido</span>
-                    </div>
-                </div>
             </div>
             <div id="bubble-area">
                  <div id="info-bar">
@@ -204,7 +184,6 @@
     const levelTitle = document.getElementById('level-title');
     const nextLevelButton = document.getElementById('next-level-button');
     const bubbleArea = document.getElementById('bubble-area');
-    const speedSlider = document.getElementById('speed-slider');
 
     const popSound = new Audio('https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3');
     popSound.volume = 0.5;
@@ -222,7 +201,8 @@
     let currentLevelIndex = 0;
     let practiceTracker = {};
     const PRACTICE_GOAL = 2;
-    const speedMap = { '1': 0.07, '2': 0.10, '3': 0.15, '4': 0.25, '5': 0.36 };
+    // CAMBIO: Se define una única velocidad ultra rápida
+    const ULTRA_FAST_SPEED = 0.5;
 
     let recognition;
 
@@ -335,32 +315,26 @@
         spawnInterval = setInterval(spawnNumber, 2500);
     }
 
-    // --- CAMBIO: Lógica del slider movida al Game Loop para efecto instantáneo ---
     function gameLoop() {
         if (!gameIsRunning) return;
-
-        // Se obtiene la velocidad actual del slider en CADA fotograma
-        const currentGrowthRate = speedMap[speedSlider.value];
 
         numbersOnScreen.forEach((num) => {
             if (num.saved) return;
             
-            // Se aplica la velocidad actualizada a cada burbuja
-            num.size += currentGrowthRate;
+            // Se aplica la velocidad fija ultra rápida a cada burbuja
+            num.size += ULTRA_FAST_SPEED;
             
-            // Actualización visual
             const progress = Math.min(1, (num.size - num.startSize) / (num.maxSize - num.startSize));
-            const r = BUBBLE_COLOR.r + (DANGER_COLOR.r - BUBBLE_COLOR.r) * progress;
-            const g = BUBBLE_COLOR.g + (DANGER_COLOR.g - BUBBLE_COLOR.g) * progress;
-            const b = BUBBLE_COLOR.b + (DANGER_COLOR.b - BUBBLE_COLOR.b) * progress;
+            const r = 255 + (255 - 255) * progress; // Simplificado ya que el color base es blanco
+            const g = 255 + (59 - 255) * progress;
+            const b = 255 + (48 - 255) * progress;
             num.element.style.backgroundColor = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
             num.element.style.width = `${num.size}px`;
             num.element.style.height = `${num.size}px`;
             num.element.style.fontSize = `${num.size / 3}px`;
 
             if (num.size >= num.maxSize) {
-                // La función explodeNumber ya no existe, la lógica se puede integrar o llamar a una nueva
-                // Por ahora, asumimos que no hay explosiones en modo práctica, pero se puede añadir
+                // Lógica de explosión si no se acierta a tiempo
             }
         });
 
@@ -384,7 +358,6 @@
         element.textContent = value;
         
         const startSize = 80;
-        // La velocidad ya no se asigna aquí, se controla en el gameLoop
         const numObj = { value, element, size: startSize, startSize, maxSize: 220 + Math.random() * 50, saved: false };
         const gameRect = bubbleArea.getBoundingClientRect();
         numObj.x = Math.random() * (gameRect.width - numObj.maxSize - 20) + 10;
@@ -431,10 +404,8 @@
         currentLevelIndex = 0;
         startLevel();
     });
-    // Se elimina el listener anterior del slider, ya que ahora se gestiona en el gameLoop.
     document.addEventListener('DOMContentLoaded', () => {
         setupSpeechRecognition();
-        // Llama a gameLoop una vez para iniciarlo. Se autoejecutará con requestAnimationFrame.
         requestAnimationFrame(gameLoop);
     });
 </script>
