@@ -84,6 +84,7 @@
             background-color: rgba(0, 0, 0, 0.4); display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; z-index: 1000;
             backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            cursor: pointer;
         }
         .modal.visible { opacity: 1; pointer-events: auto; }
         .modal-content {
@@ -92,7 +93,7 @@
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.4);
             transform: scale(0.9); transition: transform 0.3s ease-in-out, border-radius 0.3s ease;
-            max-width: 500px;
+            max-width: 500px; cursor: default;
         }
         .modal.visible .modal-content { transform: scale(1); }
         .modal-content h2 { margin: 0 0 20px 0; font-size: 2em; color: var(--correct-color); }
@@ -165,27 +166,19 @@
         let spanishVoice=null,correctCount=0,audioCtx,selectedNameElement=null;
         let availableNames = [], visibleNames = [];
 
-        function initializeGame(){setupControlListeners();resetGame();loadVoices();document.body.addEventListener('click',initAudioContext,{once:true})}
-        function resetGame(){keys.forEach(key=>{key.classList.remove('correct','shake','hint-highlight');key.textContent=key.dataset.number;key.style.pointerEvents='auto'});const allNames=Object.values(numberMap).map(num=>num.name);allNames.sort(()=>Math.random()-.5);availableNames=[...allNames];visibleNames=[];nameListContainer.innerHTML='';for(let i=0;i<5;i++){addNextNameToVisibleList()}correctCount=0;updateProgress();victoryModal.classList.remove('visible');if(selectedNameElement){selectedNameElement.classList.remove('selected');selectedNameElement=null};hintButton.disabled=false}
+        function initializeGame() {
+            setupControlListeners();
+            setupKeyListeners(); // CORRECCIÓN: Esta línea faltaba y es esencial para que el juego funcione.
+            resetGame();
+            loadVoices();
+            document.body.addEventListener('click', initAudioContext, { once: true });
+        }
         
+        function resetGame(){keys.forEach(key=>{key.classList.remove('correct','shake','hint-highlight');key.textContent=key.dataset.number;key.style.pointerEvents='auto'});const allNames=Object.values(numberMap).map(num=>num.name);allNames.sort(()=>Math.random()-.5);availableNames=[...allNames];visibleNames=[];nameListContainer.innerHTML='';for(let i=0;i<5;i++){addNextNameToVisibleList()}correctCount=0;updateProgress();victoryModal.classList.remove('visible');if(selectedNameElement){selectedNameElement.classList.remove('selected');selectedNameElement=null};hintButton.disabled=false}
         function addNextNameToVisibleList(){if(availableNames.length===0)return;const nameToAdd=availableNames.shift();visibleNames.push(nameToAdd);const num=Object.values(numberMap).find(n=>n.name===nameToAdd);const div=document.createElement('div');div.className='draggable-name';div.id=`name-${num.name}`;div.dataset.name=num.name;div.draggable=true;div.textContent=num.text;setupDragListeners(div);div.addEventListener('click',handleNameClick);nameListContainer.appendChild(div)}
         function updateProgress(){progressTitle.textContent=`Aciertos: ${correctCount} / ${keys.length}`}
         function checkCompletion(){if(correctCount===keys.length){speakText('¡Felicidades!',true);victoryModal.classList.add('visible');hintButton.disabled=true}}
-        
-        function placeNumber(key,nameData){
-            speakText(nameData); // NUEVO: Se dice el nombre del número al acertar.
-            playSuccessSound();
-            const placedElement=document.getElementById(`name-${nameData}`);
-            key.textContent=numberMap[key.dataset.number].text;
-            key.classList.add('correct');
-            if(placedElement){placedElement.classList.add('hidden')}
-            const indexToRemove=visibleNames.indexOf(nameData);
-            if(indexToRemove>-1){visibleNames.splice(indexToRemove,1)}
-            setTimeout(()=>{if(placedElement)placedElement.remove();addNextNameToVisibleList()},400);
-            correctCount++;
-            updateProgress();
-            checkCompletion();
-        }
+        function placeNumber(key,nameData){playSuccessSound();const placedElement=document.getElementById(`name-${nameData}`);key.textContent=numberMap[key.dataset.number].text;key.classList.add('correct');if(placedElement){placedElement.classList.add('hidden')}const indexToRemove=visibleNames.indexOf(nameData);if(indexToRemove>-1){visibleNames.splice(indexToRemove,1)}setTimeout(()=>{if(placedElement)placedElement.remove();addNextNameToVisibleList()},400);correctCount++;updateProgress();checkCompletion()}
         
         function giveHint(){if(visibleNames.length===0)return;hintButton.disabled=true;const randomVisibleName=visibleNames[Math.floor(Math.random()*visibleNames.length)];const nameElement=document.getElementById(`name-${randomVisibleName}`);const correctNumber=Object.keys(numberMap).find(key=>numberMap[key].name===randomVisibleName);const keyElement=document.getElementById(`key-${correctNumber}`);if(nameElement&&keyElement&&!keyElement.classList.contains('correct')){nameElement.classList.add('hint-highlight');keyElement.classList.add('hint-highlight');setTimeout(()=>{nameElement.classList.remove('hint-highlight');keyElement.classList.remove('hint-highlight');placeNumber(keyElement,randomVisibleName);if(correctCount<keys.length){hintButton.disabled=false}},1000)}else{hintButton.disabled=false}}
         
@@ -196,29 +189,10 @@
         
         function setupKeyListeners(){keys.forEach(key=>{key.addEventListener('click',handleKeyClick);key.addEventListener('dragover',(e)=>{e.preventDefault();key.classList.add('drag-over')});key.addEventListener('dragleave',()=>{key.classList.remove('drag-over','shake')});key.addEventListener('drop',handleDrop)})}
         function setupDragListeners(element){element.addEventListener('dragstart',(e)=>{e.dataTransfer.setData('text/plain',element.dataset.name)})}
-        function setupControlListeners(){resetButton.addEventListener('click',resetGame);gameResetButton.addEventListener('click',resetGame);hintButton.addEventListener('click',giveHint);instructionsToggle.addEventListener('click',()=>instructionsModal.classList.add('visible'));instructionsModal.addEventListener('click',(e)=>{if(e.target===instructionsModal){instructionsModal.classList.remove('visible')}})}
+        function setupControlListeners(){resetButton.addEventListener('click',resetGame);gameResetButton.addEventListener('click',resetGame);hintButton.addEventListener('click',giveHint);instructionsToggle.addEventListener('click',()=>instructionsModal.classList.add('visible'));instructionsModal.addEventListener('click',()=>instructionsModal.classList.remove('visible'))}
 
         function handleNameClick(event){event.stopPropagation();const t=event.currentTarget;if(selectedNameElement===t){selectedNameElement.classList.remove('selected');selectedNameElement=null}else{if(selectedNameElement)selectedNameElement.classList.remove('selected');t.classList.add('selected');selectedNameElement=t}}
-        
-        function handleKeyClick(event){
-            const key=event.currentTarget;
-            const num=key.dataset.number;
-            // Se elimina el bip DTMF de esta sección.
-            if(selectedNameElement){
-                const selName=selectedNameElement.dataset.name;
-                if(numberMap[num]?.name===selName){
-                    placeNumber(key,selName);
-                } else {
-                    key.classList.add('shake');
-                    speakText('Intenta de nuevo');
-                }
-                selectedNameElement.classList.remove('selected');
-                selectedNameElement=null;
-            } else if(!key.classList.contains('correct')){
-                speakText(numberMap[num]?.name);
-            }
-        }
-
+        function handleKeyClick(event){const key=event.currentTarget;const num=key.dataset.number;if(selectedNameElement){const selName=selectedNameElement.dataset.name;if(numberMap[num]?.name===selName){placeNumber(key,selName)}else{key.classList.add('shake');speakText('Intenta de nuevo')}selectedNameElement.classList.remove('selected');selectedNameElement=null}else if(!key.classList.contains('correct')){speakText(numberMap[num]?.name)}}
         function handleDrop(event){event.preventDefault();const key=event.currentTarget;key.classList.remove('drag-over');const droppedName=event.dataTransfer.getData('text/plain');if(numberMap[key.dataset.number]?.name===droppedName){placeNumber(key,droppedName)}else{key.classList.add('shake');speakText('Intenta de nuevo')}}
         
         document.addEventListener('DOMContentLoaded',initializeGame);
