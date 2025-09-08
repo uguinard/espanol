@@ -72,7 +72,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            padding: 20px;
+            padding: 15px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -82,6 +82,17 @@
             background: linear-gradient(to top, rgba(0,0,0,0.1), transparent);
         }
         
+        #live-transcript {
+            height: 30px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+            transition: opacity 0.5s;
+            text-align: center;
+        }
+
         #voice-input-button {
             width: 70px;
             height: 70px;
@@ -106,13 +117,6 @@
             100% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0); }
         }
         
-        #ui-bar p {
-            margin: 0;
-            font-weight: 600;
-            color: var(--text-color);
-            opacity: 0.8;
-        }
-
         #info-bar {
             position: absolute;
             top: 20px;
@@ -222,8 +226,8 @@
             </div>
             
             <div id="ui-bar">
+                <div id="live-transcript"></div>
                 <div id="voice-input-button" title="Estado del micrófono">🎤</div>
-                <p id="mic-status-text">Presiona "Empezar" para activar el micrófono</p>
             </div>
         </div>
     </div>
@@ -239,7 +243,7 @@
     const finalScoreEl = document.getElementById('final-score'), difficultySelect = document.getElementById('difficulty-select');
     const highScoreDisplay = document.getElementById('high-score-display');
     const voiceInputButton = document.getElementById('voice-input-button');
-    const micStatusText = document.getElementById('mic-status-text');
+    const liveTranscriptEl = document.getElementById('live-transcript');
     const reviewCorrectList = document.getElementById('review-correct-list'), reviewIncorrectList = document.getElementById('review-incorrect-list');
 
     const popSound = new Audio('https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3');
@@ -259,7 +263,6 @@
     const HIGH_SCORES_KEY = 'burbujasDictadoHighScores';
     let highScores = { a: 0, b: 0, c: 0, d: 0 };
     
-    // --- NUEVO: Mueve la variable recognition a un alcance superior ---
     let recognition;
 
     // --- FUNCIONES AUXILIARES ---
@@ -273,34 +276,49 @@
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
             voiceInputButton.style.display = 'none';
-            micStatusText.textContent = "Reconocimiento de voz no soportado en este navegador.";
+            liveTranscriptEl.textContent = "Reconocimiento de voz no soportado.";
             return;
         }
         recognition = new SpeechRecognition();
         recognition.lang = 'es-MX';
-        // --- CAMBIO: Habilitar modo continuo ---
         recognition.continuous = true;
-        recognition.interimResults = false;
+        // --- CAMBIO: Habilitar resultados interinos para feedback en tiempo real ---
+        recognition.interimResults = true;
 
         recognition.onstart = () => {
             voiceInputButton.classList.add('listening');
-            micStatusText.textContent = "¡Escuchando...!";
         };
         
+        // --- CAMBIO: Lógica mejorada para mostrar feedback y procesar resultados finales ---
         recognition.onresult = (event) => {
-            // Itera a través de todos los resultados recibidos desde el último reinicio
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript.toLowerCase().trim();
-                
-                if (transcript) {
-                     [...numbersOnScreen].forEach(num => {
-                        if (num.saved) return;
-                        const numAsWord = numberToWords(num.value);
-                        if (transcript.includes(numAsWord)) {
-                            saveNumber(num);
-                        }
-                    });
+            let interim_transcript = '';
+            let final_transcript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    final_transcript += event.results[i][0].transcript;
+                } else {
+                    interim_transcript += event.results[i][0].transcript;
                 }
+            }
+            
+            // Muestra en pantalla lo que el micrófono está escuchando AHORA MISMO
+            liveTranscriptEl.textContent = interim_transcript;
+
+            // Solo procesa la respuesta cuando el usuario ha terminado de hablar (resultado final)
+            if (final_transcript) {
+                liveTranscriptEl.textContent = final_transcript;
+                const cleaned_transcript = final_transcript.toLowerCase().trim();
+                
+                [...numbersOnScreen].forEach(num => {
+                    if (num.saved) return;
+                    const numAsWord = numberToWords(num.value);
+                    if (cleaned_transcript.includes(numAsWord)) {
+                        saveNumber(num);
+                    }
+                });
+                // Limpia el texto después de un segundo para que no se quede en pantalla
+                setTimeout(() => { liveTranscriptEl.textContent = ''; }, 1000);
             }
         };
 
@@ -308,13 +326,11 @@
             console.error("Error en el reconocimiento de voz:", event.error);
         };
 
-        // --- CAMBIO: Reiniciar automáticamente la escucha al terminar ---
         recognition.onend = () => {
             if (gameIsRunning) {
-                recognition.start(); // Vuelve a empezar a escuchar
+                recognition.start();
             } else {
                 voiceInputButton.classList.remove('listening');
-                micStatusText.textContent = "Presiona 'Empezar' para activar el micrófono";
             }
         };
     }
@@ -324,29 +340,25 @@
         score = 0; lives = 3; numbersOnScreen = [];
         correctNumbersThisRound = []; incorrectNumbersThisRound = [];
         spawnTracker = {};
+        liveTranscriptEl.textContent = '';
         currentDifficulty = difficultySelect.value;
         updateUI();
         startScreen.style.display = 'none'; gameOverScreen.style.display = 'none'; reviewScreen.style.display = 'none';
         gameContainer.querySelectorAll('.numero').forEach(n => n.remove());
-        
         gameIsRunning = true;
-        
-        // --- CAMBIO: Inicia la escucha al empezar el juego ---
         if (recognition) {
             recognition.start();
         }
-
         backgroundMusic.currentTime = 0;
         backgroundMusic.play();
         spawnInterval = setInterval(spawnNumber, 3500);
         gameLoop();
     }
     function gameOver() {
-        gameIsRunning = false; // Esta bandera detendrá el reinicio de la escucha
+        gameIsRunning = false;
         if (recognition) {
             recognition.stop();
         }
-
         clearInterval(spawnInterval);
         saveHighScore();
         finalScoreEl.textContent = `Puntuación Final: ${score}`;
@@ -434,7 +446,7 @@
     restartButton.addEventListener('click', startGame);
     reviewButton.addEventListener('click', showReviewScreen);
     homeButton.addEventListener('click', () => {
-        gameIsRunning = false; // Detiene el bucle de reinicio del micrófono
+        gameIsRunning = false;
         if (recognition) {
             recognition.stop();
         }
