@@ -60,7 +60,6 @@
         .shake { animation: shake 0.5s ease-in-out; border-color: var(--error-color) !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
         .key.drag-over { border-color: var(--accent-color); transform: scale(1.05); }
-        /* ----- CAMBIO #1: Se eliminó "pointer-events: none;" para que las teclas correctas sean clickeables ----- */
         .key.correct { background: var(--correct-color); color: white; font-size: 1.2em; font-weight: 700; }
         .key.hint-highlight { box-shadow: 0 0 20px 5px var(--hint-color); }
         #key-0 { grid-column: 2 / 3; }
@@ -69,6 +68,41 @@
         .assignment-panel h3 { text-align: center; margin-top: 0; color: var(--text-light-color); padding-bottom: 10px; margin-bottom: 10px; font-size: 1.3em; }
         #name-list { min-height: 295px; }
         
+        /* ----- NUEVOS ESTILOS para los puntos y el personaje ----- */
+        .status-indicators {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 0 10px;
+        }
+        #score-display {
+            font-size: 1.5em;
+            color: var(--text-light-color);
+            font-weight: 600;
+        }
+        #character-status {
+            font-size: 3em; /* Emoji más grande */
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .score-change {
+            position: fixed; /* Usamos fixed para que flote sobre todo */
+            font-size: 2em;
+            font-weight: bold;
+            opacity: 0;
+            animation: float-up 1.5s ease-out forwards;
+            pointer-events: none;
+            z-index: 2000;
+        }
+        .score-plus { color: #28a745; }
+        .score-minus { color: var(--error-color); }
+
+        @keyframes float-up {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-60px); }
+        }
+        /* ----- FIN DE NUEVOS ESTILOS ----- */
+
         .draggable-name {
             background: rgba(255, 255, 255, 0.25); color: var(--text-light-color); padding: 12px;
             border-radius: 12px; margin-bottom: 10px; text-align: center;
@@ -79,36 +113,7 @@
         .draggable-name.selected { background: var(--accent-color); box-shadow: 0 0 15px 0 var(--accent-color); border-color: rgba(255, 255, 255, 0.8); transform: scale(1.05); }
         .draggable-name.hidden { opacity: 0; transform: scale(0.5); pointer-events: none; margin-bottom: -55px; }
         .draggable-name.hint-highlight { box-shadow: 0 0 20px 5px var(--hint-color); }
-
-        .modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.4); display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; z-index: 1000;
-            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-            cursor: pointer;
-        }
-        .modal.visible { opacity: 1; pointer-events: auto; }
-        .modal-content {
-            background: rgba(255, 255, 255, 0.7); padding: 30px 40px; border-radius: var(--card-radius);
-            text-align: center; color: #333; box-shadow: 0 8px 32px 0 var(--shadow-color);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            transform: scale(0.9); transition: transform 0.3s ease-in-out, border-radius 0.3s ease;
-            max-width: 500px; cursor: default;
-        }
-        .modal.visible .modal-content { transform: scale(1); }
-        .modal-content h2 { margin: 0 0 20px 0; font-size: 2em; color: var(--correct-color); }
-        #instructionsModal .modal-content h2 { color: var(--accent-color); }
-        #instructionsModal .modal-content p { margin: 5px 0; font-weight: 500; line-height: 1.6; }
-        #instructionsModal .modal-content .lang-en { opacity: 0.8; font-size: 0.9em; }
-
-        #resetButton {
-            padding: 12px 25px; font-family: inherit; font-size: 1.2em;
-            font-weight: 600; color: white; background-color: var(--accent-color);
-            border: none; border-radius: 12px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            transition: background-color 0.2s, transform 0.1s;
-        }
+        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.4);display:flex;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .3s ease-in-out;z-index:1000;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);cursor:pointer}.modal.visible{opacity:1;pointer-events:auto}.modal-content{background:rgba(255,255,255,.7);padding:30px 40px;border-radius:var(--card-radius);text-align:center;color:#333;box-shadow:0 8px 32px 0 var(--shadow-color);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,.4);transform:scale(.9);transition:transform .3s ease-in-out,border-radius .3s ease;max-width:500px;cursor:default}.modal.visible .modal-content{transform:scale(1)}.modal-content h2{margin:0 0 20px 0;font-size:2em;color:var(--correct-color)}#instructionsModal .modal-content h2{color:var(--accent-color)}#instructionsModal .modal-content p{margin:5px 0;font-weight:500;line-height:1.6}#instructionsModal .modal-content .lang-en{opacity:.8;font-size:.9em}#resetButton{padding:12px 25px;font-family:inherit;font-size:1.2em;font-weight:600;color:#fff;background-color:var(--accent-color);border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 15px #007bff4d;transition:background-color .2s,transform .1s}
     </style>
 </head>
 <body>
@@ -130,26 +135,18 @@
         </div>
         <div class="card names-card">
             <div class="assignment-panel">
+                <div class="status-indicators">
+                    <div id="score-display">Puntos: 0</div>
+                    <div id="character-status">😐</div>
+                </div>
                 <h3 id="progress-title"></h3>
                 <div id="name-list"></div>
             </div>
         </div>
     </div>
     
-    <div id="victoryModal" class="modal">
-        <div class="modal-content">
-            <h2>¡Felicidades! 🎉</h2>
-            <button id="resetButton">Jugar de Nuevo</button>
-        </div>
-    </div>
-    
-    <div id="instructionsModal" class="modal">
-        <div class="modal-content">
-            <h2>Instrucciones</h2>
-            <p class="lang-es"><strong>Objetivo:</strong> Aprende los números en español. Arrastra o selecciona cada nombre y colócalo en su tecla correspondiente.</p>
-            <p class="lang-en"><strong>Objective:</strong> Learn the numbers in Spanish. Drag or select each name and place it on its matching key.</p>
-        </div>
-    </div>
+    <div id="victoryModal" class="modal"><div class="modal-content"><h2>¡Felicidades! 🎉</h2><button id="resetButton">Jugar de Nuevo</button></div></div>
+    <div id="instructionsModal" class="modal"><div class="modal-content"><h2>Instrucciones</h2><p class="lang-es"><strong>Objetivo:</strong> Aprende los números en español. Arrastra o selecciona cada nombre y colócalo en su tecla correspondiente.</p><p class="lang-en"><strong>Objective:</strong> Learn the numbers in Spanish. Drag or select each name and place it on its matching key.</p></div></div>
 
     <script>
         const numberMap={'0':{name:'cero',text:'CERO'},'1':{name:'uno',text:'UNO'},'2':{name:'dos',text:'DOS'},'3':{name:'tres',text:'TRES'},'4':{name:'cuatro',text:'CUATRO'},'5':{name:'cinco',text:'CINCO'},'6':{name:'seis',text:'SEIS'},'7':{name:'siete',text:'SIETE'},'8':{name:'ocho',text:'OCHO'},'9':{name:'nueve',text:'NUEVE'}};
@@ -163,6 +160,12 @@
         const instructionsToggle = document.getElementById('instructions-toggle');
         const gameResetButton = document.getElementById('game-reset-button');
         const hintButton = document.getElementById('hint-button');
+
+        /* ----- NUEVAS CONSTANTES Y VARIABLES ----- */
+        const scoreDisplay = document.getElementById('score-display');
+        const characterStatus = document.getElementById('character-status');
+        let score = 0;
+        /* ----- FIN DE NUEVAS CONSTANTES Y VARIABLES ----- */
         
         let spanishVoice=null,correctCount=0,audioCtx,selectedNameElement=null;
         let availableNames = [], visibleNames = [];
@@ -175,58 +178,161 @@
             document.body.addEventListener('click', initAudioContext, { once: true });
         }
         
-        function resetGame(){keys.forEach(key=>{key.classList.remove('correct','shake','hint-highlight');key.textContent=key.dataset.number;key.style.pointerEvents='auto'});const allNames=Object.values(numberMap).map(num=>num.name);allNames.sort(()=>Math.random()-.5);availableNames=[...allNames];visibleNames=[];nameListContainer.innerHTML='';for(let i=0;i<5;i++){addNextNameToVisibleList()}correctCount=0;updateProgress();victoryModal.classList.remove('visible');if(selectedNameElement){selectedNameElement.classList.remove('selected');selectedNameElement=null};hintButton.disabled=false}
+        function resetGame() {
+            keys.forEach(key => {
+                key.classList.remove('correct', 'shake', 'hint-highlight');
+                key.textContent = key.dataset.number;
+                key.style.pointerEvents = 'auto';
+            });
+            const allNames = Object.values(numberMap).map(num => num.name);
+            allNames.sort(() => Math.random() - 0.5);
+            availableNames = [...allNames];
+            visibleNames = [];
+            nameListContainer.innerHTML = '';
+            for (let i = 0; i < 5; i++) { addNextNameToVisibleList() }
+            correctCount = 0;
+            updateProgress();
+            victoryModal.classList.remove('visible');
+            if (selectedNameElement) {
+                selectedNameElement.classList.remove('selected');
+                selectedNameElement = null;
+            };
+            hintButton.disabled = false;
+            
+            /* ----- LÓGICA AÑADIDA EN RESET ----- */
+            score = 0;
+            updateScoreDisplay();
+            updateCharacter('neutral');
+            /* ----- FIN DE LÓGICA AÑADIDA ----- */
+        }
+
         function addNextNameToVisibleList(){if(availableNames.length===0)return;const nameToAdd=availableNames.shift();visibleNames.push(nameToAdd);const num=Object.values(numberMap).find(n=>n.name===nameToAdd);const div=document.createElement('div');div.className='draggable-name';div.id=`name-${num.name}`;div.dataset.name=num.name;div.draggable=true;div.textContent=num.text;setupDragListeners(div);div.addEventListener('click',handleNameClick);nameListContainer.appendChild(div)}
         function updateProgress(){progressTitle.textContent=`Aciertos: ${correctCount} / ${keys.length}`}
         function checkCompletion(){if(correctCount===keys.length){speakText('¡Felicidades!',true);victoryModal.classList.add('visible');hintButton.disabled=true}}
-        function placeNumber(key,nameData){playSuccessSound();const placedElement=document.getElementById(`name-${nameData}`);key.textContent=numberMap[key.dataset.number].text;key.classList.add('correct');if(placedElement){placedElement.classList.add('hidden')}const indexToRemove=visibleNames.indexOf(nameData);if(indexToRemove>-1){visibleNames.splice(indexToRemove,1)}setTimeout(()=>{if(placedElement)placedElement.remove();addNextNameToVisibleList()},400);correctCount++;updateProgress();checkCompletion()}
+        
+        function placeNumber(key,nameData) {
+            playSuccessSound();
+            const placedElement = document.getElementById(`name-${nameData}`);
+            key.textContent = numberMap[key.dataset.number].text;
+            key.classList.add('correct');
+            if (placedElement) { placedElement.classList.add('hidden') }
+            const indexToRemove = visibleNames.indexOf(nameData);
+            if (indexToRemove > -1) { visibleNames.splice(indexToRemove, 1) }
+            setTimeout(() => {
+                if (placedElement) placedElement.remove();
+                addNextNameToVisibleList();
+            }, 400);
+            correctCount++;
+
+            /* ----- LÓGICA AÑADIDA PARA PUNTOS (ACIERTO) ----- */
+            score++;
+            updateScoreDisplay();
+            showScoreChange(1);
+            updateCharacter('happy');
+            /* ----- FIN DE LÓGICA AÑADIDA ----- */
+
+            updateProgress();
+            checkCompletion();
+        }
+
+        /* ----- NUEVAS FUNCIONES para manejar Puntos y Personaje ----- */
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `Puntos: ${score}`;
+        }
+
+        function showScoreChange(amount) {
+            const changeElement = document.createElement('div');
+            const sign = amount > 0 ? '+' : '';
+            changeElement.textContent = `${sign}${amount}`;
+            changeElement.className = `score-change ${amount > 0 ? 'score-plus' : 'score-minus'}`;
+            
+            const scoreRect = scoreDisplay.getBoundingClientRect();
+            document.body.appendChild(changeElement);
+            // Centramos el texto flotante sobre el marcador de puntos
+            changeElement.style.left = `${scoreRect.left + (scoreRect.width / 2) - (changeElement.offsetWidth / 2)}px`;
+            changeElement.style.top = `${scoreRect.top - 10}px`;
+            
+            setTimeout(() => changeElement.remove(), 1500); // Se elimina después de la animación
+        }
+
+        function updateCharacter(state) {
+            let emoji = '😐';
+            characterStatus.style.transform = 'scale(1)'; // Resetea la escala
+
+            if (state === 'happy') {
+                emoji = '😊';
+                characterStatus.style.transform = 'scale(1.25) rotate(8deg)';
+            } else if (state === 'sad') {
+                emoji = '😟';
+                characterStatus.style.transform = 'scale(0.9) rotate(-5deg)';
+            }
+            characterStatus.textContent = emoji;
+
+            // Vuelve al estado neutral después de 1.5 segundos
+            if (state !== 'neutral') {
+                setTimeout(() => {
+                    characterStatus.textContent = '😐';
+                    characterStatus.style.transform = 'scale(1) rotate(0deg)';
+                }, 1500);
+            }
+        }
+
+        function handleMistake() {
+            score = Math.max(0, score - 1); // El puntaje no baja de 0
+            updateScoreDisplay();
+            showScoreChange(-1);
+            updateCharacter('sad');
+            speakText('Intenta de nuevo');
+        }
+        /* ----- FIN DE NUEVAS FUNCIONES ----- */
         
         function giveHint(){if(visibleNames.length===0)return;hintButton.disabled=true;const randomVisibleName=visibleNames[Math.floor(Math.random()*visibleNames.length)];const nameElement=document.getElementById(`name-${randomVisibleName}`);const correctNumber=Object.keys(numberMap).find(key=>numberMap[key].name===randomVisibleName);const keyElement=document.getElementById(`key-${correctNumber}`);if(nameElement&&keyElement&&!keyElement.classList.contains('correct')){nameElement.classList.add('hint-highlight');keyElement.classList.add('hint-highlight');setTimeout(()=>{nameElement.classList.remove('hint-highlight');keyElement.classList.remove('hint-highlight');placeNumber(keyElement,randomVisibleName);if(correctCount<keys.length){hintButton.disabled=false}},1000)}else{hintButton.disabled=false}}
-        
         function initAudioContext(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
-        function playSuccessSound(){if(!audioCtx)return;const now=audioCtx.currentTime,gainNode=audioCtx.createGain();gainNode.connect(audioCtx.destination);gainNode.gain.setValueAtTime(0.2,now);const osc1=audioCtx.createOscillator();osc1.type='triangle';osc1.frequency.setValueAtTime(523.25,now);osc1.connect(gainNode);const osc2=audioCtx.createOscillator();osc2.type='triangle';osc2.frequency.setValueAtTime(659.25,now+0.1);osc2.connect(gainNode);osc1.start(now);osc2.start(now+0.1);gainNode.gain.setTargetAtTime(0,now+0.2,0.015);osc1.stop(now+0.3);osc2.stop(now+0.3)}
-        function speakText(text,isAnimated=false){const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';if(spanishVoice)u.voice=spanishVoice;if(navigator.platform.toUpperCase().indexOf('MAC')>=0&&!isAnimated)u.rate=0.8;if(isAnimated){u.pitch=1.2;u.rate=1.1}window.speechSynthesis.speak(u)}
+        function playSuccessSound(){if(!audioCtx)return;const now=audioCtx.currentTime,gainNode=audioCtx.createGain();gainNode.connect(audioCtx.destination);gainNode.gain.setValueAtTime(.2,now);const osc1=audioCtx.createOscillator();osc1.type='triangle';osc1.frequency.setValueAtTime(523.25,now);osc1.connect(gainNode);const osc2=audioCtx.createOscillator();osc2.type='triangle';osc2.frequency.setValueAtTime(659.25,now+.1);osc2.connect(gainNode);osc1.start(now);osc2.start(now+.1);gainNode.gain.setTargetAtTime(0,now+.2,.015);osc1.stop(now+.3);osc2.stop(now+.3)}
+        function speakText(text,isAnimated=false){const u=new SpeechSynthesisUtterance(text);u.lang='es-ES';if(spanishVoice)u.voice=spanishVoice;if(navigator.platform.toUpperCase().indexOf('MAC')>=0&&!isAnimated)u.rate=.8;if(isAnimated){u.pitch=1.2;u.rate=1.1}window.speechSynthesis.speak(u)}
         function loadVoices(){const s=()=>{const v=window.speechSynthesis.getVoices();spanishVoice=v.find(v=>v.name==='Google español')||v.find(v=>v.lang.startsWith('es'))};s();if(window.speechSynthesis.onvoiceschanged!==undefined){window.speechSynthesis.onvoiceschanged=s}}
-        
         function setupKeyListeners(){keys.forEach(key=>{key.addEventListener('click',handleKeyClick);key.addEventListener('dragover',(e)=>{e.preventDefault();key.classList.add('drag-over')});key.addEventListener('dragleave',()=>{key.classList.remove('drag-over','shake')});key.addEventListener('drop',handleDrop)})}
         function setupDragListeners(element){element.addEventListener('dragstart',(e)=>{e.dataTransfer.setData('text/plain',element.dataset.name)})}
         function setupControlListeners(){resetButton.addEventListener('click',resetGame);gameResetButton.addEventListener('click',resetGame);hintButton.addEventListener('click',giveHint);instructionsToggle.addEventListener('click',()=>instructionsModal.classList.add('visible'));instructionsModal.addEventListener('click',()=>instructionsModal.classList.remove('visible'))}
-
         function handleNameClick(event){event.stopPropagation();const t=event.currentTarget;if(selectedNameElement===t){selectedNameElement.classList.remove('selected');selectedNameElement=null}else{if(selectedNameElement)selectedNameElement.classList.remove('selected');t.classList.add('selected');selectedNameElement=t}}
         
-        /* ----- CAMBIO #2: Se actualizó esta función para manejar el clic en teclas ya correctas ----- */
         function handleKeyClick(event) {
             const key = event.currentTarget;
             const num = key.dataset.number;
             const numberName = numberMap[num]?.name;
 
-            // Si la tecla ya es correcta, solo decimos su nombre y terminamos.
             if (key.classList.contains('correct')) {
                 speakText(numberName);
                 return; 
             }
 
-            // Si hay un nombre seleccionado de la lista...
             if (selectedNameElement) {
                 const selectedName = selectedNameElement.dataset.name;
-                // Verificamos si es el correcto
                 if (numberName === selectedName) {
                     placeNumber(key, selectedName);
                 } else {
-                    // Si no, la tecla tiembla y se avisa del error
                     key.classList.add('shake');
-                    speakText('Intenta de nuevo');
+                    handleMistake(); // <-- Llama a la función de error
                 }
-                // Deseleccionamos el nombre después del intento
                 selectedNameElement.classList.remove('selected');
                 selectedNameElement = null;
             } else {
-                // Si no hay nombre seleccionado, solo decimos el número de la tecla.
                 speakText(numberName);
             }
         }
 
-        function handleDrop(event){event.preventDefault();const key=event.currentTarget;key.classList.remove('drag-over');const droppedName=event.dataTransfer.getData('text/plain');if(numberMap[key.dataset.number]?.name===droppedName){placeNumber(key,droppedName)}else{key.classList.add('shake');speakText('Intenta de nuevo')}}
+        function handleDrop(event) {
+            event.preventDefault();
+            const key = event.currentTarget;
+            key.classList.remove('drag-over');
+            const droppedName = event.dataTransfer.getData('text/plain');
+            if (numberMap[key.dataset.number]?.name === droppedName) {
+                placeNumber(key, droppedName);
+            } else {
+                key.classList.add('shake');
+                handleMistake(); // <-- Llama a la función de error
+            }
+        }
         
         document.addEventListener('DOMContentLoaded',initializeGame);
     </script>
