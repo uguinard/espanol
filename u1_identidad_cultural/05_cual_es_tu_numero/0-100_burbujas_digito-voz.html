@@ -90,14 +90,12 @@
             height: 100%;
         }
 
-        /* --- CAMBIO: Estilo simplificado a solo texto --- */
         .numero { 
             position: absolute;
             font-weight: 700;
             color: var(--primary-color);
-            background-color: transparent; /* Sin fondo de burbuja */
+            background-color: transparent;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            /* Se quitan bordes, sombras, y radios de la burbuja */
         }
         .numero.exploding {
             animation: text_explode 0.5s forwards;
@@ -212,7 +210,6 @@
     let currentLevelIndex = 0;
     let practiceTracker = {};
     const PRACTICE_GOAL = 2;
-    // CAMBIO: Velocidad renombrada y aumentada para mayor claridad.
     const GROWTH_PER_FRAME = 2.0;
 
     let recognition;
@@ -326,26 +323,24 @@
         spawnInterval = setInterval(spawnNumber, 2500);
     }
 
-    // --- BUCLE DE JUEGO CORREGIDO Y SIMPLIFICADO ---
+    // --- CAMBIO: BUCLE DE JUEGO CORREGIDO ---
     function gameLoop() {
-        if (!gameIsRunning) return;
+        // La lógica de crecimiento solo se ejecuta si el juego está activo
+        if (gameIsRunning) {
+            [...numbersOnScreen].forEach((num) => {
+                if (num.saved) return;
+                
+                num.size += GROWTH_PER_FRAME;
+                
+                if (num.size >= num.maxSize) {
+                    explodeNumber(num);
+                    return;
+                }
 
-        [...numbersOnScreen].forEach((num) => {
-            if (num.saved) return;
-            
-            // 1. Aplica el crecimiento al tamaño del número
-            num.size += GROWTH_PER_FRAME;
-            
-            // 2. Comprueba si el número ha crecido demasiado
-            if (num.size >= num.maxSize) {
-                explodeNumber(num);
-                return;
-            }
-
-            // 3. Actualiza únicamente el tamaño de la fuente
-            num.element.style.fontSize = `${num.size}px`;
-        });
-
+                num.element.style.fontSize = `${num.size}px`;
+            });
+        }
+        // La llamada para el siguiente fotograma SIEMPRE se ejecuta para mantener el bucle vivo
         requestAnimationFrame(gameLoop);
     }
 
@@ -365,17 +360,15 @@
         element.classList.add('numero');
         element.textContent = value;
         
-        // CAMBIO: Tamaño inicial y máximo ajustados para el modo de solo texto
         const startSize = 30;
         const maxSize = 180;
         
         const numObj = { value, element, size: startSize, startSize, maxSize, saved: false };
         const gameRect = bubbleArea.getBoundingClientRect();
-        numObj.x = Math.random() * (gameRect.width - 150) + 50; // Márgenes para que no aparezca en los bordes
+        numObj.x = Math.random() * (gameRect.width - 150) + 50;
         numObj.y = Math.random() * (gameRect.height - 200) + 50;
         element.style.top = `${numObj.y}px`;
         element.style.left = `${numObj.x}px`;
-        // Asigna el tamaño inicial de la fuente al crearse
         element.style.fontSize = `${startSize}px`;
 
         numbersOnScreen.push(numObj);
