@@ -3,411 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <title>Burbujas de Práctica por Niveles</title>
+    <title>Números en Español - Teclado Interactivo</title>
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            --primary-color: #007aff;
-            --text-color: #333;
-            --text-light-color: #fff;
-            --danger-color: #ff3b30;
-            --safe-color: #34c759;
-            --mastered-color: #ffcc00;
-            --card-bg: rgba(255, 255, 255, 0.6);
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --blur-amount: 10px;
+            --accent-color: #0d6efd; --correct-color: #189159; --error-color: #dc3545; --hint-color: #fd7e14;
+            --card-bg: rgba(255, 255, 255, 0.2); --border-color: rgba(255, 255, 255, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1); --text-color: #1a1a1a; --text-light-color: #f0f0f0;
+            --blur-amount: 10px; --card-radius: 24px; --body-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         *, *::before, *::after { box-sizing: border-box; }
         body {
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-height: 100vh; background: var(--body-bg); margin: 0; padding: 20px;
+            transition: background 0.5s ease;
         }
-        #game-wrapper {
-            height: 95vh;
-            width: 95vw;
-            max-width: 1200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #game-container {
-            width: 100%;
-            height: 100%;
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 24px;
-            position: relative;
-            box-shadow: 0 8px 32px 0 var(--shadow-color);
-            backdrop-filter: blur(var(--blur-amount));
-            -webkit-backdrop-filter: blur(var(--blur-amount));
-            overflow: hidden;
-            display: flex;
-        }
-        
-        #progress-panel {
-            width: 300px;
-            flex-shrink: 0;
-            background: rgba(0,0,0,0.05);
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        #progress-panel h3 {
-            margin: 0 0 15px 0;
-            text-align: center;
-            color: var(--primary-color);
-        }
-        #progress-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            gap: 15px;
-            flex-grow: 1;
-        }
-        .progress-item {
-            background: #fff; border-radius: 8px; padding: 8px;
-            text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .progress-number { font-size: 1.5rem; font-weight: 700; }
-        .dots { display: flex; justify-content: center; gap: 4px; margin-top: 5px; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; background-color: #ddd; }
-        .dot.p1 { background-color: var(--primary-color); }
-        .dot.p2 { background-color: var(--mastered-color); }
-
-        #bubble-area {
-            flex-grow: 1;
-            position: relative;
-            height: 100%;
-        }
-        .numero { 
-            position: absolute; font-weight: 700; color: var(--text-color); 
-            background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
-            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease; 
-            border: 1px solid rgba(255,255,255,0.8);
-        }
-        .numero.exploding { animation: explode 0.5s forwards; }
-        @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
-
-        #ui-bar {
-            position: absolute; bottom: 0; left: 300px; right: 0;
-            padding: 15px; box-sizing: border-box; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; gap: 10px;
-        }
-        #live-transcript {
-            height: 30px; font-size: 1.5rem; font-weight: 600; color: var(--primary-color);
-            opacity: 0.9; text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
-            transition: opacity 0.5s; text-align: center;
-        }
-        #voice-input-button {
-            width: 70px; height: 70px; flex-shrink: 0; border-radius: 50%; border: none;
-            background-color: var(--primary-color); color: white; font-size: 2.5rem;
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); transition: background-color 0.3s;
-        }
-        #voice-input-button.listening { animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,122,255,0.7); } 70% { box-shadow: 0 0 0 20px rgba(0,122,255,0); } 100% { box-shadow: 0 0 0 0 rgba(0,122,255,0); } }
-        
-        #info-bar {
-            position: absolute; top: 20px; width: 100%; padding: 0 30px;
-            box-sizing: border-box; display: flex; justify-content: space-around;
-            font-size: 1.8rem; font-weight: 600; color: var(--primary-color);
-        }
-        .screen {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--card-bg); backdrop-filter: blur(var(--blur-amount));
-            color: var(--text-color); display: none; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 10;
-            padding: 30px; text-align: center;
-        }
-        #start-screen { display: flex; }
-        .screen h2 { font-size: 2.5rem; margin-bottom: 15px; }
-        .screen p { font-size: 1.2rem; max-width: 500px; margin-bottom: 25px; }
-        .screen button, #next-level-button {
-            padding: 15px 35px; font-size: 1.1rem; font-family: 'Poppins', sans-serif;
-            font-weight: 600; margin-top: 20px; background-color: var(--primary-color);
-            color: var(--text-light-color); border: none; border-radius: 50px; cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 15px rgba(0,122,255,0.3);
-        }
-        .screen button:hover, #next-level-button:hover { transform: translateY(-3px); box-shadow: 0 7px 20px rgba(0,122,255,0.4); }
-        #next-level-button { background-color: var(--safe-color); box-shadow: 0 4px 15px rgba(52, 199, 89, 0.4); }
-        #next-level-button:hover { box-shadow: 0 7px 20px rgba(52, 199, 89, 0.5); }
+        .game-controls { position: absolute; top: 20px; right: 20px; z-index: 100; display: flex; gap: 10px; }
+        .control-btn { width: 50px; height: 50px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 50%; font-size: 24px; cursor: pointer; color: var(--text-light-color); display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: transform 0.2s ease, background-color 0.2s; }
+        .control-btn:hover { transform: scale(1.1); background-color: rgba(255,255,255,0.3); }
+        .control-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+        .range-selector { display: flex; gap: 10px; margin-bottom: 20px; padding: 10px; background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); backdrop-filter: blur(5px); }
+        .range-btn { padding: 10px 20px; font-size: 1em; font-weight: 600; color: var(--text-light-color); background-color: transparent; border: 2px solid transparent; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; }
+        .range-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .range-btn.active { background-color: var(--accent-color); color: white; border-color: rgba(255, 255, 255, 0.7); box-shadow: 0 0 10px var(--accent-color); }
+        .game-container { margin-top: 10px; display: flex; justify-content: center; align-items: flex-start; gap: 40px; flex-wrap: wrap; }
+        .card { background: var(--card-bg); border-radius: var(--card-radius); padding: 25px; border: 1px solid var(--border-color); box-shadow: 0 8px 32px 0 var(--shadow-color); backdrop-filter: blur(var(--blur-amount)); -webkit-backdrop-filter: blur(var(--blur-amount)); transition: all 0.3s ease; }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .key { width: 75px; height: 75px; background: rgba(255, 255, 255, 0.25); color: var(--text-color); border-radius: 50%; border: 1px solid transparent; display: flex; justify-content: center; align-items: center; font-size: 2.2em; font-weight: 600; cursor: pointer; transition: all 0.2s ease, background-color 0.4s, color 0.4s, box-shadow 0.2s; user-select: none; }
+        .key:active { transform: scale(0.95); }
+        .shake { animation: shake 0.5s ease-in-out; border-color: var(--error-color) !important; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+        .key.drag-over { border-color: var(--accent-color); transform: scale(1.05); }
+        .key.correct { background: var(--correct-color); color: white; font-size: 1.1em; text-align: center; padding: 5px; font-weight: 700; }
+        .key.hint-highlight { box-shadow: 0 0 20px 5px var(--hint-color); }
+        .key.key-pos-0 { grid-column: 2 / 3; }
+        .assignment-panel { width: 250px; }
+        .assignment-panel h3 { text-align: center; margin-top: 0; color: var(--text-light-color); padding-bottom: 10px; margin-bottom: 10px; font-size: 1.3em; }
+        #voice-status { text-align: center; font-size: 0.9em; color: #ffc107; font-weight: 500; margin-bottom: 8px; display: none; }
+        #name-list { min-height: 295px; }
+        .status-indicators { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 10px; }
+        #score-display { font-size: 1.5em; color: var(--text-light-color); font-weight: 600; }
+        #character-status { font-size: 3em; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .score-change { position: fixed; font-size: 2em; font-weight: bold; opacity: 0; animation: float-up 1.5s ease-out forwards; pointer-events: none; z-index: 2000; }
+        .score-plus { color: #28a745; }
+        .score-minus { color: var(--error-color); }
+        @keyframes float-up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-60px); } }
+        .draggable-name { background: rgba(255, 255, 255, 0.25); color: var(--text-light-color); padding: 12px; border-radius: 12px; margin-bottom: 10px; text-align: center; font-size: 1.2em; font-weight: 500; cursor: grab; transition: opacity 0.4s, transform 0.4s, box-shadow 0.2s, background-color 0.2s; border: 2px solid transparent; }
+        .draggable-name.selected { background: var(--accent-color); box-shadow: 0 0 15px 0 var(--accent-color); border-color: rgba(255, 255, 255, 0.8); transform: scale(1.05); }
+        .draggable-name.hidden { opacity: 0; transform: scale(0.5); pointer-events: none; margin-bottom: -55px; }
+        .draggable-name.hint-highlight { box-shadow: 0 0 20px 5px var(--hint-color); }
+        .modal{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.4);display:flex;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .3s ease-in-out;z-index:1000;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);cursor:pointer}.modal.visible{opacity:1;pointer-events:auto}.modal-content{background:rgba(255,255,255,.7);padding:30px 40px;border-radius:var(--card-radius);text-align:center;color:#333;box-shadow:0 8px 32px 0 var(--shadow-color);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,.4);transform:scale(.9);transition:transform .3s ease-in-out,border-radius .3s ease;max-width:500px;cursor:default}.modal.visible .modal-content{transform:scale(1)}.modal-content h2{margin:0 0 20px 0;font-size:1.8em;color:var(--text-color); line-height: 1.4;}#instructionsModal .modal-content h2{color:var(--accent-color)}#instructionsModal .modal-content p{margin:5px 0;font-weight:500;line-height:1.6}#instructionsModal .modal-content .lang-en{opacity:.8;font-size:.9em}#resetButton{padding:12px 25px;font-family:inherit;font-size:1.2em;font-weight:600;color:#fff;background-color:var(--accent-color);border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 15px #007bff4d;transition:background-color .2s,transform .1s}
     </style>
 </head>
 <body>
-    <div id="game-wrapper">
-        <div id="game-container">
-            <div id="progress-panel">
-                <h3 id="level-title">Nivel 1</h3>
-                <div id="progress-grid"></div>
-            </div>
-            <div id="bubble-area">
-                 <div id="info-bar">
-                    <div id="score">Puntos: 0</div>
+    <div class="game-controls">
+        <button id="instructions-toggle" class="control-btn" title="Instrucciones">❓</button>
+        <button id="hint-button" class="control-btn" title="Ayuda">💡</button>
+        <button id="game-reset-button" class="control-btn" title="Reiniciar">🔁</button>
+    </div>
+
+    <div class="range-selector">
+        <button class="range-btn active" data-range="0-9">0 - 9</button>
+        <button class="range-btn" data-range="10-19">10 - 19</button>
+        <button class="range-btn" data-range="20-29">20 - 29</button>
+        <button class="range-btn" data-range="30-39">30 - 39</button>
+    </div>
+
+    <div class="game-container">
+        <div class="card keypad-card">
+            <div class="keypad" id="keypad-container"></div>
+        </div>
+        <div class="card names-card">
+            <div class="assignment-panel">
+                <div class="status-indicators">
+                    <div id="score-display">Puntos: 0</div>
+                    <div id="character-status">😐</div>
                 </div>
-                <div id="start-screen" class="screen">
-                    <h2>Burbujas de Práctica</h2>
-                    <p>Domina los números diciéndolos en voz alta. <b>¡Acierta cada número 2 veces para avanzar de nivel!</b></p>
-                    <button id="start-button">Empezar a Jugar</button>
-                </div>
-                 <div id="game-complete-screen" class="screen">
-                    <h2>¡Felicidades!</h2>
-                    <p>¡Has completado todos los niveles de práctica!</p>
-                    <button id="restart-game-button">Volver a Empezar</button>
-                </div>
-                <div id="ui-bar">
-                    <div id="live-transcript"></div>
-                    <div id="voice-input-button" title="Estado del micrófono">🎤</div>
-                    <button id="next-level-button" style="display: none;">Siguiente Nivel</button>
-                </div>
+                <h3 id="progress-title"></h3>
+                <div id="voice-status"></div>
+                <div id="name-list"></div>
             </div>
         </div>
     </div>
-<script>
-    // --- CONFIGURACIÓN ---
-    const scoreEl = document.getElementById('score');
-    const startScreen = document.getElementById('start-screen'), gameCompleteScreen = document.getElementById('game-complete-screen');
-    const startButton = document.getElementById('start-button'), restartGameButton = document.getElementById('restart-game-button');
-    const voiceInputButton = document.getElementById('voice-input-button');
-    const liveTranscriptEl = document.getElementById('live-transcript');
-    const progressGrid = document.getElementById('progress-grid');
-    const levelTitle = document.getElementById('level-title');
-    const nextLevelButton = document.getElementById('next-level-button');
-    const bubbleArea = document.getElementById('bubble-area');
-
-    const popSound = new Audio('https://s3.amazonaws.com/freecodecamp/drums/RP4_KICK_1.mp3');
-    popSound.volume = 0.5;
-
-    let score = 0, gameIsRunning = false;
-    let numbersOnScreen = [], spawnInterval;
     
-    // --- ESTRUCTURA DE NIVELES Y PROGRESO ---
-    const gameLevels = [
-        { name: "Nivel 1", min: 0, max: 9 },
-        { name: "Nivel 2", min: 10, max: 19 },
-        { name: "Nivel 3", min: 20, max: 29 },
-        { name: "Nivel 4", min: 30, max: 39 }
-    ];
-    let currentLevelIndex = 0;
-    let practiceTracker = {};
-    const PRACTICE_GOAL = 2;
-    // CAMBIO: Se define una única velocidad ultra rápida
-    const ULTRA_FAST_SPEED = 0.5;
+    <div id="victoryModal" class="modal"><div class="modal-content"><h2 id="victory-message"></h2><button id="resetButton">Jugar de Nuevo</button></div></div>
+    <div id="instructionsModal" class="modal"><div class="modal-content"><h2>Instrucciones</h2><p class="lang-es"><strong>Objetivo:</strong> Arrastra o selecciona el nombre del número y colócalo sobre su tecla correspondiente.</p><p class="lang-en"><strong>Objective:</strong> Drag or select the number name and place it on its matching key.</p></div></div>
 
-    let recognition;
-
-    // --- FUNCIONES AUXILIARES ---
-    function numberToWords(n){const u=['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve'],e=['diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve'],d=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];if(n>=0&&n<10)return u[n];if(n<20)return e[n-10];if(n<30)return n===20?'veinte':'veinti'+u[n%10];if(n<100){const t=Math.floor(n/10),o=n%10;return d[t]+(o>0?' y '+u[o]:'')}return n.toString()}
-    
-    // --- FUNCIONES DEL SISTEMA DE PROGRESO ---
-    function initializePracticeTracker() {
-        practiceTracker = {};
-        const level = gameLevels[currentLevelIndex];
-        for (let i = level.min; i <= level.max; i++) {
-            practiceTracker[i] = 0;
-        }
-    }
-
-    function updateProgressGrid() {
-        const level = gameLevels[currentLevelIndex];
-        progressGrid.innerHTML = '';
-        levelTitle.textContent = level.name;
-
-        for (let i = level.min; i <= level.max; i++) {
-            const count = practiceTracker[i];
-            const item = document.createElement('div');
-            item.className = 'progress-item';
-            
-            let dotsHTML = '';
-            for (let j = 1; j <= PRACTICE_GOAL; j++) {
-                let dotClass = 'dot';
-                if (j <= count) dotClass += ` p${j}`;
-                dotsHTML += `<span class="${dotClass}"></span>`;
-            }
-
-            item.innerHTML = `<span class="progress-number">${i}</span><div class="dots">${dotsHTML}</div>`;
-            progressGrid.appendChild(item);
-        }
-    }
-
-    function checkLevelCompletion() {
-        const level = gameLevels[currentLevelIndex];
-        for (let i = level.min; i <= level.max; i++) {
-            if (practiceTracker[i] < PRACTICE_GOAL) return false;
-        }
-        return true;
-    }
-
-    function levelComplete() {
-        gameIsRunning = false;
-        if (recognition) { recognition.stop(); }
-        clearInterval(spawnInterval);
-        liveTranscriptEl.textContent = "¡Nivel Completado!";
-        numbersOnScreen.forEach(num => num.element.remove());
-        numbersOnScreen = [];
-        nextLevelButton.style.display = 'block';
-    }
-
-    // --- LÓGICA DE RECONOCIMIENTO DE VOZ ---
-    function setupSpeechRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            voiceInputButton.style.display = 'none';
-            liveTranscriptEl.textContent = "Reconocimiento de voz no soportado.";
-            return;
-        }
-        recognition = new SpeechRecognition();
-        recognition.lang = 'es-MX';
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.onstart = () => { voiceInputButton.classList.add('listening'); };
-        recognition.onresult = (event) => {
-            let interim_transcript = '', final_transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                if (event.results[i].isFinal) final_transcript += event.results[i][0].transcript;
-                else interim_transcript += event.results[i][0].transcript;
-            }
-            liveTranscriptEl.textContent = interim_transcript;
-            if (final_transcript) {
-                liveTranscriptEl.textContent = final_transcript;
-                const cleaned_transcript = final_transcript.toLowerCase().trim();
-                [...numbersOnScreen].forEach(num => {
-                    if (num.saved) return;
-                    const numAsWord = numberToWords(num.value);
-                    if (cleaned_transcript.includes(numAsWord)) saveNumber(num);
-                });
-                setTimeout(() => { if(gameIsRunning) liveTranscriptEl.textContent = ''; }, 1000);
-            }
+    <script>
+        const allNumberMaps = {
+            '0-9': { '0':{name:'cero',text:'CERO'},'1':{name:'uno',text:'UNO'},'2':{name:'dos',text:'DOS'},'3':{name:'tres',text:'TRES'},'4':{name:'cuatro',text:'CUATRO'},'5':{name:'cinco',text:'CINCO'},'6':{name:'seis',text:'SEIS'},'7':{name:'siete',text:'SIETE'},'8':{name:'ocho',text:'OCHO'},'9':{name:'nueve',text:'NUEVE'} },
+            '10-19': { '10':{name:'diez',text:'DIEZ'},'11':{name:'once',text:'ONCE'},'12':{name:'doce',text:'DOCE'},'13':{name:'trece',text:'TRECE'},'14':{name:'catorce',text:'CATORCE'},'15':{name:'quince',text:'QUINCE'},'16':{name:'dieciséis',text:'DIECISÉIS'},'17':{name:'diecisiete',text:'DIECISIETE'},'18':{name:'dieciocho',text:'DIECIOCHO'},'19':{name:'diecinueve',text:'DIECINUEVE'} },
+            '20-29': { '20':{name:'veinte',text:'VEINTE'},'21':{name:'veintiuno',text:'VEINTIUNO'},'22':{name:'veintidós',text:'VEINTIDÓS'},'23':{name:'veintitrés',text:'VEINTITRÉS'},'24':{name:'veinticuatro',text:'VEINTICUATRO'},'25':{name:'veinticinco',text:'VEINTINCO'},'26':{name:'veintiséis',text:'VEINTISÉIS'},'27':{name:'veintisiete',text:'VEINTISIETE'},'28':{name:'veintiocho',text:'VEINTIOCHO'},'29':{name:'veintinueve',text:'VEINTINUEVE'} },
+            '30-39': { '30':{name:'treinta',text:'TREINTA'},'31':{name:'treinta y uno',text:'TREINTA Y UNO'},'32':{name:'treinta y dos',text:'TREINTA Y DOS'},'33':{name:'treinta y tres',text:'TREINTA Y TRES'},'34':{name:'treinta y cuatro',text:'TREINTA Y CUATRO'},'35':{name:'treinta y cinco',text:'TREINTA Y CINCO'},'36':{name:'treinta y seis',text:'TREINTA Y SEIS'},'37':{name:'treinta y siete',text:'TREINTA Y SIETE'},'38':{name:'treinta y ocho',text:'TREINTA Y OCHO'},'39':{name:'treinta y nueve',text:'TREINTA Y NUEVE'} }
         };
-        recognition.onerror = (event) => console.error("Error en el reconocimiento de voz:", event.error);
-        recognition.onend = () => {
-            voiceInputButton.classList.remove('listening');
-            if (gameIsRunning) recognition.start();
-        };
-    }
 
-    // --- LÓGICA PRINCIPAL DEL JUEGO ---
-    function startLevel() {
-        score = 0;
-        updateUI();
-        initializePracticeTracker();
-        updateProgressGrid();
+        const keypadContainer = document.getElementById('keypad-container');
+        const rangeButtons = document.querySelectorAll('.range-btn');
+        const resetButton = document.getElementById('resetButton');
+        const nameListContainer = document.getElementById('name-list');
+        const victoryModal = document.getElementById('victoryModal');
+        const progressTitle = document.getElementById('progress-title');
+        const instructionsModal = document.getElementById('instructionsModal');
+        const instructionsToggle = document.getElementById('instructions-toggle');
+        const gameResetButton = document.getElementById('game-reset-button');
+        const hintButton = document.getElementById('hint-button');
+        const scoreDisplay = document.getElementById('score-display');
+        const characterStatus = document.getElementById('character-status');
+        const voiceStatus = document.getElementById('voice-status');
         
-        startScreen.style.display = 'none';
-        gameCompleteScreen.style.display = 'none';
-        nextLevelButton.style.display = 'none';
-        liveTranscriptEl.textContent = '';
-        bubbleArea.querySelectorAll('.numero').forEach(n => n.remove());
+        let score = 0;
+        let spanishVoice = null, correctCount = 0, audioCtx, selectedNameElement = null;
+        let availableNames = [], visibleNames = [];
+        let currentRange = '0-9';
+        let activeNumberMap = {};
+
+        function initializeGame() {
+            setupControlListeners();
+            setupRangeSelector();
+            resetGame();
+            loadVoices();
+            document.body.addEventListener('click', () => {
+                initAudioContext();
+                if (window.speechSynthesis) {
+                    const primer = new SpeechSynthesisUtterance('');
+                    window.speechSynthesis.speak(primer);
+                    window.speechSynthesis.cancel();
+                }
+            }, { once: true });
+        }
         
-        gameIsRunning = true;
-        if (recognition) recognition.start();
-        
-        spawnInterval = setInterval(spawnNumber, 2500);
-    }
-
-    function gameLoop() {
-        if (!gameIsRunning) return;
-
-        numbersOnScreen.forEach((num) => {
-            if (num.saved) return;
-            
-            // Se aplica la velocidad fija ultra rápida a cada burbuja
-            num.size += ULTRA_FAST_SPEED;
-            
-            const progress = Math.min(1, (num.size - num.startSize) / (num.maxSize - num.startSize));
-            const r = 255 + (255 - 255) * progress; // Simplificado ya que el color base es blanco
-            const g = 255 + (59 - 255) * progress;
-            const b = 255 + (48 - 255) * progress;
-            num.element.style.backgroundColor = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
-            num.element.style.width = `${num.size}px`;
-            num.element.style.height = `${num.size}px`;
-            num.element.style.fontSize = `${num.size / 3}px`;
-
-            if (num.size >= num.maxSize) {
-                // Lógica de explosión si no se acierta a tiempo
+        function resetGame() {
+            activeNumberMap = allNumberMaps[currentRange];
+            keypadContainer.innerHTML = ''; 
+            const numbers = Object.keys(activeNumberMap);
+            if (currentRange === '0-9') {
+                const order = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+                order.forEach(num => createKey(num));
+            } else {
+                numbers.forEach(num => createKey(num));
             }
-        });
-
-        requestAnimationFrame(gameLoop);
-    }
-
-    function spawnNumber() {
-        if (!gameIsRunning || numbersOnScreen.length >= 4) return;
-        
-        const level = gameLevels[currentLevelIndex];
-        const neededNumbers = [];
-        for (let i = level.min; i <= level.max; i++) {
-            if (practiceTracker[i] < PRACTICE_GOAL) neededNumbers.push(i);
+            const allNames = Object.values(activeNumberMap).map(num => num.name);
+            allNames.sort(() => Math.random() - 0.5);
+            availableNames = [...allNames];
+            visibleNames = [];
+            nameListContainer.innerHTML = '';
+            const initialCount = Math.min(5, allNames.length);
+            for (let i = 0; i < initialCount; i++) { addNextNameToVisibleList(); }
+            correctCount = 0;
+            updateProgress();
+            victoryModal.classList.remove('visible');
+            if (selectedNameElement) {
+                selectedNameElement.classList.remove('selected');
+                selectedNameElement = null;
+            };
+            hintButton.disabled = false;
+            score = 0;
+            updateScoreDisplay();
+            updateCharacter('neutral');
         }
-        if (neededNumbers.length === 0) return;
 
-        const value = neededNumbers[Math.floor(Math.random() * neededNumbers.length)];
-        
-        const element = document.createElement('div');
-        element.classList.add('numero');
-        element.textContent = value;
-        
-        const startSize = 80;
-        const numObj = { value, element, size: startSize, startSize, maxSize: 220 + Math.random() * 50, saved: false };
-        const gameRect = bubbleArea.getBoundingClientRect();
-        numObj.x = Math.random() * (gameRect.width - numObj.maxSize - 20) + 10;
-        numObj.y = Math.random() * (gameRect.height - numObj.maxSize - 150) + 20;
-        element.style.top = `${numObj.y}px`; element.style.left = `${numObj.x}px`;
-        numbersOnScreen.push(numObj);
-        bubbleArea.appendChild(element);
-    }
-    function saveNumber(num) {
-        if (num.saved) return;
-        num.saved = true;
-        score += 10;
-        updateUI();
-        popSound.currentTime = 0;
-        popSound.play();
-        
-        if (practiceTracker[num.value] < PRACTICE_GOAL) {
-            practiceTracker[num.value]++;
+        function createKey(number) {
+            const key = document.createElement('div');
+            key.className = 'key';
+            key.id = `key-${number}`;
+            key.dataset.number = number;
+            key.textContent = number;
+            if (number === '0') {
+                key.classList.add('key-pos-0');
+            }
+            key.addEventListener('click', handleKeyClick);
+            key.addEventListener('dragover', (e) => { e.preventDefault(); key.classList.add('drag-over'); });
+            key.addEventListener('dragleave', () => { key.classList.remove('drag-over', 'shake'); });
+            key.addEventListener('drop', handleDrop);
+            keypadContainer.appendChild(key);
         }
-        updateProgressGrid();
-        
-        setTimeout(() => {
-            if (num.element.parentElement) num.element.remove();
-            numbersOnScreen = numbersOnScreen.filter(n => n !== num);
-        }, 500);
 
-        if (checkLevelCompletion()) {
-            levelComplete();
+        function getNumberFromName(name) {
+            return Object.keys(activeNumberMap).find(num => activeNumberMap[num].name === name);
         }
-    }
-    function updateUI() { scoreEl.textContent = `Puntos: ${score}`; }
 
-    // --- EVENT LISTENERS ---
-    startButton.addEventListener('click', startLevel);
-    nextLevelButton.addEventListener('click', () => {
-        currentLevelIndex++;
-        if (currentLevelIndex >= gameLevels.length) {
-            gameCompleteScreen.style.display = 'flex';
-        } else {
-            startLevel();
+        function checkCompletion() {
+            if (correctCount === Object.keys(activeNumberMap).length) {
+                let message = '', emoji = '';
+                if (score >= 8) { message = '¡Muy bien! ¡Magnífico!'; emoji = '🥳';
+                } else if (score >= 4) { message = '¡Puedes mejorar!'; emoji = '😐';
+                } else { message = 'Practica más'; emoji = '😟'; }
+                document.getElementById('victory-message').innerHTML = `${message} <br> ${emoji}`;
+                speakText(message, true);
+                victoryModal.classList.add('visible');
+                hintButton.disabled = true;
+            }
         }
-    });
-    restartGameButton.addEventListener('click', () => {
-        currentLevelIndex = 0;
-        startLevel();
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-        setupSpeechRecognition();
-        requestAnimationFrame(gameLoop);
-    });
-</script>
+
+        function addNextNameToVisibleList() {
+            if(availableNames.length === 0) return;
+            const nameToAdd = availableNames.shift();
+            visibleNames.push(nameToAdd);
+            const fullNumber = getNumberFromName(nameToAdd);
+            const numData = activeNumberMap[fullNumber];
+            const div = document.createElement('div');
+            div.className = 'draggable-name';
+            div.id = `name-${numData.name.replace(/\s/g, '-')}`;
+            div.dataset.name = numData.name;
+            div.draggable = true;
+            div.textContent = numData.text;
+            setupDragListeners(div);
+            div.addEventListener('click', handleNameClick);
+            nameListContainer.appendChild(div);
+        }
+
+        function updateProgress() {
+            progressTitle.textContent = `Aciertos: ${correctCount} / ${Object.keys(activeNumberMap).length}`;
+        }
+
+        function placeNumber(key, nameData) {
+            playSuccessSound();
+            const placedElement = document.getElementById(`name-${nameData.replace(/\s/g, '-')}`);
+            const fullNumber = getNumberFromName(nameData);
+            key.textContent = activeNumberMap[fullNumber].text;
+            key.classList.add('correct');
+            if (placedElement) { placedElement.classList.add('hidden'); }
+            const indexToRemove = visibleNames.indexOf(nameData);
+            if (indexToRemove > -1) { visibleNames.splice(indexToRemove, 1); }
+            setTimeout(() => { if (placedElement) placedElement.remove(); addNextNameToVisibleList(); }, 400);
+            correctCount++;
+            score++;
+            updateScoreDisplay();
+            showScoreChange(1);
+            updateCharacter('happy');
+            updateProgress();
+            checkCompletion();
+        }
+
+        function updateScoreDisplay() { scoreDisplay.textContent = `Puntos: ${score}`; }
+
+        function showScoreChange(amount) {
+            const changeElement = document.createElement('div');
+            changeElement.textContent = `${amount > 0 ? '+' : ''}${amount}`;
+            changeElement.className = `score-change ${amount > 0 ? 'score-plus' : 'score-minus'}`;
+            const scoreRect = scoreDisplay.getBoundingClientRect();
+            document.body.appendChild(changeElement);
+            changeElement.style.left = `${scoreRect.left + (scoreRect.width/2) - (changeElement.offsetWidth/2)}px`;
+            changeElement.style.top = `${scoreRect.top - 10}px`;
+            setTimeout(() => changeElement.remove(), 1500);
+        }
+
+        function updateCharacter(state) {
+            let emoji = '😐';
+            characterStatus.style.transform = 'scale(1)';
+            if (state === 'happy') { emoji = '😊'; characterStatus.style.transform = 'scale(1.25) rotate(8deg)'; } 
+            else if (state === 'sad') { emoji = '😟'; characterStatus.style.transform = 'scale(0.9) rotate(-5deg)';}
+            characterStatus.textContent = emoji;
+            if (state !== 'neutral') {
+                setTimeout(() => { characterStatus.textContent = '😐'; characterStatus.style.transform = 'scale(1) rotate(0deg)'; }, 1500);
+            }
+        }
+
+        function handleMistake() {
+            score = Math.max(0, score - 1);
+            updateScoreDisplay();
+            showScoreChange(-1);
+            updateCharacter('sad');
+            speakText('Intenta de nuevo');
+        }
+        
+        function giveHint() {
+            if (visibleNames.length === 0) return;
+            hintButton.disabled = true;
+            const randomVisibleName = visibleNames[Math.floor(Math.random() * visibleNames.length)];
+            const nameElement = document.getElementById(`name-${randomVisibleName.replace(/\s/g, '-')}`);
+            const correctFullNumber = getNumberFromName(randomVisibleName);
+            const keyElement = document.getElementById(`key-${correctFullNumber}`);
+            if (nameElement && keyElement && !keyElement.classList.contains('correct')) {
+                nameElement.classList.add('hint-highlight');
+                keyElement.classList.add('hint-highlight');
+                setTimeout(() => {
+                    nameElement.classList.remove('hint-highlight');
+                    keyElement.classList.remove('hint-highlight');
+                    placeNumber(keyElement, randomVisibleName);
+                    if (correctCount < Object.keys(activeNumberMap).length) { hintButton.disabled = false; }
+                }, 1000);
+            } else {
+                hintButton.disabled = false;
+            }
+        }
+
+        function initAudioContext() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        function playSuccessSound() { if (!audioCtx) return; const now=audioCtx.currentTime,gainNode=audioCtx.createGain();gainNode.connect(audioCtx.destination);gainNode.gain.setValueAtTime(.2,now);const osc1=audioCtx.createOscillator();osc1.type='triangle';osc1.frequency.setValueAtTime(523.25,now);osc1.connect(gainNode);const osc2=audioCtx.createOscillator();osc2.type='triangle';osc2.frequency.setValueAtTime(659.25,now+.1);osc2.connect(gainNode);osc1.start(now);osc2.start(now+.1);gainNode.gain.setTargetAtTime(0,now+.2,.015);osc1.stop(now+.3);osc2.stop(now+.3); }
+        
+        function speakText(text, isAnimated = false) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'es-ES';
+            if (spanishVoice) { u.voice = spanishVoice; }
+            if (navigator.platform.toUpperCase().indexOf('MAC') >= 0 && !isAnimated) u.rate = .8;
+            if (isAnimated) { u.pitch = 1.2; u.rate = 1.1; }
+            window.speechSynthesis.speak(u);
+        }
+        
+        function loadVoices() {
+            if (!('speechSynthesis' in window)) {
+                voiceStatus.textContent = "Voz no disponible";
+                voiceStatus.style.display = 'block';
+                return;
+            }
+            const setVoice = () => {
+                const voices = window.speechSynthesis.getVoices();
+                spanishVoice = voices.find(v => v.name === 'Google español') || voices.find(v => v.lang.startsWith('es'));
+                if (!spanishVoice && voices.length > 0) {
+                    voiceStatus.textContent = "Voz en español no encontrada";
+                    voiceStatus.style.display = 'block';
+                } else {
+                    voiceStatus.style.display = 'none';
+                }
+            };
+            setVoice();
+            if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                window.speechSynthesis.onvoiceschanged = setVoice;
+            }
+        }
+
+        function setupDragListeners(element) { element.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', element.dataset.name); }); }
+        function setupControlListeners() { resetButton.addEventListener('click', resetGame); gameResetButton.addEventListener('click', resetGame); hintButton.addEventListener('click', giveHint); instructionsToggle.addEventListener('click', () => instructionsModal.classList.add('visible')); instructionsModal.addEventListener('click', () => instructionsModal.classList.remove('visible')); }
+        function setupRangeSelector() { rangeButtons.forEach(button => { button.addEventListener('click', () => { currentRange = button.dataset.range; rangeButtons.forEach(btn => btn.classList.remove('active')); button.classList.add('active'); resetGame(); }); }); }
+        function handleNameClick(event) { event.stopPropagation(); const t = event.currentTarget; if (selectedNameElement === t) { selectedNameElement.classList.remove('selected'); selectedNameElement = null; } else { if (selectedNameElement) selectedNameElement.classList.remove('selected'); t.classList.add('selected'); selectedNameElement = t; } }
+        
+        function handleKeyClick(event) {
+            const key = event.currentTarget;
+            const numberData = activeNumberMap[key.dataset.number];
+
+            // Siempre intenta decir el nombre del número de la tecla
+            if (numberData) {
+                speakText(numberData.name);
+            }
+
+            // Si la tecla ya es correcta, no hagas nada más
+            if (key.classList.contains('correct')) {
+                return;
+            }
+
+            // Si hay un nombre seleccionado, intenta hacer la pareja
+            if (selectedNameElement) {
+                const selectedName = selectedNameElement.dataset.name;
+                const fullNumberFromName = getNumberFromName(selectedName);
+                if (fullNumberFromName === key.dataset.number) {
+                    placeNumber(key, selectedName);
+                } else {
+                    key.classList.add('shake');
+                    setTimeout(() => key.classList.remove('shake'), 500);
+                    handleMistake(); // La voz de error se llama desde aquí
+                }
+                selectedNameElement.classList.remove('selected');
+                selectedNameElement = null;
+            }
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            const key = event.currentTarget;
+            key.classList.remove('drag-over');
+            const droppedName = event.dataTransfer.getData('text/plain');
+            const fullNumber = getNumberFromName(droppedName);
+            if (fullNumber === key.dataset.number) {
+                placeNumber(key, droppedName);
+            } else {
+                key.classList.add('shake');
+                setTimeout(() => key.classList.remove('shake'), 500);
+                handleMistake();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
 </body>
 </html>
