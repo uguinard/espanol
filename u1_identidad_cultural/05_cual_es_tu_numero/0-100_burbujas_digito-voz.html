@@ -89,15 +89,24 @@
             position: relative;
             height: 100%;
         }
+
+        /* --- CAMBIO: Estilo simplificado a solo texto --- */
         .numero { 
-            position: absolute; font-weight: 700; color: var(--text-color); 
-            background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
-            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease; 
-            border: 1px solid rgba(255,255,255,0.8);
+            position: absolute;
+            font-weight: 700;
+            color: var(--primary-color);
+            background-color: transparent; /* Sin fondo de burbuja */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            /* Se quitan bordes, sombras, y radios de la burbuja */
         }
-        .numero.exploding { animation: explode 0.5s forwards; }
-        @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        .numero.exploding {
+            animation: text_explode 0.5s forwards;
+        }
+        @keyframes text_explode {
+            0% { transform: scale(1); opacity: 1; color: var(--danger-color); }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
 
         #ui-bar {
             position: absolute; bottom: 0; left: 300px; right: 0;
@@ -203,7 +212,8 @@
     let currentLevelIndex = 0;
     let practiceTracker = {};
     const PRACTICE_GOAL = 2;
-    const ULTRA_FAST_SPEED = 0.5;
+    // CAMBIO: Velocidad renombrada y aumentada para mayor claridad.
+    const GROWTH_PER_FRAME = 2.0;
 
     let recognition;
 
@@ -316,30 +326,24 @@
         spawnInterval = setInterval(spawnNumber, 2500);
     }
 
-    // --- CAMBIO: Lógica de crecimiento y explosión corregida en el Game Loop ---
+    // --- BUCLE DE JUEGO CORREGIDO Y SIMPLIFICADO ---
     function gameLoop() {
         if (!gameIsRunning) return;
 
         [...numbersOnScreen].forEach((num) => {
             if (num.saved) return;
             
-            num.size += ULTRA_FAST_SPEED;
+            // 1. Aplica el crecimiento al tamaño del número
+            num.size += GROWTH_PER_FRAME;
             
-            // Comprueba si la burbuja debe explotar
+            // 2. Comprueba si el número ha crecido demasiado
             if (num.size >= num.maxSize) {
                 explodeNumber(num);
-                return; // Deja de procesar esta burbuja
+                return;
             }
 
-            // Actualiza el estilo (tamaño y color)
-            const progress = Math.min(1, (num.size - num.startSize) / (num.maxSize - num.startSize));
-            const r = 255 - (196 * progress);
-            const g = 255 - (207 * progress);
-            const b = 255 - (207 * progress);
-            num.element.style.backgroundColor = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
-            num.element.style.width = `${num.size}px`;
-            num.element.style.height = `${num.size}px`;
-            num.element.style.fontSize = `${num.size / 3}px`;
+            // 3. Actualiza únicamente el tamaño de la fuente
+            num.element.style.fontSize = `${num.size}px`;
         });
 
         requestAnimationFrame(gameLoop);
@@ -361,12 +365,19 @@
         element.classList.add('numero');
         element.textContent = value;
         
-        const startSize = 80;
-        const numObj = { value, element, size: startSize, startSize, maxSize: 220 + Math.random() * 50, saved: false };
+        // CAMBIO: Tamaño inicial y máximo ajustados para el modo de solo texto
+        const startSize = 30;
+        const maxSize = 180;
+        
+        const numObj = { value, element, size: startSize, startSize, maxSize, saved: false };
         const gameRect = bubbleArea.getBoundingClientRect();
-        numObj.x = Math.random() * (gameRect.width - numObj.maxSize - 20) + 10;
-        numObj.y = Math.random() * (gameRect.height - numObj.maxSize - 150) + 20;
-        element.style.top = `${numObj.y}px`; element.style.left = `${numObj.x}px`;
+        numObj.x = Math.random() * (gameRect.width - 150) + 50; // Márgenes para que no aparezca en los bordes
+        numObj.y = Math.random() * (gameRect.height - 200) + 50;
+        element.style.top = `${numObj.y}px`;
+        element.style.left = `${numObj.x}px`;
+        // Asigna el tamaño inicial de la fuente al crearse
+        element.style.fontSize = `${startSize}px`;
+
         numbersOnScreen.push(numObj);
         bubbleArea.appendChild(element);
     }
@@ -384,31 +395,26 @@
         }
         updateProgressGrid();
         
-        // La animación de guardado ahora se maneja con una clase CSS si se desea, o simplemente se elimina
         setTimeout(() => {
             if (num.element.parentElement) num.element.remove();
             numbersOnScreen = numbersOnScreen.filter(n => n !== num);
-        }, 300); // Eliminación más rápida
+        }, 300);
 
         if (checkLevelCompletion()) {
             levelComplete();
         }
     }
 
-    // --- CAMBIO: Nueva función para manejar la explosión de burbujas ---
     function explodeNumber(num) {
         if (!num.element.parentElement) return;
 
         explodeSound.currentTime = 0;
         explodeSound.play();
 
-        // Elimina la burbuja del array de seguimiento
         numbersOnScreen = numbersOnScreen.filter(n => n !== num);
         
-        // Activa la animación de explosión
         num.element.classList.add('exploding');
         
-        // Elimina el elemento del DOM después de que termine la animación
         setTimeout(() => {
             if (num.element.parentElement) {
                 num.element.remove();
