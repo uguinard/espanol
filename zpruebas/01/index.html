@@ -2,338 +2,360 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordena la Frase v2.0</title>
+    <title>Agente: Protocolo de Identificación</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Poppins:wght@400;600&display=swap');
         :root {
-            --color-fondo: #2c3e50; --color-panel: #34495e; --color-texto: #ecf0f1;
-            --color-primario: #3498db; --color-acierto: #2ecc71; --color-error: #e74c3c;
-            --color-pista: #f1c40f; --color-sombra: rgba(0, 0, 0, 0.2);
+            --primary-color: #00ffdd; --background-color: #1a232e; --text-color: #e0e0e0;
+            --card-background: #2c3a4a; --highlight-color: #ff4757;
         }
         body {
-            font-family: 'Poppins', sans-serif; background-color: var(--color-fondo); color: var(--color-texto);
-            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box;
+            font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center;
+            height: 100vh; background-color: var(--background-color); color: var(--text-color); margin: 0;
+            overflow: hidden;
         }
-        #game-container {
-            background-color: var(--color-panel); width: 100%; max-width: 700px; padding: 30px;
-            border-radius: 15px; box-shadow: 0 10px 20px var(--color-sombra); text-align: center;
+        #game-container, #identification-screen {
+            display: flex; gap: 40px; width: 1300px; height: 800px;
         }
-        #header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        
+        /* --- Pantalla de Identificación --- */
+        #identification-screen {
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
         }
-        #category-title {
-            background-color: var(--color-primario); padding: 5px 15px; border-radius: 20px; font-size: 1rem; font-weight: 600;
+        #identification-screen h1 {
+            font-family: 'Roboto Mono', monospace; font-size: 3em; color: var(--primary-color);
         }
-        #stats { display: flex; align-items: center; gap: 20px; font-size: 1.4rem; }
-        #prompt { font-size: 1.3rem; margin-bottom: 25px; font-style: italic; opacity: 0.9; }
-        #prompt span { font-weight: 600; color: var(--color-primario); }
-        #answer-area, #word-bank {
-            min-height: 60px; background-color: rgba(0, 0, 0, 0.2); border-radius: 10px; padding: 10px;
-            margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; transition: transform 0.2s;
+        #identification-screen p { font-size: 1.2em; max-width: 600px; line-height: 1.6; }
+        #auth-status {
+            margin-top: 20px; font-family: 'Roboto Mono', monospace;
+            font-size: 1.5em; height: 30px;
         }
-        .word-tile {
-            padding: 10px 20px; background-color: var(--color-texto); color: var(--color-fondo);
-            border-radius: 8px; font-size: 1.2rem; font-weight: 600; cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s; user-select: none;
+        #auth-status.listening { color: #2ecc71; }
+        
+        #start-auth-btn {
+            margin-top: 30px; width: auto; height: 60px; padding: 0 40px; border-radius: 30px; border: none; 
+            background-color: var(--primary-color); color: var(--background-color); font-family: 'Poppins', sans-serif;
+            font-size: 1.2em; font-weight: 600; cursor: pointer; transition: all 0.2s; 
         }
-        .word-tile:hover { transform: translateY(-3px); }
-        #word-bank .word-tile.disabled { opacity: 0.3; pointer-events: none; background-color: #7f8c8d; }
-        #feedback { font-size: 1.2rem; font-weight: 600; height: 30px; margin-bottom: 20px; }
-        .feedback-correct { color: var(--color-acierto); }
-        .feedback-incorrect { color: var(--color-error); }
-        .button-container { display: flex; justify-content: center; gap: 15px; }
-        .button {
-            padding: 12px 30px; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px;
-            cursor: pointer; transition: background-color 0.2s; background-color: var(--color-primario); color: var(--color-texto);
-        }
-        .button:disabled { background-color: #7f8c8d; cursor: not-allowed; }
-        .button:hover:not(:disabled) { background-color: #2980b9; }
-        #hint-button { background-color: var(--color-pista); color: var(--color-fondo); }
-        #hint-button:hover:not(:disabled) { background-color: #f39c12; }
-        .hidden { display: none; }
-        .shake { animation: shake 0.5s; }
-        @keyframes shake {
-            10%, 90% { transform: translateX(-1px); }
-            20%, 80% { transform: translateX(2px); }
-            30%, 50%, 70% { transform: translateX(-4px); }
-            40%, 60% { transform: translateX(4px); }
-        }
-        #start-screen { text-align: center; }
-        #start-screen h1 { font-size: 2.5rem; color: var(--color-primario); }
-        #start-screen p { font-size: 1.2rem; margin-bottom: 30px; }
-        #file-loader { margin-top: 20px; }
-        #file-loader label { background-color: #95a5a6; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
-        #file-loader input { display: none; }
+        #start-auth-btn:disabled { background-color: #555; cursor: not-allowed; }
+
+        #game-container.hidden { display: none; }
+
+        /* ... (el resto del CSS es igual que en la versión anterior) ... */
+        #characters-container { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .character-card { display: flex; align-items: center; padding: 15px; background-color: var(--card-background); border-radius: 10px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s ease; }
+        .character-card:hover, .character-card.selected { border-color: var(--primary-color); }
+        .character-card.selected { box-shadow: 0 0 15px var(--primary-color); }
+        .character-card img { width: 80px; height: 80px; border-radius: 50%; margin-right: 20px; border: 2px solid var(--primary-color); }
+        .character-codename { font-size: 1.5em; font-weight: 600; }
+        #right-panel { flex: 2; display: flex; flex-direction: column; }
+        #dossier-container { flex-grow: 1; background-color: var(--card-background); border-radius: 10px; padding: 25px; }
+        #dossier-container h2 { margin-top: 0; text-align: center; font-family: 'Roboto Mono', monospace; color: var(--primary-color); }
+        .dossier-entry { margin: 18px 0; font-size: 1.1em; }
+        .dossier-label { font-weight: 600; }
+        .dossier-field { font-family: 'Roboto Mono', monospace; background-color: #1e2b3a; padding: 10px; border-radius: 5px; display: block; margin-top: 5px; min-height: 22px; color: #fff; }
+        .dossier-field.filled { color: var(--primary-color); }
+        .dossier-field:not(.filled)::after { content: '_'; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        #controls { text-align: center; padding-top: 20px; }
+        #record-btn { width: auto; height: 60px; padding: 0 40px; border-radius: 30px; border: none; background-color: var(--highlight-color); color: white; font-family: 'Poppins', sans-serif; font-size: 1.2em; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; margin: 0 auto; }
+        #record-btn.listening { background-color: #2ecc71; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 100% { box-shadow: 0 0 0 20px rgba(46, 204, 113, 0); } }
+        #status-text { height: 20px; margin-top: 15px; font-style: italic; }
+        #transcript-text { height: 20px; font-family: 'Roboto Mono', monospace;}
     </style>
 </head>
 <body>
 
-<div id="game-container">
-    <div id="start-screen">
-        <h1>Constructor de Conversaciones</h1>
-        <p>¡Pon las palabras en el orden correcto para formar frases!</p>
-        <button id="start-default-button" class="button">Empezar con Frases de Ejemplo</button>
-        <div id="file-loader">
-            <label for="csv-upload">O Carga tu Propio Archivo (.csv)</label>
-            <input type="file" id="csv-upload" accept=".csv, .txt">
-        </div>
+    <div id="identification-screen">
+        <h1>[ ACCESO RESTRINGIDO ]</h1>
+        <p>Sistema de Interrogatorios de la Agencia. Presiona el botón e identifícate con tu nombre en clave y código de seguridad para proceder.</p>
+        <p><strong>Ejemplo:</strong> "Agente especial Coco Perezoso, presente. Código: ka dos, efe ocho, cinco, ka."</p>
+        <button id="start-auth-btn">COMENZAR IDENTIFICACIÓN</button>
+        <div id="auth-status">Esperando activación...</div>
     </div>
 
-    <div id="game-screen" class="hidden">
-        <div id="header">
-            <div id="category-title"></div>
-            <div id="stats">
-                <div id="lives"></div>
-                <div id="stars"></div>
+    <div id="game-container" class="hidden">
+        <div id="characters-container"></div>
+        <div id="right-panel">
+            <div id="dossier-container">
+                <h2>EXPEDIENTE DEL AGENTE</h2>
+                <div class="dossier-entry"><span class="dossier-label">NOMBRE CLAVE:</span><span id="dossier-codename" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">NOMBRE REAL:</span><span id="dossier-name" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">EDAD:</span><span id="dossier-age" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">IDIOMAS:</span><span id="dossier-language" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">ORIGEN:</span><span id="dossier-origin" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">RESIDENCIA ACTUAL:</span><span id="dossier-residence" class="dossier-field"></span></div>
+            </div>
+            <div id="controls">
+                <button id="record-btn">Iniciar Interrogatorio</button>
+                <p id="status-text">Selecciona un agente para empezar.</p>
+                <p id="transcript-text"></p>
             </div>
         </div>
-        <div id="prompt"></div>
-        <div id="answer-area" aria-label="Tu respuesta"></div>
-        <div id="word-bank" aria-label="Banco de palabras"></div>
-        <div id="feedback"></div>
-        <div class="button-container">
-            <button id="hint-button" class="button">Pista 💡</button>
-            <button id="check-button" class="button">Comprobar</button>
-            <button id="next-button" class="button hidden">Siguiente →</button>
-        </div>
     </div>
-</div>
 
-<script>
-// --- Lógica del Juego (JavaScript) ---
-let CHALLENGES = []; 
-
-const startScreen = document.getElementById('start-screen');
-const gameScreen = document.getElementById('game-screen');
-const startDefaultButton = document.getElementById('start-default-button');
-const csvUploadInput = document.getElementById('csv-upload');
-
-const categoryTitleEl = document.getElementById('category-title');
-const livesEl = document.getElementById('lives');
-const starsEl = document.getElementById('stars');
-const promptEl = document.getElementById('prompt');
-const answerAreaEl = document.getElementById('answer-area');
-const wordBankEl = document.getElementById('word-bank');
-const feedbackEl = document.getElementById('feedback');
-const checkButton = document.getElementById('check-button');
-const nextButton = document.getElementById('next-button');
-const hintButton = document.getElementById('hint-button');
-
-let gameState = {
-    currentChallengeIndex: 0,
-    lives: 3,
-    hintsUsed: 0,
-    currentAnswer: [],
-};
-
-// --- Manejo de Archivos y Arranque ---
-startDefaultButton.addEventListener('click', () => {
-    cargarDesafiosDesdeArchivo('vocabulario.csv');
-});
-csvUploadInput.addEventListener('change', cargarArchivoDeUsuario);
-
-async function cargarDesafiosDesdeArchivo(filePath) {
-    try {
-        const response = await fetch(filePath);
-        if (!response.ok) throw new Error("Network response was not ok.");
-        const data = await response.text();
-        parsearYEmpezarJuego(data);
-    } catch (error) {
-        alert("Error al cargar el vocabulario. Asegúrate de estar usando un servidor local.");
-        console.error(error);
-    }
-}
-
-function cargarArchivoDeUsuario(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => parsearYEmpezarJuego(e.target.result);
-    reader.readAsText(file);
-}
-
-function parsearYEmpezarJuego(data) {
-    const rows = data.split('\n').slice(1);
-    CHALLENGES = rows.map(row => {
-        const [category, prompt, phrase] = row.split(',');
-        if (category && prompt && phrase) {
-            return { category, prompt, phrase: phrase.trim() };
+    <script>
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("Tu navegador no soporta el reconocimiento de voz. Por favor, usa Google Chrome.");
         }
-        return null;
-    }).filter(Boolean);
-    
-    if (CHALLENGES.length > 0) {
-        startScreen.classList.add('hidden');
-        gameScreen.classList.remove('hidden');
-        iniciarJuego();
-    } else {
-        alert("El archivo no tiene un formato válido o está vacío.");
-    }
-}
-
-
-function iniciarJuego() {
-    gameState.currentChallengeIndex = 0;
-    checkButton.addEventListener('click', checkAnswer);
-    nextButton.addEventListener('click', nextChallenge);
-    hintButton.addEventListener('click', useHint);
-    loadChallenge();
-}
-
-
-// --- Lógica del Juego ---
-function loadChallenge() {
-    answerAreaEl.innerHTML = '';
-    wordBankEl.innerHTML = '';
-    feedbackEl.textContent = '';
-    checkButton.classList.remove('hidden');
-    nextButton.classList.add('hidden');
-    checkButton.disabled = true;
-    hintButton.disabled = false;
-    
-    gameState.currentAnswer = [];
-    gameState.lives = 3;
-    gameState.hintsUsed = 0;
-    
-    const challenge = CHALLENGES[gameState.currentChallengeIndex];
-    categoryTitleEl.textContent = challenge.category;
-    promptEl.innerHTML = `You want to say: <span>"${challenge.prompt}"</span>`;
-    
-    const words = challenge.phrase.split(' ');
-    const shuffledWords = words.slice().sort(() => Math.random() - 0.5);
-    
-    shuffledWords.forEach((word, index) => {
-        const tile = document.createElement('div');
-        tile.className = 'word-tile';
-        tile.textContent = word;
-        tile.dataset.originalIndex = index;
-        tile.addEventListener('click', handleWordBankClick);
-        wordBankEl.appendChild(tile);
-    });
-    
-    updateStats();
-}
-
-function handleWordBankClick(event) {
-    const clickedTile = event.target;
-    gameState.currentAnswer.push({
-        word: clickedTile.textContent,
-        originalIndex: clickedTile.dataset.originalIndex
-    });
-    clickedTile.classList.add('disabled');
-    renderAnswer();
-    checkButton.disabled = false;
-}
-
-function handleAnswerClick(event) {
-    const clickedTile = event.target;
-    const indexToRemove = parseInt(clickedTile.dataset.answerIndex, 10);
-    const removedItem = gameState.currentAnswer.splice(indexToRemove, 1)[0];
-    const bankTile = wordBankEl.querySelector(`[data-original-index='${removedItem.originalIndex}']`);
-    if (bankTile) bankTile.classList.remove('disabled');
-    renderAnswer();
-    if (gameState.currentAnswer.length === 0) checkButton.disabled = true;
-}
-
-function renderAnswer() {
-    answerAreaEl.innerHTML = '';
-    gameState.currentAnswer.forEach((item, index) => {
-        const tile = document.createElement('div');
-        tile.className = 'word-tile';
-        tile.textContent = item.word;
-        tile.dataset.answerIndex = index;
-        tile.addEventListener('click', handleAnswerClick);
-        answerAreaEl.appendChild(tile);
-    });
-}
-
-function checkAnswer() {
-    const playerPhrase = gameState.currentAnswer.map(item => item.word).join(' ');
-    const correctPhrase = CHALLENGES[gameState.currentChallengeIndex].phrase;
-
-    if (playerPhrase === correctPhrase) {
-        feedbackEl.textContent = '¡Perfecto!';
-        feedbackEl.className = 'feedback-correct';
-        hablar(correctPhrase);
-        updateStats(true); // Acierto
         
-        checkButton.classList.add('hidden');
-        hintButton.disabled = true;
-        nextButton.classList.remove('hidden');
-    } else {
-        gameState.lives--;
-        feedbackEl.textContent = 'Incorrecto. ¡Inténtalo de nuevo!';
-        feedbackEl.className = 'feedback-incorrect';
-        answerAreaEl.classList.add('shake');
-        setTimeout(() => answerAreaEl.classList.remove('shake'), 500);
-        updateStats();
-        if (gameState.lives === 0) {
-            feedbackEl.textContent = `La respuesta era: "${correctPhrase}"`;
-            checkButton.classList.add('hidden');
-            hintButton.disabled = true;
-            nextButton.classList.remove('hidden');
+        const CHARACTERS_DATA = { /* ... (datos sin cambios) ... */ };
+        const KEYWORD_MAP = { /* ... (datos sin cambios) ... */ };
+        // Copia los datos de CHARACTERS_DATA y KEYWORD_MAP de la respuesta anterior aquí
+        const CHARACTERS_DATA = {
+            'charA': {
+                codename: "Agente Alfa", name: "Vanesa", gender: "female", age: 29, language: "Español e inglés",
+                origin: "España", residence: "Madrid", img: "https://i.pravatar.cc/150?u=vanesa",
+                responses: {
+                    name: "Mi nombre real es Vanesa.", age: "Tengo veintinueve años.", language: "Hablo español e inglés con fluidez.",
+                    origin: "Soy originaria de España.", residence: "Actualmente vivo en Madrid."
+                }
+            },
+            'charB': {
+                codename: "Agente Beta", name: "Pedro", gender: "male", age: 34, language: "Español y portugués",
+                origin: "México", residence: "Ciudad de México", img: "https://i.pravatar.cc/150?u=pedro",
+                responses: {
+                    name: "Me llamo Pedro, un placer.", age: "Acabo de cumplir treinta y cuatro años.", language: "Domino el español y el portugués.",
+                    origin: "Vengo de México.", residence: "Mi residencia está en Ciudad de México."
+                }
+            },
+            'charC': {
+                codename: "Agente Gamma", name: "María", gender: "female", age: 31, language: "Español y francés",
+                origin: "Colombia", residence: "Bogotá", img: "https://i.pravatar.cc/150?u=maria",
+                responses: {
+                    name: "Puedes llamarme María.", age: "Tengo treinta y un años.", language: "Mis idiomas son el español y el francés.",
+                    origin: "Soy de Colombia.", residence: "Resido en Bogotá."
+                }
+            }
+        };
+
+        const KEYWORD_MAP = {
+            name: ['nombre', 'llamas', 'llamo', 'quién eres'],
+            age: ['edad', 'años', 'cuántos'],
+            language: ['idioma', 'lengua', 'hablas'],
+            origin: ['origen', 'dónde eres', 'vienes', 'país'],
+            residence: ['vives', 'residencia', 'dónde vives']
+        };
+
+
+        const dom = {
+            identificationScreen: document.getElementById('identification-screen'),
+            gameContainer: document.getElementById('game-container'),
+            authStatus: document.getElementById('auth-status'),
+            startAuthBtn: document.getElementById('start-auth-btn'),
+            charactersContainer: document.getElementById('characters-container'), recordBtn: document.getElementById('record-btn'),
+            statusText: document.getElementById('status-text'), transcriptText: document.getElementById('transcript-text'),
+            dossierFields: {
+                codename: document.getElementById('dossier-codename'), name: document.getElementById('dossier-name'),
+                age: document.getElementById('dossier-age'), language: document.getElementById('dossier-language'),
+                origin: document.getElementById('dossier-origin'), residence: document.getElementById('dossier-residence')
+            }
+        };
+        
+        let gameState = {
+            mode: 'identification', authenticated: false, selectedCharId: null, interviewActive: false
+        };
+        let recognition = new SpeechRecognition();
+        let voices = [];
+
+        const synth = window.speechSynthesis;
+        function loadVoices() { voices = synth.getVoices(); }
+        loadVoices();
+        if (synth.onvoiceschanged !== undefined) { synth.onvoiceschanged = loadVoices; }
+
+        function speak(text, gender, onEndCallback) {
+            if (synth.speaking) synth.cancel();
+            const utterThis = new SpeechSynthesisUtterance(text); // Corregido: SpeechSynthesisUtterance
+            let targetVoice = null;
+            if (gender === 'male') {
+                targetVoice = voices.find(v => v.lang === 'es-ES' && v.name.includes('Google'));
+            } else {
+                targetVoice = voices.find(v => v.lang === 'es-US' && v.name.includes('Google'));
+            }
+            utterThis.voice = targetVoice || voices.find(v => v.lang.startsWith('es-'));
+            utterThis.lang = utterThis.voice ? utterThis.voice.lang : 'es-ES';
+            if (onEndCallback) utterThis.onend = onEndCallback;
+            synth.speak(utterThis);
         }
-    }
-}
 
-function nextChallenge() {
-    gameState.currentChallengeIndex++;
-    if (gameState.currentChallengeIndex < CHALLENGES.length) {
-        loadChallenge();
-    } else {
-        endGame();
-    }
-}
+        function initGame() {
+            setupRecognition();
+            dom.startAuthBtn.onclick = () => {
+                recognition.start();
+                dom.startAuthBtn.disabled = true;
+            };
+        }
 
-function useHint() {
-    const correctPhraseWords = CHALLENGES[gameState.currentChallengeIndex].phrase.split(' ');
-    const nextCorrectWordIndex = gameState.currentAnswer.length;
-    
-    if (nextCorrectWordIndex >= correctPhraseWords.length) return;
+        function setupRecognition() {
+            recognition.lang = 'es-ES';
+            recognition.continuous = true;
+            recognition.interimResults = false;
 
-    const nextCorrectWord = correctPhraseWords[nextCorrectWordIndex];
-    
-    // Encuentra la primera ficha disponible con la palabra correcta
-    const tileToMove = Array.from(wordBankEl.children).find(
-        tile => !tile.classList.contains('disabled') && tile.textContent === nextCorrectWord
-    );
+            recognition.onstart = () => {
+                if (gameState.mode === 'identification') {
+                    dom.authStatus.textContent = "Escuchando...";
+                    dom.authStatus.classList.add('listening');
+                }
+            };
+            
+            recognition.onresult = (event) => { /* ... (sin cambios) ... */ };
+            // Copia onresult de la respuesta anterior
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    }
+                }
+                
+                if (finalTranscript.trim()) {
+                    if (gameState.mode === 'identification') {
+                        processIdentification(finalTranscript.toLowerCase().trim());
+                    } else if (gameState.interviewActive) {
+                        dom.transcriptText.textContent = `Has dicho: "${finalTranscript.trim()}"`;
+                        processTranscript(finalTranscript.toLowerCase().trim());
+                    }
+                }
+            };
 
-    if (tileToMove) {
-        gameState.hintsUsed++;
-        handleWordBankClick({ target: tileToMove });
-        updateStats();
-    }
-}
 
-function updateStats(correct = false) {
-    livesEl.textContent = '❤️'.repeat(gameState.lives);
-    let stars = '⭐'.repeat(Math.max(0, 3 - gameState.hintsUsed));
-    if (gameState.lives < 3) stars = '⭐'.repeat(Math.max(0, gameState.lives - gameState.hintsUsed));
-    if (!correct && gameState.lives === 0) stars = '☠️';
-    starsEl.textContent = stars;
-}
+            recognition.onend = () => {
+                if ((gameState.mode === 'identification' && !gameState.authenticated) || (gameState.mode === 'interrogation' && gameState.interviewActive)) {
+                    recognition.start();
+                }
+            };
+            
+            recognition.onerror = (event) => {
+                let errorMsg = "Error de micrófono. Refresca la página.";
+                if (event.error === 'not-allowed') {
+                    errorMsg = "Permiso de micrófono denegado. Habilítalo en la configuración de tu navegador.";
+                }
+                if (gameState.mode === 'identification') {
+                    dom.authStatus.textContent = errorMsg;
+                } else {
+                    dom.statusText.textContent = errorMsg;
+                }
+            };
+        }
 
+        function processIdentification(transcript) {
+            const hasAgent = transcript.includes('agente');
+            const hasPresent = transcript.includes('presente');
+            const hasCode = transcript.includes('código');
 
-function endGame() {
-    gameScreen.innerHTML = `
-        <div style="text-align: center;">
-            <h1>¡Juego Completado!</h1>
-            <p>Has terminado todos los desafíos.</p>
-            <button class="button" onclick="location.reload()">Jugar de Nuevo</button>
-        </div>
-    `;
-}
+            if (hasAgent && hasPresent && hasCode) {
+                gameState.authenticated = true;
+                recognition.stop();
+                dom.authStatus.textContent = "IDENTIFICACIÓN VÁLIDA. ACCESO CONCEDIDO.";
+                const welcomeMessage = "Bienvenido, agente. Su misión es interrogar a los siguientes candidatos. Proceda.";
+                speak(welcomeMessage, 'female', () => {
+                    dom.identificationScreen.style.display = 'none';
+                    dom.gameContainer.classList.remove('hidden');
+                    startInterrogationMode();
+                });
+            } else {
+                dom.authStatus.textContent = "PROTOCOLO INCORRECTO. INTÉNTELO DE NUEVO.";
+                speak("Protocolo de identificación incorrecto. Vuelve a intentarlo.", 'female');
+            }
+        }
 
-function hablar(texto) {
-    if (!window.speechSynthesis) return;
-    const utterance = new SpeechSynthesisUtterance(texto);
-    utterance.lang = 'es-ES';
-    utterance.rate = 0.9;
-    window.speechSynthesis.speak(utterance);
-}
+        function startInterrogationMode() {
+            gameState.mode = 'interrogation';
+            Object.keys(CHARACTERS_DATA).forEach(charId => {
+                const char = CHARACTERS_DATA[charId];
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.id = charId;
+                card.innerHTML = `<img src="${char.img}" alt="${char.codename}"><span class="character-codename">${char.codename}</span>`;
+                card.onclick = () => selectCharacter(charId);
+                dom.charactersContainer.appendChild(card);
+            });
+            dom.recordBtn.onclick = toggleInterview;
+        }
 
-</script>
+        // --- El resto de funciones (selectCharacter, etc.) no cambian ---
+        function selectCharacter(charId) {
+            if (gameState.interviewActive) return;
+            gameState.selectedCharId = charId;
+            document.querySelectorAll('.character-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById(charId).classList.add('selected');
+            clearDossier();
+            dom.dossierFields.codename.textContent = CHARACTERS_DATA[charId].codename;
+            dom.dossierFields.codename.classList.add('filled');
+            
+            const intro = `Agente ${CHARACTERS_DATA[charId].codename} presentándose. Estoy listo para el interrogatorio.`;
+            dom.statusText.textContent = "Presiona 'Iniciar' para comenzar.";
+            speak(intro, CHARACTERS_DATA[charId].gender);
+        }
+
+        function clearDossier() { Object.values(dom.dossierFields).forEach(field => { field.textContent = ''; field.classList.remove('filled'); }); }
+
+        function toggleInterview() {
+            if (!gameState.selectedCharId) {
+                dom.statusText.textContent = "¡Primero debes seleccionar un agente!";
+                return;
+            }
+            gameState.interviewActive = !gameState.interviewActive;
+            if (gameState.interviewActive) {
+                dom.recordBtn.textContent = "Terminar Interrogatorio";
+                dom.recordBtn.classList.add('listening');
+                dom.statusText.textContent = "Micrófono activado. ¡Pregunta!";
+                recognition.start();
+            } else {
+                dom.recordBtn.textContent = "Iniciar Interrogatorio";
+                dom.recordBtn.classList.remove('listening');
+                dom.statusText.textContent = "Interrogatorio terminado.";
+                recognition.stop();
+                synth.cancel();
+            }
+        }
+        
+        function processTranscript(transcript) {
+            const character = CHARACTERS_DATA[gameState.selectedCharId];
+            
+            for (const field in KEYWORD_MAP) {
+                if (KEYWORD_MAP[field].some(keyword => transcript.includes(keyword))) {
+                    const value = character[field];
+                    const response = character.responses[field];
+                    
+                    if (dom.dossierFields[field].classList.contains('filled')) {
+                        speak(`Ya te he dado esa información. Pregúntame otra cosa.`, character.gender);
+                        return;
+                    }
+                    
+                    fillDossierField(field, value.toString());
+                    const followUpPrompt = () => {
+                        if (isDossierComplete()) {
+                            speak("Expediente completo. Excelente trabajo, agente.", character.gender);
+                            toggleInterview();
+                        } else {
+                            speak("¿Cuál es tu siguiente pregunta?", character.gender);
+                        }
+                    };
+                    speak(response, character.gender, followUpPrompt);
+                    return;
+                }
+            }
+            
+            speak("No entendí la pregunta. ¿Puedes reformularla?", character.gender);
+        }
+        
+        function fillDossierField(field, value) {
+            const fieldEl = dom.dossierFields[field];
+            if (fieldEl.classList.contains('filled')) return;
+            fieldEl.textContent = value;
+            fieldEl.classList.add('filled');
+            dom.statusText.textContent = `Dato confirmado: ${field.toUpperCase()}`;
+        }
+        
+        function isDossierComplete() {
+            return Object.keys(dom.dossierFields).every(field => field === 'codename' || dom.dossierFields[field].classList.contains('filled'));
+        }
+
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
 </body>
 </html>
