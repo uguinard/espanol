@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ordena la Frase: Constructor de Conversaciones</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        :root {
+            --color-fondo: #2c3e50; --color-panel: #34495e; --color-texto: #ecf0f1;
+            --color-primario: #3498db; --color-acierto: #2ecc71; --color-error: #e74c3c;
+            --color-sombra: rgba(0, 0, 0, 0.2);
+        }
+        body {
+            font-family: 'Poppins', sans-serif; background-color: var(--color-fondo); color: var(--color-texto);
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 20px; box-sizing: border-box;
+        }
+        #game-container {
+            background-color: var(--color-panel); width: 100%; max-width: 700px; padding: 30px;
+            border-radius: 15px; box-shadow: 0 10px 20px var(--color-sombra); text-align: center;
+        }
+        #header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        #category-title {
+            background-color: var(--color-primario); padding: 5px 15px; border-radius: 20px; font-size: 1rem; font-weight: 600;
+        }
+        #progress-bar-container { width: 50%; background-color: rgba(0, 0, 0, 0.3); border-radius: 10px; }
+        #progress-bar { width: 0%; height: 12px; background-color: var(--color-acierto); border-radius: 10px; transition: width 0.3s ease-in-out; }
+        #score { font-size: 1.2rem; font-weight: 700; }
+        #prompt { font-size: 1.3rem; margin-bottom: 25px; font-style: italic; opacity: 0.9; }
+        #prompt span { font-weight: 600; color: var(--color-primario); }
+        #answer-area, #word-bank {
+            min-height: 60px; background-color: rgba(0, 0, 0, 0.2); border-radius: 10px; padding: 10px;
+            margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center;
+        }
+        .word-tile {
+            padding: 10px 20px; background-color: var(--color-texto); color: var(--color-fondo);
+            border-radius: 8px; font-size: 1.2rem; font-weight: 600; cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s; user-select: none;
+        }
+        .word-tile:hover { transform: translateY(-3px); }
+        #word-bank .word-tile.disabled { opacity: 0.4; pointer-events: none; }
+        #feedback { font-size: 1.2rem; font-weight: 600; height: 30px; margin-bottom: 20px; }
+        .feedback-correct { color: var(--color-acierto); }
+        .feedback-incorrect { color: var(--color-error); }
+        .button {
+            padding: 12px 30px; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px;
+            cursor: pointer; transition: background-color 0.2s; background-color: var(--color-primario); color: var(--color-texto);
+        }
+        .button:disabled { background-color: #7f8c8d; cursor: not-allowed; }
+        .button:hover:not(:disabled) { background-color: #2980b9; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="header">
+        <div id="category-title">Cargando...</div>
+        <div id="progress-bar-container"><div id="progress-bar"></div></div>
+        <div id="score">Puntos: 0</div>
+    </div>
+    <div id="prompt">Cargando desafíos...</div>
+    <div id="answer-area" aria-label="Tu respuesta"></div>
+    <div id="word-bank" aria-label="Banco de palabras"></div>
+    <div id="feedback"></div>
+    <button id="check-button" class="button" disabled>Comprobar</button>
+    <button id="next-button" class="button hidden">Siguiente →</button>
+</div>
+
+<script>
+// --- Lógica del Juego (JavaScript) ---
+
+// --- 1. DATOS DEL JUEGO (Cargados desde CSV) ---
+let CHALLENGES = []; // Este array ahora se llenará desde el archivo CSV
+
+// --- 2. REFERENCIAS AL DOM ---
+const categoryTitleEl = document.getElementById('category-title');
+const progressBarEl = document.getElementById('progress-bar');
+const scoreEl = document.getElementById('score');
+const promptEl = document.getElementById('prompt');
+const answerAreaEl = document.getElementById('answer-area');
+const wordBankEl = document.getElementById('word-bank');
+const feedbackEl = document.getElementById('feedback');
+const checkButton = document.getElementById('check-button');
+const nextButton = document.getElementById('next-button');
+
+// --- 3. ESTADO DEL JUEGO ---
+let gameState = {
+    currentChallengeIndex: 0,
+    score: 0,
+    currentAnswer: [],
+};
+
+// --- 4. FUNCIONES PRINCIPALES ---
+
+/**
+ * NUEVO: Carga y procesa el archivo CSV.
+ * Esta función es asíncrona, lo que significa que espera a que el archivo se cargue.
+ */
+async function cargarDesafios() {
+    try {
+        const response = await fetch('vocabulario.csv'); // Pide el archivo
+        const data = await response.text(); // Convierte la respuesta en texto
+        
+        // Procesa el texto del CSV
+        const rows = data.split('\n').slice(1); // Divide por líneas y salta la cabecera
+        CHALLENGES = rows
+            .map(row => {
+                const [category, prompt, phrase] = row.split(',');
+                // Asegúrate de que la fila no esté vacía y tenga los 3 campos
+                if (category && prompt && phrase) {
+                    return { category, prompt, phrase: phrase.trim() };
+                }
+                return null;
+            })
+            .filter(challenge => challenge !== null); // Filtra filas vacías o malformadas
+        
+        if (CHALLENGES.length === 0) throw new Error("No se pudieron cargar los desafíos del CSV.");
+
+        // Una vez cargado, inicia el juego
+        iniciarJuego();
+
+    } catch (error) {
+        console.error("Error al cargar el archivo CSV:", error);
+        promptEl.textContent = "Error: No se pudo cargar el vocabulario. Asegúrate de estar usando un servidor local.";
+    }
+}
+
+
+function shuffleArray(array) { return array.sort(() => Math.random() - 0.5); }
+
+function loadChallenge() {
+    answerAreaEl.innerHTML = '';
+    wordBankEl.innerHTML = '';
+    feedbackEl.textContent = '';
+    checkButton.classList.remove('hidden');
+    nextButton.classList.add('hidden');
+    checkButton.disabled = true;
+    gameState.currentAnswer = [];
+    
+    const challenge = CHALLENGES[gameState.currentChallengeIndex];
+    categoryTitleEl.textContent = challenge.category;
+    promptEl.innerHTML = `You want to say: <span>"${challenge.prompt}"</span>`;
+    
+    const words = challenge.phrase.split(' ');
+    const shuffledWords = shuffleArray([...words]);
+    
+    shuffledWords.forEach((word, index) => {
+        const tile = document.createElement('div');
+        tile.className = 'word-tile';
+        tile.textContent = word;
+        tile.dataset.originalIndex = index;
+        tile.addEventListener('click', handleWordBankClick);
+        wordBankEl.appendChild(tile);
+    });
+    updateProgress();
+}
+
+function handleWordBankClick(event) {
+    const clickedTile = event.target;
+    gameState.currentAnswer.push({
+        word: clickedTile.textContent,
+        originalIndex: clickedTile.dataset.originalIndex
+    });
+    clickedTile.classList.add('disabled');
+    renderAnswer();
+    checkButton.disabled = false;
+}
+
+function handleAnswerClick(event) {
+    const clickedTile = event.target;
+    const indexToRemove = parseInt(clickedTile.dataset.answerIndex, 10);
+    const removedItem = gameState.currentAnswer.splice(indexToRemove, 1)[0];
+    const bankTile = wordBankEl.querySelector(`[data-original-index='${removedItem.originalIndex}']`);
+    if (bankTile) bankTile.classList.remove('disabled');
+    renderAnswer();
+    if (gameState.currentAnswer.length === 0) checkButton.disabled = true;
+}
+
+function renderAnswer() {
+    answerAreaEl.innerHTML = '';
+    gameState.currentAnswer.forEach((item, index) => {
+        const tile = document.createElement('div');
+        tile.className = 'word-tile';
+        tile.textContent = item.word;
+        tile.dataset.answerIndex = index;
+        tile.addEventListener('click', handleAnswerClick);
+        answerAreaEl.appendChild(tile);
+    });
+}
+
+function checkAnswer() {
+    const playerPhrase = gameState.currentAnswer.map(item => item.word).join(' ');
+    const correctPhrase = CHALLENGES[gameState.currentChallengeIndex].phrase;
+
+    if (playerPhrase === correctPhrase) {
+        feedbackEl.textContent = '¡Perfecto!';
+        feedbackEl.className = 'feedback-correct';
+        gameState.score += 10;
+        hablar(correctPhrase);
+        checkButton.classList.add('hidden');
+        nextButton.classList.remove('hidden');
+    } else {
+        feedbackEl.textContent = 'Casi, ¡inténtalo de nuevo!';
+        feedbackEl.className = 'feedback-incorrect';
+    }
+    scoreEl.textContent = `Puntos: ${gameState.score}`;
+}
+
+function nextChallenge() {
+    gameState.currentChallengeIndex++;
+    if (gameState.currentChallengeIndex < CHALLENGES.length) {
+        loadChallenge();
+    } else {
+        endGame();
+    }
+}
+
+function endGame() {
+    promptEl.innerHTML = `<span>¡Felicidades!</span>`;
+    answerAreaEl.innerHTML = `<p>Has completado todas las frases con un total de ${gameState.score} puntos.</p>`;
+    wordBankEl.innerHTML = '';
+    feedbackEl.textContent = '';
+    checkButton.classList.add('hidden');
+    nextButton.textContent = 'Jugar de Nuevo';
+    nextButton.onclick = () => location.reload();
+    nextButton.classList.remove('hidden');
+}
+
+function updateProgress() {
+    const percentage = (gameState.currentChallengeIndex / CHALLENGES.length) * 100;
+    progressBarEl.style.width = `${percentage}%`;
+}
+
+function hablar(texto) {
+    if (!window.speechSynthesis) return;
+    const utterance = new SpeechSynthesisUtterance(texto);
+    utterance.lang = 'es-ES';
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+}
+
+// --- 5. INICIALIZACIÓN ---
+function iniciarJuego() {
+    checkButton.addEventListener('click', checkAnswer);
+    nextButton.addEventListener('click', nextChallenge);
+    checkButton.disabled = false; // Habilita el botón una vez cargado el juego
+    loadChallenge();
+}
+
+// Inicia el proceso cargando los datos desde el archivo externo
+cargarDesafios();
+
+</script>
+
+</body>
+</html>
