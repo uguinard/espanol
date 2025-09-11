@@ -18,7 +18,6 @@
             display: flex; gap: 40px; width: 1300px; height: 800px;
         }
         
-        /* --- Pantalla de Identificación --- */
         #identification-screen {
             flex-direction: column; justify-content: center; align-items: center;
             text-align: center;
@@ -42,7 +41,6 @@
 
         #game-container.hidden { display: none; }
 
-        /* ... (el resto del CSS es igual que en la versión anterior) ... */
         #characters-container { flex: 1; display: flex; flex-direction: column; gap: 20px; }
         .character-card { display: flex; align-items: center; padding: 15px; background-color: var(--card-background); border-radius: 10px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s ease; }
         .character-card:hover, .character-card.selected { border-color: var(--primary-color); }
@@ -102,62 +100,40 @@
             alert("Tu navegador no soporta el reconocimiento de voz. Por favor, usa Google Chrome.");
         }
         
-        const CHARACTERS_DATA = { /* ... (datos sin cambios) ... */ };
-        const KEYWORD_MAP = { /* ... (datos sin cambios) ... */ };
-        // Copia los datos de CHARACTERS_DATA y KEYWORD_MAP de la respuesta anterior aquí
         const CHARACTERS_DATA = {
             'charA': {
                 codename: "Agente Alfa", name: "Vanesa", gender: "female", age: 29, language: "Español e inglés",
                 origin: "España", residence: "Madrid", img: "https://i.pravatar.cc/150?u=vanesa",
-                responses: {
-                    name: "Mi nombre real es Vanesa.", age: "Tengo veintinueve años.", language: "Hablo español e inglés con fluidez.",
-                    origin: "Soy originaria de España.", residence: "Actualmente vivo en Madrid."
-                }
+                responses: { name: "Mi nombre real es Vanesa.", age: "Tengo veintinueve años.", language: "Hablo español e inglés con fluidez.", origin: "Soy originaria de España.", residence: "Actualmente vivo en Madrid." }
             },
             'charB': {
                 codename: "Agente Beta", name: "Pedro", gender: "male", age: 34, language: "Español y portugués",
                 origin: "México", residence: "Ciudad de México", img: "https://i.pravatar.cc/150?u=pedro",
-                responses: {
-                    name: "Me llamo Pedro, un placer.", age: "Acabo de cumplir treinta y cuatro años.", language: "Domino el español y el portugués.",
-                    origin: "Vengo de México.", residence: "Mi residencia está en Ciudad de México."
-                }
+                responses: { name: "Me llamo Pedro, un placer.", age: "Acabo de cumplir treinta y cuatro años.", language: "Domino el español y el portugués.", origin: "Vengo de México.", residence: "Mi residencia está en Ciudad de México." }
             },
             'charC': {
                 codename: "Agente Gamma", name: "María", gender: "female", age: 31, language: "Español y francés",
                 origin: "Colombia", residence: "Bogotá", img: "https://i.pravatar.cc/150?u=maria",
-                responses: {
-                    name: "Puedes llamarme María.", age: "Tengo treinta y un años.", language: "Mis idiomas son el español y el francés.",
-                    origin: "Soy de Colombia.", residence: "Resido en Bogotá."
-                }
+                responses: { name: "Puedes llamarme María.", age: "Tengo treinta y un años.", language: "Mis idiomas son el español y el francés.", origin: "Soy de Colombia.", residence: "Resido en Bogotá." }
             }
         };
-
         const KEYWORD_MAP = {
-            name: ['nombre', 'llamas', 'llamo', 'quién eres'],
-            age: ['edad', 'años', 'cuántos'],
-            language: ['idioma', 'lengua', 'hablas'],
-            origin: ['origen', 'dónde eres', 'vienes', 'país'],
-            residence: ['vives', 'residencia', 'dónde vives']
+            name: ['nombre', 'llamas', 'llamo', 'quién eres'], age: ['edad', 'años', 'cuántos'], language: ['idioma', 'lengua', 'hablas'],
+            origin: ['origen', 'dónde eres', 'vienes', 'país'], residence: ['vives', 'residencia', 'dónde vives']
         };
 
-
         const dom = {
-            identificationScreen: document.getElementById('identification-screen'),
-            gameContainer: document.getElementById('game-container'),
-            authStatus: document.getElementById('auth-status'),
-            startAuthBtn: document.getElementById('start-auth-btn'),
+            identificationScreen: document.getElementById('identification-screen'), gameContainer: document.getElementById('game-container'),
+            authStatus: document.getElementById('auth-status'), startAuthBtn: document.getElementById('start-auth-btn'),
             charactersContainer: document.getElementById('characters-container'), recordBtn: document.getElementById('record-btn'),
             statusText: document.getElementById('status-text'), transcriptText: document.getElementById('transcript-text'),
             dossierFields: {
-                codename: document.getElementById('dossier-codename'), name: document.getElementById('dossier-name'),
-                age: document.getElementById('dossier-age'), language: document.getElementById('dossier-language'),
-                origin: document.getElementById('dossier-origin'), residence: document.getElementById('dossier-residence')
+                codename: document.getElementById('dossier-codename'), name: document.getElementById('dossier-name'), age: document.getElementById('dossier-age'),
+                language: document.getElementById('dossier-language'), origin: document.getElementById('dossier-origin'), residence: document.getElementById('dossier-residence')
             }
         };
         
-        let gameState = {
-            mode: 'identification', authenticated: false, selectedCharId: null, interviewActive: false
-        };
+        let gameState = { mode: 'identification', authenticated: false, selectedCharId: null, interviewActive: false };
         let recognition = new SpeechRecognition();
         let voices = [];
 
@@ -168,7 +144,7 @@
 
         function speak(text, gender, onEndCallback) {
             if (synth.speaking) synth.cancel();
-            const utterThis = new SpeechSynthesisUtterance(text); // Corregido: SpeechSynthesisUtterance
+            const utterThis = new SpeechSynthesisUtterance(text);
             let targetVoice = null;
             if (gender === 'male') {
                 targetVoice = voices.find(v => v.lang === 'es-ES' && v.name.includes('Google'));
@@ -186,6 +162,7 @@
             dom.startAuthBtn.onclick = () => {
                 recognition.start();
                 dom.startAuthBtn.disabled = true;
+                dom.startAuthBtn.textContent = "ESCUCHANDO...";
             };
         }
 
@@ -196,21 +173,16 @@
 
             recognition.onstart = () => {
                 if (gameState.mode === 'identification') {
-                    dom.authStatus.textContent = "Escuchando...";
+                    dom.authStatus.textContent = "Escuchando... ¡Habla ahora!";
                     dom.authStatus.classList.add('listening');
                 }
             };
             
-            recognition.onresult = (event) => { /* ... (sin cambios) ... */ };
-            // Copia onresult de la respuesta anterior
             recognition.onresult = (event) => {
                 let finalTranscript = '';
                 for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        finalTranscript += event.results[i][0].transcript;
-                    }
+                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
                 }
-                
                 if (finalTranscript.trim()) {
                     if (gameState.mode === 'identification') {
                         processIdentification(finalTranscript.toLowerCase().trim());
@@ -220,21 +192,22 @@
                     }
                 }
             };
-
-
+            
             recognition.onend = () => {
                 if ((gameState.mode === 'identification' && !gameState.authenticated) || (gameState.mode === 'interrogation' && gameState.interviewActive)) {
-                    recognition.start();
+                    try { recognition.start(); } catch(e) { /* Evita errores si se detiene manualmente */ }
                 }
             };
             
             recognition.onerror = (event) => {
                 let errorMsg = "Error de micrófono. Refresca la página.";
                 if (event.error === 'not-allowed') {
-                    errorMsg = "Permiso de micrófono denegado. Habilítalo en la configuración de tu navegador.";
+                    errorMsg = "Permiso de micrófono denegado. Habilítalo en los ajustes de tu navegador.";
                 }
-                if (gameState.mode === 'identification') {
+                 if (gameState.mode === 'identification') {
                     dom.authStatus.textContent = errorMsg;
+                    dom.startAuthBtn.disabled = false;
+                    dom.startAuthBtn.textContent = "COMENZAR IDENTIFICACIÓN";
                 } else {
                     dom.statusText.textContent = errorMsg;
                 }
@@ -276,7 +249,6 @@
             dom.recordBtn.onclick = toggleInterview;
         }
 
-        // --- El resto de funciones (selectCharacter, etc.) no cambian ---
         function selectCharacter(charId) {
             if (gameState.interviewActive) return;
             gameState.selectedCharId = charId;
@@ -339,7 +311,6 @@
                     return;
                 }
             }
-            
             speak("No entendí la pregunta. ¿Puedes reformularla?", character.gender);
         }
         
