@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordena la Frase: Constructor de Conversaciones</title>
+    <title>Ordena la Frase v2.0</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
         :root {
             --color-fondo: #2c3e50; --color-panel: #34495e; --color-texto: #ecf0f1;
             --color-primario: #3498db; --color-acierto: #2ecc71; --color-error: #e74c3c;
-            --color-sombra: rgba(0, 0, 0, 0.2);
+            --color-pista: #f1c40f; --color-sombra: rgba(0, 0, 0, 0.2);
         }
         body {
             font-family: 'Poppins', sans-serif; background-color: var(--color-fondo); color: var(--color-texto);
@@ -26,14 +26,12 @@
         #category-title {
             background-color: var(--color-primario); padding: 5px 15px; border-radius: 20px; font-size: 1rem; font-weight: 600;
         }
-        #progress-bar-container { width: 50%; background-color: rgba(0, 0, 0, 0.3); border-radius: 10px; }
-        #progress-bar { width: 0%; height: 12px; background-color: var(--color-acierto); border-radius: 10px; transition: width 0.3s ease-in-out; }
-        #score { font-size: 1.2rem; font-weight: 700; }
+        #stats { display: flex; align-items: center; gap: 20px; font-size: 1.4rem; }
         #prompt { font-size: 1.3rem; margin-bottom: 25px; font-style: italic; opacity: 0.9; }
         #prompt span { font-weight: 600; color: var(--color-primario); }
         #answer-area, #word-bank {
             min-height: 60px; background-color: rgba(0, 0, 0, 0.2); border-radius: 10px; padding: 10px;
-            margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center;
+            margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; transition: transform 0.2s;
         }
         .word-tile {
             padding: 10px 20px; background-color: var(--color-texto); color: var(--color-fondo);
@@ -41,97 +39,151 @@
             transition: transform 0.2s, background-color 0.2s; user-select: none;
         }
         .word-tile:hover { transform: translateY(-3px); }
-        #word-bank .word-tile.disabled { opacity: 0.4; pointer-events: none; }
+        #word-bank .word-tile.disabled { opacity: 0.3; pointer-events: none; background-color: #7f8c8d; }
         #feedback { font-size: 1.2rem; font-weight: 600; height: 30px; margin-bottom: 20px; }
         .feedback-correct { color: var(--color-acierto); }
         .feedback-incorrect { color: var(--color-error); }
+        .button-container { display: flex; justify-content: center; gap: 15px; }
         .button {
             padding: 12px 30px; font-size: 1.1rem; font-weight: 600; border: none; border-radius: 8px;
             cursor: pointer; transition: background-color 0.2s; background-color: var(--color-primario); color: var(--color-texto);
         }
         .button:disabled { background-color: #7f8c8d; cursor: not-allowed; }
         .button:hover:not(:disabled) { background-color: #2980b9; }
+        #hint-button { background-color: var(--color-pista); color: var(--color-fondo); }
+        #hint-button:hover:not(:disabled) { background-color: #f39c12; }
         .hidden { display: none; }
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            10%, 90% { transform: translateX(-1px); }
+            20%, 80% { transform: translateX(2px); }
+            30%, 50%, 70% { transform: translateX(-4px); }
+            40%, 60% { transform: translateX(4px); }
+        }
+        #start-screen { text-align: center; }
+        #start-screen h1 { font-size: 2.5rem; color: var(--color-primario); }
+        #start-screen p { font-size: 1.2rem; margin-bottom: 30px; }
+        #file-loader { margin-top: 20px; }
+        #file-loader label { background-color: #95a5a6; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+        #file-loader input { display: none; }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <div id="header">
-        <div id="category-title">Cargando...</div>
-        <div id="progress-bar-container"><div id="progress-bar"></div></div>
-        <div id="score">Puntos: 0</div>
+    <div id="start-screen">
+        <h1>Constructor de Conversaciones</h1>
+        <p>¡Pon las palabras en el orden correcto para formar frases!</p>
+        <button id="start-default-button" class="button">Empezar con Frases de Ejemplo</button>
+        <div id="file-loader">
+            <label for="csv-upload">O Carga tu Propio Archivo (.csv)</label>
+            <input type="file" id="csv-upload" accept=".csv, .txt">
+        </div>
     </div>
-    <div id="prompt">Cargando desafíos...</div>
-    <div id="answer-area" aria-label="Tu respuesta"></div>
-    <div id="word-bank" aria-label="Banco de palabras"></div>
-    <div id="feedback"></div>
-    <button id="check-button" class="button" disabled>Comprobar</button>
-    <button id="next-button" class="button hidden">Siguiente →</button>
+
+    <div id="game-screen" class="hidden">
+        <div id="header">
+            <div id="category-title"></div>
+            <div id="stats">
+                <div id="lives"></div>
+                <div id="stars"></div>
+            </div>
+        </div>
+        <div id="prompt"></div>
+        <div id="answer-area" aria-label="Tu respuesta"></div>
+        <div id="word-bank" aria-label="Banco de palabras"></div>
+        <div id="feedback"></div>
+        <div class="button-container">
+            <button id="hint-button" class="button">Pista 💡</button>
+            <button id="check-button" class="button">Comprobar</button>
+            <button id="next-button" class="button hidden">Siguiente →</button>
+        </div>
+    </div>
 </div>
 
 <script>
 // --- Lógica del Juego (JavaScript) ---
+let CHALLENGES = []; 
 
-// --- 1. DATOS DEL JUEGO (Cargados desde CSV) ---
-let CHALLENGES = []; // Este array ahora se llenará desde el archivo CSV
+const startScreen = document.getElementById('start-screen');
+const gameScreen = document.getElementById('game-screen');
+const startDefaultButton = document.getElementById('start-default-button');
+const csvUploadInput = document.getElementById('csv-upload');
 
-// --- 2. REFERENCIAS AL DOM ---
 const categoryTitleEl = document.getElementById('category-title');
-const progressBarEl = document.getElementById('progress-bar');
-const scoreEl = document.getElementById('score');
+const livesEl = document.getElementById('lives');
+const starsEl = document.getElementById('stars');
 const promptEl = document.getElementById('prompt');
 const answerAreaEl = document.getElementById('answer-area');
 const wordBankEl = document.getElementById('word-bank');
 const feedbackEl = document.getElementById('feedback');
 const checkButton = document.getElementById('check-button');
 const nextButton = document.getElementById('next-button');
+const hintButton = document.getElementById('hint-button');
 
-// --- 3. ESTADO DEL JUEGO ---
 let gameState = {
     currentChallengeIndex: 0,
-    score: 0,
+    lives: 3,
+    hintsUsed: 0,
     currentAnswer: [],
 };
 
-// --- 4. FUNCIONES PRINCIPALES ---
+// --- Manejo de Archivos y Arranque ---
+startDefaultButton.addEventListener('click', () => {
+    cargarDesafiosDesdeArchivo('vocabulario.csv');
+});
+csvUploadInput.addEventListener('change', cargarArchivoDeUsuario);
 
-/**
- * NUEVO: Carga y procesa el archivo CSV.
- * Esta función es asíncrona, lo que significa que espera a que el archivo se cargue.
- */
-async function cargarDesafios() {
+async function cargarDesafiosDesdeArchivo(filePath) {
     try {
-        const response = await fetch('vocabulario.csv'); // Pide el archivo
-        const data = await response.text(); // Convierte la respuesta en texto
-        
-        // Procesa el texto del CSV
-        const rows = data.split('\n').slice(1); // Divide por líneas y salta la cabecera
-        CHALLENGES = rows
-            .map(row => {
-                const [category, prompt, phrase] = row.split(',');
-                // Asegúrate de que la fila no esté vacía y tenga los 3 campos
-                if (category && prompt && phrase) {
-                    return { category, prompt, phrase: phrase.trim() };
-                }
-                return null;
-            })
-            .filter(challenge => challenge !== null); // Filtra filas vacías o malformadas
-        
-        if (CHALLENGES.length === 0) throw new Error("No se pudieron cargar los desafíos del CSV.");
-
-        // Una vez cargado, inicia el juego
-        iniciarJuego();
-
+        const response = await fetch(filePath);
+        if (!response.ok) throw new Error("Network response was not ok.");
+        const data = await response.text();
+        parsearYEmpezarJuego(data);
     } catch (error) {
-        console.error("Error al cargar el archivo CSV:", error);
-        promptEl.textContent = "Error: No se pudo cargar el vocabulario. Asegúrate de estar usando un servidor local.";
+        alert("Error al cargar el vocabulario. Asegúrate de estar usando un servidor local.");
+        console.error(error);
+    }
+}
+
+function cargarArchivoDeUsuario(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => parsearYEmpezarJuego(e.target.result);
+    reader.readAsText(file);
+}
+
+function parsearYEmpezarJuego(data) {
+    const rows = data.split('\n').slice(1);
+    CHALLENGES = rows.map(row => {
+        const [category, prompt, phrase] = row.split(',');
+        if (category && prompt && phrase) {
+            return { category, prompt, phrase: phrase.trim() };
+        }
+        return null;
+    }).filter(Boolean);
+    
+    if (CHALLENGES.length > 0) {
+        startScreen.classList.add('hidden');
+        gameScreen.classList.remove('hidden');
+        iniciarJuego();
+    } else {
+        alert("El archivo no tiene un formato válido o está vacío.");
     }
 }
 
 
-function shuffleArray(array) { return array.sort(() => Math.random() - 0.5); }
+function iniciarJuego() {
+    gameState.currentChallengeIndex = 0;
+    checkButton.addEventListener('click', checkAnswer);
+    nextButton.addEventListener('click', nextChallenge);
+    hintButton.addEventListener('click', useHint);
+    loadChallenge();
+}
 
+
+// --- Lógica del Juego ---
 function loadChallenge() {
     answerAreaEl.innerHTML = '';
     wordBankEl.innerHTML = '';
@@ -139,14 +191,18 @@ function loadChallenge() {
     checkButton.classList.remove('hidden');
     nextButton.classList.add('hidden');
     checkButton.disabled = true;
+    hintButton.disabled = false;
+    
     gameState.currentAnswer = [];
+    gameState.lives = 3;
+    gameState.hintsUsed = 0;
     
     const challenge = CHALLENGES[gameState.currentChallengeIndex];
     categoryTitleEl.textContent = challenge.category;
     promptEl.innerHTML = `You want to say: <span>"${challenge.prompt}"</span>`;
     
     const words = challenge.phrase.split(' ');
-    const shuffledWords = shuffleArray([...words]);
+    const shuffledWords = words.slice().sort(() => Math.random() - 0.5);
     
     shuffledWords.forEach((word, index) => {
         const tile = document.createElement('div');
@@ -156,7 +212,8 @@ function loadChallenge() {
         tile.addEventListener('click', handleWordBankClick);
         wordBankEl.appendChild(tile);
     });
-    updateProgress();
+    
+    updateStats();
 }
 
 function handleWordBankClick(event) {
@@ -199,15 +256,26 @@ function checkAnswer() {
     if (playerPhrase === correctPhrase) {
         feedbackEl.textContent = '¡Perfecto!';
         feedbackEl.className = 'feedback-correct';
-        gameState.score += 10;
         hablar(correctPhrase);
+        updateStats(true); // Acierto
+        
         checkButton.classList.add('hidden');
+        hintButton.disabled = true;
         nextButton.classList.remove('hidden');
     } else {
-        feedbackEl.textContent = 'Casi, ¡inténtalo de nuevo!';
+        gameState.lives--;
+        feedbackEl.textContent = 'Incorrecto. ¡Inténtalo de nuevo!';
         feedbackEl.className = 'feedback-incorrect';
+        answerAreaEl.classList.add('shake');
+        setTimeout(() => answerAreaEl.classList.remove('shake'), 500);
+        updateStats();
+        if (gameState.lives === 0) {
+            feedbackEl.textContent = `La respuesta era: "${correctPhrase}"`;
+            checkButton.classList.add('hidden');
+            hintButton.disabled = true;
+            nextButton.classList.remove('hidden');
+        }
     }
-    scoreEl.textContent = `Puntos: ${gameState.score}`;
 }
 
 function nextChallenge() {
@@ -219,20 +287,43 @@ function nextChallenge() {
     }
 }
 
-function endGame() {
-    promptEl.innerHTML = `<span>¡Felicidades!</span>`;
-    answerAreaEl.innerHTML = `<p>Has completado todas las frases con un total de ${gameState.score} puntos.</p>`;
-    wordBankEl.innerHTML = '';
-    feedbackEl.textContent = '';
-    checkButton.classList.add('hidden');
-    nextButton.textContent = 'Jugar de Nuevo';
-    nextButton.onclick = () => location.reload();
-    nextButton.classList.remove('hidden');
+function useHint() {
+    const correctPhraseWords = CHALLENGES[gameState.currentChallengeIndex].phrase.split(' ');
+    const nextCorrectWordIndex = gameState.currentAnswer.length;
+    
+    if (nextCorrectWordIndex >= correctPhraseWords.length) return;
+
+    const nextCorrectWord = correctPhraseWords[nextCorrectWordIndex];
+    
+    // Encuentra la primera ficha disponible con la palabra correcta
+    const tileToMove = Array.from(wordBankEl.children).find(
+        tile => !tile.classList.contains('disabled') && tile.textContent === nextCorrectWord
+    );
+
+    if (tileToMove) {
+        gameState.hintsUsed++;
+        handleWordBankClick({ target: tileToMove });
+        updateStats();
+    }
 }
 
-function updateProgress() {
-    const percentage = (gameState.currentChallengeIndex / CHALLENGES.length) * 100;
-    progressBarEl.style.width = `${percentage}%`;
+function updateStats(correct = false) {
+    livesEl.textContent = '❤️'.repeat(gameState.lives);
+    let stars = '⭐'.repeat(Math.max(0, 3 - gameState.hintsUsed));
+    if (gameState.lives < 3) stars = '⭐'.repeat(Math.max(0, gameState.lives - gameState.hintsUsed));
+    if (!correct && gameState.lives === 0) stars = '☠️';
+    starsEl.textContent = stars;
+}
+
+
+function endGame() {
+    gameScreen.innerHTML = `
+        <div style="text-align: center;">
+            <h1>¡Juego Completado!</h1>
+            <p>Has terminado todos los desafíos.</p>
+            <button class="button" onclick="location.reload()">Jugar de Nuevo</button>
+        </div>
+    `;
 }
 
 function hablar(texto) {
@@ -243,18 +334,6 @@ function hablar(texto) {
     window.speechSynthesis.speak(utterance);
 }
 
-// --- 5. INICIALIZACIÓN ---
-function iniciarJuego() {
-    checkButton.addEventListener('click', checkAnswer);
-    nextButton.addEventListener('click', nextChallenge);
-    checkButton.disabled = false; // Habilita el botón una vez cargado el juego
-    loadChallenge();
-}
-
-// Inicia el proceso cargando los datos desde el archivo externo
-cargarDesafios();
-
 </script>
-
 </body>
 </html>
