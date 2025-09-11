@@ -2,351 +2,241 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Agente: Protocolo de Identificación</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habla el Número - Actividad de Voz</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Poppins:wght@400;600&display=swap');
         :root {
-            --primary-color: #00ffdd; --background-color: #1a232e; --text-color: #e0e0e0;
-            --card-background: #2c3a4a; --highlight-color: #ff4757;
+            --accent-color: #0d6efd; --correct-color: #189159; --error-color: #dc3545;
+            --card-bg: rgba(255, 255, 255, 0.2); --border-color: rgba(255, 255, 255, 0.3);
+            --shadow-color: rgba(0, 0, 0, 0.1); --text-color: #1a1a1a; --text-light-color: #f0f0f0;
+            --blur-amount: 10px; --card-radius: 24px; --body-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+        *, *::before, *::after { box-sizing: border-box; }
         body {
-            font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center;
-            height: 100vh; background-color: var(--background-color); color: var(--text-color); margin: 0;
-            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            min-height: 100vh; background: var(--body-bg); margin: 0; padding: 20px;
         }
-        #game-container, #identification-screen {
-            display: flex; gap: 40px; width: 1300px; height: 800px;
+        .controls-container {
+            display: flex; gap: 10px; margin-bottom: 20px; padding: 10px;
+            background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px); align-items: center;
         }
-        #identification-screen {
-            flex-direction: column; justify-content: center; align-items: center;
-            text-align: center;
+        .range-selector { display: flex; gap: 10px; }
+        .range-btn {
+            padding: 10px 20px; font-size: 1em; font-weight: 600; color: var(--text-light-color);
+            background-color: transparent; border: 2px solid transparent; border-radius: 12px;
+            cursor: pointer; transition: all 0.3s ease;
         }
-        #identification-screen h1 {
-            font-family: 'Roboto Mono', monospace; font-size: 3em; color: var(--primary-color);
+        .range-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .range-btn.active {
+            background-color: var(--accent-color); color: white;
+            border-color: rgba(255, 255, 255, 0.7); box-shadow: 0 0 10px var(--accent-color);
         }
-        #identification-screen p { font-size: 1.2em; max-width: 600px; line-height: 1.6; }
-        #auth-status {
-            margin-top: 20px; font-family: 'Roboto Mono', monospace;
-            font-size: 1.5em; height: 30px;
+        .game-container { display: flex; justify-content: center; align-items: stretch; gap: 40px; flex-wrap: wrap; width: 100%; max-width: 700px; }
+        .card {
+            background: var(--card-bg); border-radius: var(--card-radius); padding: 25px;
+            border: 1px solid var(--border-color); box-shadow: 0 8px 32px 0 var(--shadow-color);
+            backdrop-filter: blur(var(--blur-amount)); -webkit-backdrop-filter: blur(var(--blur-amount));
+            flex: 1; min-width: 300px; display: flex; flex-direction: column;
         }
-        #auth-status.listening { color: #2ecc71; }
-        #start-auth-btn {
-            margin-top: 30px; width: auto; height: 60px; padding: 0 40px; border-radius: 30px; border: none; 
-            background-color: var(--primary-color); color: var(--background-color); font-family: 'Poppins', sans-serif;
-            font-size: 1.2em; font-weight: 600; cursor: pointer; transition: all 0.2s; 
+        
+        /* --- ESTILOS PARA EL PANEL DEL MICRÓFONO --- */
+        .mic-panel { justify-content: center; align-items: center; gap: 20px; }
+        #mic-btn {
+            width: 120px; height: 120px; font-size: 4em;
+            border: none; border-radius: 50%; color: white;
+            background-color: var(--accent-color); cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex; justify-content: center; align-items: center;
         }
-        #start-auth-btn:disabled { background-color: #555; cursor: not-allowed; }
-        #game-container.hidden { display: none; }
-        #characters-container { flex: 1; display: flex; flex-direction: column; gap: 20px; }
-        .character-card { display: flex; align-items: center; padding: 15px; background-color: var(--card-background); border-radius: 10px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s ease; }
-        .character-card:hover, .character-card.selected { border-color: var(--primary-color); }
-        .character-card.selected { box-shadow: 0 0 15px var(--primary-color); }
-        .character-card img { width: 80px; height: 80px; border-radius: 50%; margin-right: 20px; border: 2px solid var(--primary-color); }
-        .character-codename { font-size: 1.5em; font-weight: 600; }
-        #right-panel { flex: 2; display: flex; flex-direction: column; }
-        #dossier-container { flex-grow: 1; background-color: var(--card-background); border-radius: 10px; padding: 25px; }
-        #dossier-container h2 { margin-top: 0; text-align: center; font-family: 'Roboto Mono', monospace; color: var(--primary-color); }
-        .dossier-entry { margin: 18px 0; font-size: 1.1em; }
-        .dossier-label { font-weight: 600; }
-        .dossier-field { font-family: 'Roboto Mono', monospace; background-color: #1e2b3a; padding: 10px; border-radius: 5px; display: block; margin-top: 5px; min-height: 22px; color: #fff; }
-        .dossier-field.filled { color: var(--primary-color); }
-        .dossier-field:not(.filled)::after { content: '_'; animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-        #controls { text-align: center; padding-top: 20px; }
-        #record-btn { width: auto; height: 60px; padding: 0 40px; border-radius: 30px; border: none; background-color: var(--highlight-color); color: white; font-family: 'Poppins', sans-serif; font-size: 1.2em; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center; margin: 0 auto; }
-        #record-btn.listening { background-color: #2ecc71; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); } 100% { box-shadow: 0 0 0 20px rgba(46, 204, 113, 0); } }
-        #status-text { height: 20px; margin-top: 15px; font-style: italic; }
-        #transcript-text { height: 20px; font-family: 'Roboto Mono', monospace;}
+        #mic-btn:hover { transform: scale(1.1); }
+        #mic-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
+        #mic-status {
+            font-size: 1.1em; font-weight: 500; color: var(--text-light-color);
+            min-height: 25px; text-align: center;
+        }
+        body.listening #mic-btn {
+            background-color: var(--error-color);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
+        
+        /* --- ESTILOS PARA EL PANEL DEL NÚMERO --- */
+        .number-panel { justify-content: space-between; }
+        .status-indicators { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        #score-display, #progress-display { font-size: 1.2em; color: var(--text-light-color); font-weight: 600; }
+        #number-box {
+            flex-grow: 1; display: flex; justify-content: center; align-items: center;
+            background-color: rgba(0,0,0,0.1); border-radius: 16px; padding: 20px;
+        }
+        #number-display {
+            font-size: 7em; font-weight: bold; color: var(--text-light-color);
+            text-align: center; line-height: 1.4;
+        }
     </style>
 </head>
 <body>
-
-    <div id="identification-screen">
-        <h1>[ ACCESO RESTRINGIDO ]</h1>
-        <p>Sistema de Interrogatorios de la Agencia. Presiona el botón e identifícate con un nombre en clave y código de seguridad de la lista oficial para proceder.</p>
-        <button id="start-auth-btn">COMENZAR IDENTIFICACIÓN</button>
-        <div id="auth-status">Esperando activación...</div>
-    </div>
-
-    <div id="game-container" class="hidden">
-        <div id="characters-container"></div>
-        <div id="right-panel">
-            <div id="dossier-container">
-                <h2>EXPEDIENTE DEL AGENTE</h2>
-                <div class="dossier-entry"><span class="dossier-label">NOMBRE CLAVE:</span><span id="dossier-codename" class="dossier-field"></span></div>
-                <div class="dossier-entry"><span class="dossier-label">NOMBRE REAL:</span><span id="dossier-name" class="dossier-field"></span></div>
-                <div class="dossier-entry"><span class="dossier-label">EDAD:</span><span id="dossier-age" class="dossier-field"></span></div>
-                <div class="dossier-entry"><span class="dossier-label">IDIOMAS:</span><span id="dossier-language" class="dossier-field"></span></div>
-                <div class="dossier-entry"><span class="dossier-label">ORIGEN:</span><span id="dossier-origin" class="dossier-field"></span></div>
-                <div class="dossier-entry"><span class="dossier-label">RESIDENCIA ACTUAL:</span><span id="dossier-residence" class="dossier-field"></span></div>
-            </div>
-            <div id="controls">
-                <button id="record-btn">Iniciar Interrogatorio</button>
-                <p id="status-text">Selecciona un agente para empezar.</p>
-                <p id="transcript-text"></p>
-            </div>
+    <div class="controls-container">
+        <div class="range-selector">
+            <button class="range-btn active" data-range="0-9">0 - 9</button>
+            <button class="range-btn" data-range="10-19">10 - 19</button>
+            <button class="range-btn" data-range="20-29">20 - 29</button>
+            <button class="range-btn" data-range="30-39">30 - 39</button>
         </div>
     </div>
 
+    <div class="game-container">
+        <div class="card mic-panel">
+            <button id="mic-btn">🎙️</button>
+            <p id="mic-status">Presiona para hablar</p>
+        </div>
+        <div class="card number-panel">
+            <div class="status-indicators">
+                <div id="score-display">Puntos: 0</div>
+                <div id="progress-display">1 / 10</div>
+            </div>
+            <div id="number-box">
+                <h1 id="number-display">1</h1>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert("Tu navegador no soporta el reconocimiento de voz. Por favor, usa Google Chrome.");
-        }
-        
-        // --- BASE DE DATOS DE AGENTES VÁLIDOS ---
-        const VALID_AGENTS = [
-            { name: "pingüino valiente", code: "pe uno uve nueve seis jota" },
-            { name: "jirafa risueña", code: "jota tres ere cuatro uno ge" },
-            { name: "tigre silencioso", code: "te siete ese dos ocho te" },
-            { name: "delfín curioso", code: "de cero ce cinco tres ene" },
-            { name: "koala dormilón", code: "ka seis de uno siete ele" },
-            { name: "loro hablador", code: "ele dos hache cinco cuatro ere" },
-            { name: "zorro astuto", code: "zeta nueve a uno cero o" },
-            { name: "búho nocturno", code: "be dos ene seis cinco hache" },
-            { name: "panda mimoso", code: "pe cuatro eme ocho tres a" },
-            { name: "cebra veloz", code: "ce siete uve dos nueve a" }
-        ];
+        const allNumberMaps = { '0-9':{'0':{name:'cero',text:'CERO'},'1':{name:'uno',text:'UNO'},'2':{name:'dos',text:'DOS'},'3':{name:'tres',text:'TRES'},'4':{name:'cuatro',text:'CUATRO'},'5':{name:'cinco',text:'CINCO'},'6':{name:'seis',text:'SEIS'},'7':{name:'siete',text:'SIETE'},'8':{name:'ocho',text:'OCHO'},'9':{name:'nueve',text:'NUEVE'}},'10-19':{'10':{name:'diez',text:'DIEZ'},'11':{name:'once',text:'ONCE'},'12':{name:'doce',text:'DOCE'},'13':{name:'trece',text:'TRECE'},'14':{name:'catorce',text:'CATORCE'},'15':{name:'quince',text:'QUINCE'},'16':{name:'dieciséis',text:'DIECISÉIS'},'17':{name:'diecisiete',text:'DIECISIETE'},'18':{name:'dieciocho',text:'DIECIOCHO'},'19':{name:'diecinueve',text:'DIECINUEVE'}},'20-29':{'20':{name:'veinte',text:'VEINTE'},'21':{name:'veintiuno',text:'VEINTIUNO'},'22':{name:'veintidós',text:'VEINTIDÓS'},'23':{name:'veintitrés',text:'VEINTITRÉS'},'24':{name:'veinticuatro',text:'VEINTICUATRO'},'25':{name:'veinticinco',text:'VEINTINCO'},'26':{name:'veintiséis',text:'VEINTISÉIS'},'27':{name:'veintisiete',text:'VEINTISIETE'},'28':{name:'veintiocho',text:'VEINTIOCHO'},'29':{name:'veintinueve',text:'VEINTINUEVE'}},'30-39':{'30':{name:'treinta',text:'TREINTA'},'31':{name:'treinta y uno',text:'TREINTA Y UNO'},'32':{name:'treinta y dos',text:'TREINTA Y DOS'},'33':{name:'treinta y tres',text:'TREINTA Y TRES'},'34':{name:'treinta y cuatro',text:'TREINTA Y CUATRO'},'35':{name:'treinta y cinco',text:'TREINTA Y CINCO'},'36':{name:'treinta y seis',text:'TREINTA Y SEIS'},'37':{name:'treinta y siete',text:'TREINTA Y SIETE'},'38':{name:'treinta y ocho',text:'TREINTA Y OCHO'},'39':{name:'treinta y nueve',text:'TREINTA Y NUEVE'}}};
 
-        const CHARACTERS_DATA = { /* ... (datos sin cambios) ... */ };
-        const KEYWORD_MAP = { /* ... (datos sin cambios) ... */ };
-        // Copia los datos de CHARACTERS_DATA y KEYWORD_MAP de la respuesta anterior aquí
-        const CHARACTERS_DATA = {
-            'charA': {
-                codename: "Agente Alfa", name: "Vanesa", gender: "female", age: 29, language: "Español e inglés",
-                origin: "España", residence: "Madrid", img: "https://i.pravatar.cc/150?u=vanesa",
-                responses: { name: "Mi nombre real es Vanesa.", age: "Tengo veintinueve años.", language: "Hablo español e inglés con fluidez.", origin: "Soy originaria de España.", residence: "Actualmente vivo en Madrid." }
-            },
-            'charB': {
-                codename: "Agente Beta", name: "Pedro", gender: "male", age: 34, language: "Español y portugués",
-                origin: "México", residence: "Ciudad de México", img: "https://i.pravatar.cc/150?u=pedro",
-                responses: { name: "Me llamo Pedro, un placer.", age: "Acabo de cumplir treinta y cuatro años.", language: "Domino el español y el portugués.", origin: "Vengo de México.", residence: "Mi residencia está en Ciudad de México." }
-            },
-            'charC': {
-                codename: "Agente Gamma", name: "María", gender: "female", age: 31, language: "Español y francés",
-                origin: "Colombia", residence: "Bogotá", img: "https://i.pravatar.cc/150?u=maria",
-                responses: { name: "Puedes llamarme María.", age: "Tengo treinta y un años.", language: "Mis idiomas son el español y el francés.", origin: "Soy de Colombia.", residence: "Resido en Bogotá." }
-            }
-        };
-        const KEYWORD_MAP = {
-            name: ['nombre', 'llamas', 'llamo', 'quién eres'], age: ['edad', 'años', 'cuántos'], language: ['idioma', 'lengua', 'hablas'],
-            origin: ['origen', 'dónde eres', 'vienes', 'país'], residence: ['vives', 'residencia', 'dónde vives']
-        };
+        const rangeButtons = document.querySelectorAll('.range-btn');
+        const micBtn = document.getElementById('mic-btn');
+        const micStatus = document.getElementById('mic-status');
+        const numberDisplay = document.getElementById('number-display');
+        const scoreDisplay = document.getElementById('score-display');
+        const progressDisplay = document.getElementById('progress-display');
 
+        let score = 0;
+        let currentRange = '0-9';
+        let activeNumberMap = {};
+        let numberQueue = [];
+        let currentNumberKey = null;
+        let correctCount = 0;
+        let recognition;
+        let isListening = false;
 
-        const dom = {
-            identificationScreen: document.getElementById('identification-screen'), gameContainer: document.getElementById('game-container'),
-            authStatus: document.getElementById('auth-status'), startAuthBtn: document.getElementById('start-auth-btn'),
-            charactersContainer: document.getElementById('characters-container'), recordBtn: document.getElementById('record-btn'),
-            statusText: document.getElementById('status-text'), transcriptText: document.getElementById('transcript-text'),
-            dossierFields: {
-                codename: document.getElementById('dossier-codename'), name: document.getElementById('dossier-name'), age: document.getElementById('dossier-age'),
-                language: document.getElementById('dossier-language'), origin: document.getElementById('dossier-origin'), residence: document.getElementById('dossier-residence')
-            }
-        };
-        
-        let gameState = { mode: 'identification', authenticated: false, selectedCharId: null, interviewActive: false };
-        let recognition = new SpeechRecognition();
-        let voices = [];
-
-        const synth = window.speechSynthesis;
-        function loadVoices() { voices = synth.getVoices(); }
-        loadVoices();
-        if (synth.onvoiceschanged !== undefined) { synth.onvoiceschanged = loadVoices; }
-
-        function speak(text, gender, onEndCallback) { /* ... (función speak sin cambios) ... */
-             if (synth.speaking) synth.cancel();
-            const utterThis = new SpeechSynthesisUtterance(text);
-            let targetVoice = null;
-            if (gender === 'male') {
-                targetVoice = voices.find(v => v.lang === 'es-ES' && v.name.includes('Google'));
-            } else {
-                targetVoice = voices.find(v => v.lang === 'es-US' && v.name.includes('Google'));
-            }
-            utterThis.voice = targetVoice || voices.find(v => v.lang.startsWith('es-'));
-            utterThis.lang = utterThis.voice ? utterThis.voice.lang : 'es-ES';
-            if (onEndCallback) utterThis.onend = onEndCallback;
-            synth.speak(utterThis);
+        function initializeGame() {
+            setupRangeSelector();
+            setupSpeechRecognition();
+            micBtn.addEventListener('click', toggleListening);
+            resetGame();
         }
 
-        function initGame() { /* ... (función initGame sin cambios) ... */
-            setupRecognition();
-            dom.startAuthBtn.onclick = () => {
-                recognition.start();
-                dom.startAuthBtn.disabled = true;
-                dom.startAuthBtn.textContent = "ESCUCHANDO...";
-            };
-        }
+        function setupSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                micStatus.textContent = "Reconocimiento de voz no soportado en este navegador.";
+                micBtn.disabled = true;
+                return;
+            }
 
-        function setupRecognition() { /* ... (función setupRecognition sin cambios) ... */
+            recognition = new SpeechRecognition();
             recognition.lang = 'es-ES';
-            recognition.continuous = true;
+            recognition.continuous = false;
             recognition.interimResults = false;
 
             recognition.onstart = () => {
-                if (gameState.mode === 'identification') {
-                    dom.authStatus.textContent = "Escuchando... ¡Habla ahora!";
-                    dom.authStatus.classList.add('listening');
-                }
+                isListening = true;
+                micStatus.textContent = "Escuchando...";
+                document.body.classList.add('listening');
             };
-            
-            recognition.onresult = (event) => {
-                let finalTranscript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
-                }
-                if (finalTranscript.trim()) {
-                    if (gameState.mode === 'identification') {
-                        processIdentification(finalTranscript.toLowerCase().trim());
-                    } else if (gameState.interviewActive) {
-                        dom.transcriptText.textContent = `Has dicho: "${finalTranscript.trim()}"`;
-                        processTranscript(finalTranscript.toLowerCase().trim());
-                    }
-                }
-            };
-            
+
             recognition.onend = () => {
-                if ((gameState.mode === 'identification' && !gameState.authenticated) || (gameState.mode === 'interrogation' && gameState.interviewActive)) {
-                    try { recognition.start(); } catch(e) { /* Evita errores si se detiene manualmente */ }
-                }
+                isListening = false;
+                micStatus.textContent = "Presiona para hablar";
+                document.body.classList.remove('listening');
             };
-            
+
             recognition.onerror = (event) => {
-                let errorMsg = "Error de micrófono. Refresca la página.";
-                if (event.error === 'not-allowed') {
-                    errorMsg = "Permiso de micrófono denegado. Habilítalo en los ajustes de tu navegador.";
+                if(event.error === 'no-speech' || event.error === 'audio-capture') {
+                    micStatus.textContent = "No se escuchó nada. Intenta de nuevo.";
+                } else if (event.error === 'not-allowed') {
+                    micStatus.textContent = "Permiso de micrófono denegado.";
+                    micBtn.disabled = true;
                 }
-                 if (gameState.mode === 'identification') {
-                    dom.authStatus.textContent = errorMsg;
-                    dom.startAuthBtn.disabled = false;
-                    dom.startAuthBtn.textContent = "COMENZAR IDENTIFICACIÓN";
-                } else {
-                    dom.statusText.textContent = errorMsg;
-                }
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.toLowerCase().trim();
+                micStatus.textContent = `Dijiste: "${transcript}"`;
+                checkAnswer(transcript);
             };
         }
 
-        // --- FUNCIÓN DE IDENTIFICACIÓN ACTUALIZADA ---
-        function processIdentification(transcript) {
-            let isAuthenticated = false;
-            let agentName = "";
-
-            // Limpiar la transcripción para una mejor coincidencia
-            const cleanedTranscript = transcript.replace(/[^a-z0-9ñ\s]/g, '');
-
-            for (const agent of VALID_AGENTS) {
-                // Comprobar si tanto el nombre como el código están en la transcripción
-                if (cleanedTranscript.includes(agent.name) && cleanedTranscript.includes(agent.code)) {
-                    isAuthenticated = true;
-                    agentName = agent.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-                    break; // Salir del bucle al encontrar una coincidencia
-                }
-            }
-
-            if (isAuthenticated) {
-                gameState.authenticated = true;
-                recognition.stop();
-                dom.authStatus.textContent = `IDENTIDAD CONFIRMADA: ${agentName}`;
-                
-                const welcomeMessage = `Bienvenido, Agente ${agentName}. Su misión comienza ahora.`;
-                speak(welcomeMessage, 'female', () => {
-                    dom.identificationScreen.style.display = 'none';
-                    dom.gameContainer.classList.remove('hidden');
-                    startInterrogationMode();
-                });
-            } else {
-                dom.authStatus.textContent = "CREDENCIALES INVÁLIDAS. INTÉNTELO DE NUEVO.";
-                speak("Identificación denegada. Las credenciales no coinciden. Vuelve a intentarlo.", 'female');
+        function toggleListening() {
+            if (isListening || !recognition) return;
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error("Error al iniciar el reconocimiento:", e);
+                micStatus.textContent = "Error al iniciar. Intenta de nuevo.";
             }
         }
 
-        function startInterrogationMode() { /* ... (función sin cambios) ... */
-             gameState.mode = 'interrogation';
-            Object.keys(CHARACTERS_DATA).forEach(charId => {
-                const char = CHARACTERS_DATA[charId];
-                const card = document.createElement('div');
-                card.className = 'character-card';
-                card.id = charId;
-                card.innerHTML = `<img src="${char.img}" alt="${char.codename}"><span class="character-codename">${char.codename}</span>`;
-                card.onclick = () => selectCharacter(charId);
-                dom.charactersContainer.appendChild(card);
-            });
-            dom.recordBtn.onclick = toggleInterview;
+        function resetGame() {
+            activeNumberMap = allNumberMaps[currentRange];
+            const numbers = Object.keys(activeNumberMap);
+            numbers.sort(() => Math.random() - 0.5);
+            numberQueue = numbers;
+            score = 0;
+            correctCount = 0;
+            updateScoreDisplay();
+            nextNumber();
         }
-        function selectCharacter(charId) { /* ... (función sin cambios) ... */
-            if (gameState.interviewActive) return;
-            gameState.selectedCharId = charId;
-            document.querySelectorAll('.character-card').forEach(c => c.classList.remove('selected'));
-            document.getElementById(charId).classList.add('selected');
-            clearDossier();
-            dom.dossierFields.codename.textContent = CHARACTERS_DATA[charId].codename;
-            dom.dossierFields.codename.classList.add('filled');
-            
-            const intro = `Agente ${CHARACTERS_DATA[charId].codename} presentándose. Estoy listo para el interrogatorio.`;
-            dom.statusText.textContent = "Presiona 'Iniciar' para comenzar.";
-            speak(intro, CHARACTERS_DATA[charId].gender);
-        }
-        function clearDossier() { Object.values(dom.dossierFields).forEach(field => { field.textContent = ''; field.classList.remove('filled'); }); }
-        function toggleInterview() { /* ... (función sin cambios) ... */
-            if (!gameState.selectedCharId) {
-                dom.statusText.textContent = "¡Primero debes seleccionar un agente!";
+
+        function nextNumber() {
+            if (numberQueue.length === 0) {
+                setTimeout(() => {
+                    alert(`¡Completado! Tu puntuación: ${score} / ${Object.keys(activeNumberMap).length}`);
+                    resetGame();
+                }, 500);
                 return;
             }
-            gameState.interviewActive = !gameState.interviewActive;
-            if (gameState.interviewActive) {
-                dom.recordBtn.textContent = "Terminar Interrogatorio";
-                dom.recordBtn.classList.add('listening');
-                dom.statusText.textContent = "Micrófono activado. ¡Pregunta!";
-                recognition.start();
-            } else {
-                dom.recordBtn.textContent = "Iniciar Interrogatorio";
-                dom.recordBtn.classList.remove('listening');
-                dom.statusText.textContent = "Interrogatorio terminado.";
-                recognition.stop();
-                synth.cancel();
-            }
-        }
-        function processTranscript(transcript) { /* ... (función sin cambios) ... */
-             const character = CHARACTERS_DATA[gameState.selectedCharId];
-            
-            for (const field in KEYWORD_MAP) {
-                if (KEYWORD_MAP[field].some(keyword => transcript.includes(keyword))) {
-                    const value = character[field];
-                    const response = character.responses[field];
-                    
-                    if (dom.dossierFields[field].classList.contains('filled')) {
-                        speak(`Ya te he dado esa información. Pregúntame otra cosa.`, character.gender);
-                        return;
-                    }
-                    
-                    fillDossierField(field, value.toString());
-                    const followUpPrompt = () => {
-                        if (isDossierComplete()) {
-                            speak("Expediente completo. Excelente trabajo, agente.", character.gender);
-                            toggleInterview();
-                        } else {
-                            speak("¿Cuál es tu siguiente pregunta?", character.gender);
-                        }
-                    };
-                    speak(response, character.gender, followUpPrompt);
-                    return;
-                }
-            }
-            speak("No entendí la pregunta. ¿Puedes reformularla?", character.gender);
-        }
-        function fillDossierField(field, value) { /* ... (función sin cambios) ... */
-            const fieldEl = dom.dossierFields[field];
-            if (fieldEl.classList.contains('filled')) return;
-            fieldEl.textContent = value;
-            fieldEl.classList.add('filled');
-            dom.statusText.textContent = `Dato confirmado: ${field.toUpperCase()}`;
-        }
-        function isDossierComplete() { /* ... (función sin cambios) ... */
-            return Object.keys(dom.dossierFields).every(field => field === 'codename' || dom.dossierFields[field].classList.contains('filled'));
+            correctCount++;
+            currentNumberKey = numberQueue.shift();
+            numberDisplay.textContent = currentNumberKey;
+            updateProgressDisplay();
         }
 
-        document.addEventListener('DOMContentLoaded', initGame);
+        function checkAnswer(transcript) {
+            const correctAnswer = activeNumberMap[currentNumberKey].name;
+            const normalizedTranscript = transcript.replace(/\.$/, ''); // remover punto final
+
+            // Comprobación flexible (ej. acepta "dieciseis" para "dieciséis")
+            if (normalizedTranscript === correctAnswer || normalizedTranscript === correctAnswer.normalize("NFD").replace(/[\u0300-\u036f]/g, "")) {
+                score++;
+                updateScoreDisplay();
+                playSuccessSound();
+                setTimeout(nextNumber, 1000);
+            } else {
+                micStatus.textContent = `"${normalizedTranscript}" no es correcto. ¡Intenta de nuevo!`;
+            }
+        }
+        
+        function updateScoreDisplay() { scoreDisplay.textContent = `Puntos: ${score}`; }
+        function updateProgressDisplay() { progressDisplay.textContent = `${correctCount} / ${Object.keys(activeNumberMap).length}`; }
+        
+        function setupRangeSelector() {
+            rangeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentRange = button.dataset.range;
+                    rangeButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    resetGame();
+                });
+            });
+        }
+        
+        let audioCtx;
+        function playSuccessSound() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (!audioCtx) return; const now=audioCtx.currentTime,gainNode=audioCtx.createGain();gainNode.connect(audioCtx.destination);gainNode.gain.setValueAtTime(.2,now);const osc1=audioCtx.createOscillator();osc1.type='triangle';osc1.frequency.setValueAtTime(523.25,now);osc1.connect(gainNode);const osc2=audioCtx.createOscillator();osc2.type='triangle';osc2.frequency.setValueAtTime(659.25,now+.1);osc2.connect(gainNode);osc1.start(now);osc2.start(now+.1);gainNode.gain.setTargetAtTime(0,now+.2,.015);osc1.stop(now+.3);osc2.stop(now+.3); }
+        
+        document.addEventListener('DOMContentLoaded', initializeGame);
     </script>
 </body>
 </html>
