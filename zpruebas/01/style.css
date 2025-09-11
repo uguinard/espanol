@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Poppins:wght@400;600&display=swap');
+
+:root {
+    --primary-color: #00ffdd;
+    --background-color: #1a232e;
+    --text-color: #e0e0e0;
+    --card-background: #2c3a4a;
+    --highlight-color: #ff4757;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    overflow: hidden;
+}
+
+#game-container, #identification-screen {
+    display: flex;
+    gap: 40px;
+    width: 1300px;
+    height: 800px;
+}
+
+/* --- Pantalla de Identificación --- */
+#identification-screen {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#identification-screen h1 {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 3em;
+    color: var(--primary-color);
+}
+
+#identification-screen p {
+    font-size: 1.2em;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+#auth-status {
+    margin-top: 20px;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1.5em;
+    height: 30px;
+}
+
+#auth-status.listening {
+    color: #2ecc71;
+}
+
+#start-auth-btn {
+    margin-top: 30px;
+    width: auto;
+    height: 60px;
+    padding: 0 40px;
+    border-radius: 30px;
+    border: none;
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#start-auth-btn:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
+
+#game-container.hidden {
+    display: none;
+}
+
+/* --- Contenedor Principal del Juego --- */
+#characters-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.character-card {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: var(--card-background);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.character-card:hover,
+.character-card.selected {
+    border-color: var(--primary-color);
+}
+
+.character-card.selected {
+    box-shadow: 0 0 15px var(--primary-color);
+}
+
+.character-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-right: 20px;
+    border: 2px solid var(--primary-color);
+}
+
+.character-codename {
+    font-size: 1.5em;
+    font-weight: 600;
+}
+
+#right-panel {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+}
+
+#dossier-container {
+    flex-grow: 1;
+    background-color: var(--card-background);
+    border-radius: 10px;
+    padding: 25px;
+}
+
+#dossier-container h2 {
+    margin-top: 0;
+    text-align: center;
+    font-family: 'Roboto Mono', monospace;
+    color: var(--primary-color);
+}
+
+.dossier-entry {
+    margin: 18px 0;
+    font-size: 1.1em;
+}
+
+.dossier-label {
+    font-weight: 600;
+}
+
+.dossier-field {
+    font-family: 'Roboto Mono', monospace;
+    background-color: #1e2b3a;
+    padding: 10px;
+    border-radius: 5px;
+    display: block;
+    margin-top: 5px;
+    min-height: 22px;
+    color: #fff;
+}
+
+.dossier-field.filled {
+    color: var(--primary-color);
+}
+
+.dossier-field:not(.filled)::after {
+    content: '_';
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+#controls {
+    text-align: center;
+    padding-top: 20px;
+}
+
+#record-btn {
+    width: auto;
+    height: 60px;
+    padding: 0 40px;
+    border-radius: 30px;
+    border: none;
+    background-color: var(--highlight-color);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+#record-btn.listening {
+    background-color: #2ecc71;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+    }
+    100% {
+        box-shadow: 0 0 0 20px rgba(46, 204, 113, 0);
+    }
+}
+
+#status-text {
+    height: 20px;
+    margin-top: 15px;
+    font-style: italic;
+}
+
+#transcript-text {
+    height: 20px;
+    font-family: 'Roboto Mono', monospace;
+}
