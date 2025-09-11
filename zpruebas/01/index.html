@@ -2,241 +2,38 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habla el Número - Actividad de Voz</title>
-    <style>
-        :root {
-            --accent-color: #0d6efd; --correct-color: #189159; --error-color: #dc3545;
-            --card-bg: rgba(255, 255, 255, 0.2); --border-color: rgba(255, 255, 255, 0.3);
-            --shadow-color: rgba(0, 0, 0, 0.1); --text-color: #1a1a1a; --text-light-color: #f0f0f0;
-            --blur-amount: 10px; --card-radius: 24px; --body-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        *, *::before, *::after { box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            min-height: 100vh; background: var(--body-bg); margin: 0; padding: 20px;
-        }
-        .controls-container {
-            display: flex; gap: 10px; margin-bottom: 20px; padding: 10px;
-            background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color);
-            backdrop-filter: blur(5px); align-items: center;
-        }
-        .range-selector { display: flex; gap: 10px; }
-        .range-btn {
-            padding: 10px 20px; font-size: 1em; font-weight: 600; color: var(--text-light-color);
-            background-color: transparent; border: 2px solid transparent; border-radius: 12px;
-            cursor: pointer; transition: all 0.3s ease;
-        }
-        .range-btn:hover { background-color: rgba(255, 255, 255, 0.2); }
-        .range-btn.active {
-            background-color: var(--accent-color); color: white;
-            border-color: rgba(255, 255, 255, 0.7); box-shadow: 0 0 10px var(--accent-color);
-        }
-        .game-container { display: flex; justify-content: center; align-items: stretch; gap: 40px; flex-wrap: wrap; width: 100%; max-width: 700px; }
-        .card {
-            background: var(--card-bg); border-radius: var(--card-radius); padding: 25px;
-            border: 1px solid var(--border-color); box-shadow: 0 8px 32px 0 var(--shadow-color);
-            backdrop-filter: blur(var(--blur-amount)); -webkit-backdrop-filter: blur(var(--blur-amount));
-            flex: 1; min-width: 300px; display: flex; flex-direction: column;
-        }
-        
-        /* --- ESTILOS PARA EL PANEL DEL MICRÓFONO --- */
-        .mic-panel { justify-content: center; align-items: center; gap: 20px; }
-        #mic-btn {
-            width: 120px; height: 120px; font-size: 4em;
-            border: none; border-radius: 50%; color: white;
-            background-color: var(--accent-color); cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex; justify-content: center; align-items: center;
-        }
-        #mic-btn:hover { transform: scale(1.1); }
-        #mic-btn:disabled { background-color: #6c757d; cursor: not-allowed; }
-        #mic-status {
-            font-size: 1.1em; font-weight: 500; color: var(--text-light-color);
-            min-height: 25px; text-align: center;
-        }
-        body.listening #mic-btn {
-            background-color: var(--error-color);
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
-        
-        /* --- ESTILOS PARA EL PANEL DEL NÚMERO --- */
-        .number-panel { justify-content: space-between; }
-        .status-indicators { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        #score-display, #progress-display { font-size: 1.2em; color: var(--text-light-color); font-weight: 600; }
-        #number-box {
-            flex-grow: 1; display: flex; justify-content: center; align-items: center;
-            background-color: rgba(0,0,0,0.1); border-radius: 16px; padding: 20px;
-        }
-        #number-display {
-            font-size: 7em; font-weight: bold; color: var(--text-light-color);
-            text-align: center; line-height: 1.4;
-        }
-    </style>
+    <title>Agente: Protocolo de Identificación</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="controls-container">
-        <div class="range-selector">
-            <button class="range-btn active" data-range="0-9">0 - 9</button>
-            <button class="range-btn" data-range="10-19">10 - 19</button>
-            <button class="range-btn" data-range="20-29">20 - 29</button>
-            <button class="range-btn" data-range="30-39">30 - 39</button>
+
+    <div id="identification-screen">
+        <h1>[ ACCESO RESTRINGIDO ]</h1>
+        <p>Sistema de Interrogatorios de la Agencia. Presiona el botón e identifícate con un nombre en clave y código de seguridad de la lista oficial para proceder.</p>
+        <button id="start-auth-btn">COMENZAR IDENTIFICACIÓN</button>
+        <div id="auth-status">Esperando activación...</div>
+    </div>
+
+    <div id="game-container" class="hidden">
+        <div id="characters-container"></div>
+        <div id="right-panel">
+            <div id="dossier-container">
+                <h2>EXPEDIENTE DEL AGENTE</h2>
+                <div class="dossier-entry"><span class="dossier-label">NOMBRE CLAVE:</span><span id="dossier-codename" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">NOMBRE REAL:</span><span id="dossier-name" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">EDAD:</span><span id="dossier-age" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">IDIOMAS:</span><span id="dossier-language" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">ORIGEN:</span><span id="dossier-origin" class="dossier-field"></span></div>
+                <div class="dossier-entry"><span class="dossier-label">RESIDENCIA ACTUAL:</span><span id="dossier-residence" class="dossier-field"></span></div>
+            </div>
+            <div id="controls">
+                <button id="record-btn">Iniciar Interrogatorio</button>
+                <p id="status-text">Selecciona un agente para empezar.</p>
+                <p id="transcript-text"></p>
+            </div>
         </div>
     </div>
 
-    <div class="game-container">
-        <div class="card mic-panel">
-            <button id="mic-btn">🎙️</button>
-            <p id="mic-status">Presiona para hablar</p>
-        </div>
-        <div class="card number-panel">
-            <div class="status-indicators">
-                <div id="score-display">Puntos: 0</div>
-                <div id="progress-display">1 / 10</div>
-            </div>
-            <div id="number-box">
-                <h1 id="number-display">1</h1>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-        const allNumberMaps = { '0-9':{'0':{name:'cero',text:'CERO'},'1':{name:'uno',text:'UNO'},'2':{name:'dos',text:'DOS'},'3':{name:'tres',text:'TRES'},'4':{name:'cuatro',text:'CUATRO'},'5':{name:'cinco',text:'CINCO'},'6':{name:'seis',text:'SEIS'},'7':{name:'siete',text:'SIETE'},'8':{name:'ocho',text:'OCHO'},'9':{name:'nueve',text:'NUEVE'}},'10-19':{'10':{name:'diez',text:'DIEZ'},'11':{name:'once',text:'ONCE'},'12':{name:'doce',text:'DOCE'},'13':{name:'trece',text:'TRECE'},'14':{name:'catorce',text:'CATORCE'},'15':{name:'quince',text:'QUINCE'},'16':{name:'dieciséis',text:'DIECISÉIS'},'17':{name:'diecisiete',text:'DIECISIETE'},'18':{name:'dieciocho',text:'DIECIOCHO'},'19':{name:'diecinueve',text:'DIECINUEVE'}},'20-29':{'20':{name:'veinte',text:'VEINTE'},'21':{name:'veintiuno',text:'VEINTIUNO'},'22':{name:'veintidós',text:'VEINTIDÓS'},'23':{name:'veintitrés',text:'VEINTITRÉS'},'24':{name:'veinticuatro',text:'VEINTICUATRO'},'25':{name:'veinticinco',text:'VEINTINCO'},'26':{name:'veintiséis',text:'VEINTISÉIS'},'27':{name:'veintisiete',text:'VEINTISIETE'},'28':{name:'veintiocho',text:'VEINTIOCHO'},'29':{name:'veintinueve',text:'VEINTINUEVE'}},'30-39':{'30':{name:'treinta',text:'TREINTA'},'31':{name:'treinta y uno',text:'TREINTA Y UNO'},'32':{name:'treinta y dos',text:'TREINTA Y DOS'},'33':{name:'treinta y tres',text:'TREINTA Y TRES'},'34':{name:'treinta y cuatro',text:'TREINTA Y CUATRO'},'35':{name:'treinta y cinco',text:'TREINTA Y CINCO'},'36':{name:'treinta y seis',text:'TREINTA Y SEIS'},'37':{name:'treinta y siete',text:'TREINTA Y SIETE'},'38':{name:'treinta y ocho',text:'TREINTA Y OCHO'},'39':{name:'treinta y nueve',text:'TREINTA Y NUEVE'}}};
-
-        const rangeButtons = document.querySelectorAll('.range-btn');
-        const micBtn = document.getElementById('mic-btn');
-        const micStatus = document.getElementById('mic-status');
-        const numberDisplay = document.getElementById('number-display');
-        const scoreDisplay = document.getElementById('score-display');
-        const progressDisplay = document.getElementById('progress-display');
-
-        let score = 0;
-        let currentRange = '0-9';
-        let activeNumberMap = {};
-        let numberQueue = [];
-        let currentNumberKey = null;
-        let correctCount = 0;
-        let recognition;
-        let isListening = false;
-
-        function initializeGame() {
-            setupRangeSelector();
-            setupSpeechRecognition();
-            micBtn.addEventListener('click', toggleListening);
-            resetGame();
-        }
-
-        function setupSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                micStatus.textContent = "Reconocimiento de voz no soportado en este navegador.";
-                micBtn.disabled = true;
-                return;
-            }
-
-            recognition = new SpeechRecognition();
-            recognition.lang = 'es-ES';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            recognition.onstart = () => {
-                isListening = true;
-                micStatus.textContent = "Escuchando...";
-                document.body.classList.add('listening');
-            };
-
-            recognition.onend = () => {
-                isListening = false;
-                micStatus.textContent = "Presiona para hablar";
-                document.body.classList.remove('listening');
-            };
-
-            recognition.onerror = (event) => {
-                if(event.error === 'no-speech' || event.error === 'audio-capture') {
-                    micStatus.textContent = "No se escuchó nada. Intenta de nuevo.";
-                } else if (event.error === 'not-allowed') {
-                    micStatus.textContent = "Permiso de micrófono denegado.";
-                    micBtn.disabled = true;
-                }
-            };
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript.toLowerCase().trim();
-                micStatus.textContent = `Dijiste: "${transcript}"`;
-                checkAnswer(transcript);
-            };
-        }
-
-        function toggleListening() {
-            if (isListening || !recognition) return;
-            try {
-                recognition.start();
-            } catch (e) {
-                console.error("Error al iniciar el reconocimiento:", e);
-                micStatus.textContent = "Error al iniciar. Intenta de nuevo.";
-            }
-        }
-
-        function resetGame() {
-            activeNumberMap = allNumberMaps[currentRange];
-            const numbers = Object.keys(activeNumberMap);
-            numbers.sort(() => Math.random() - 0.5);
-            numberQueue = numbers;
-            score = 0;
-            correctCount = 0;
-            updateScoreDisplay();
-            nextNumber();
-        }
-
-        function nextNumber() {
-            if (numberQueue.length === 0) {
-                setTimeout(() => {
-                    alert(`¡Completado! Tu puntuación: ${score} / ${Object.keys(activeNumberMap).length}`);
-                    resetGame();
-                }, 500);
-                return;
-            }
-            correctCount++;
-            currentNumberKey = numberQueue.shift();
-            numberDisplay.textContent = currentNumberKey;
-            updateProgressDisplay();
-        }
-
-        function checkAnswer(transcript) {
-            const correctAnswer = activeNumberMap[currentNumberKey].name;
-            const normalizedTranscript = transcript.replace(/\.$/, ''); // remover punto final
-
-            // Comprobación flexible (ej. acepta "dieciseis" para "dieciséis")
-            if (normalizedTranscript === correctAnswer || normalizedTranscript === correctAnswer.normalize("NFD").replace(/[\u0300-\u036f]/g, "")) {
-                score++;
-                updateScoreDisplay();
-                playSuccessSound();
-                setTimeout(nextNumber, 1000);
-            } else {
-                micStatus.textContent = `"${normalizedTranscript}" no es correcto. ¡Intenta de nuevo!`;
-            }
-        }
-        
-        function updateScoreDisplay() { scoreDisplay.textContent = `Puntos: ${score}`; }
-        function updateProgressDisplay() { progressDisplay.textContent = `${correctCount} / ${Object.keys(activeNumberMap).length}`; }
-        
-        function setupRangeSelector() {
-            rangeButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    currentRange = button.dataset.range;
-                    rangeButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    resetGame();
-                });
-            });
-        }
-        
-        let audioCtx;
-        function playSuccessSound() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (!audioCtx) return; const now=audioCtx.currentTime,gainNode=audioCtx.createGain();gainNode.connect(audioCtx.destination);gainNode.gain.setValueAtTime(.2,now);const osc1=audioCtx.createOscillator();osc1.type='triangle';osc1.frequency.setValueAtTime(523.25,now);osc1.connect(gainNode);const osc2=audioCtx.createOscillator();osc2.type='triangle';osc2.frequency.setValueAtTime(659.25,now+.1);osc2.connect(gainNode);osc1.start(now);osc2.start(now+.1);gainNode.gain.setTargetAtTime(0,now+.2,.015);osc1.stop(now+.3);osc2.stop(now+.3); }
-        
-        document.addEventListener('DOMContentLoaded', initializeGame);
-    </script>
+    <script src="script.js" defer></script>
 </body>
 </html>
