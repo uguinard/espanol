@@ -1,0 +1,14 @@
+category,prompt,phrase
+Saludos,You say: 'Hello',Hola
+Saludos,You say: 'Good morning',Buenos días
+Saludos,You say: 'How are you?' (informal),Cómo estás
+Presentaciones,You say: 'My name is Maria',Me llamo Maria
+Presentaciones,You say: 'I am a student' (female),Soy estudiante
+Presentaciones,You say: 'Nice to meet you',Mucho gusto
+Números,You say: 'I have two cats',Tengo dos gatos
+Números,You say: 'I am thirty years old',Tengo treinta años
+Origen,You say: 'I am from Mexico',Soy de México
+Origen,You say: 'Where are you from?' (informal),De dónde eres
+Despedidas,You say: 'Goodbye',Adiós
+Despedidas,You say: 'See you later',Hasta luego
+Despedidas,You say: 'Have a good day',Que tengas un buen día
