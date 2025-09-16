@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worksheet Dinámico y Comunicativo</title>
+    <style>
+        :root {
+            --color-primary: #007bff;
+            --color-secondary: #6c757d;
+            --color-success: #28a745;
+            --color-danger: #dc3545;
+            --color-warning: #ffc107;
+            --color-light: #f8f9fa;
+            --font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        body {
+            font-family: var(--font-family);
+            line-height: 1.6;
+            color: #333;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 950px;
+            margin: auto;
+            background: #fff;
+            padding: 25px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden; /* To contain slides */
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--color-primary);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        h1, h2, h3, h4 { color: #333; }
+        h1 { font-size: 2.2em; margin: 0; color: var(--color-primary); }
+        h3, h4 { display: flex; align-items: center; gap: 15px; }
+        h4 { margin-top: 30px; margin-bottom: 5px; font-size: 1.2em; }
+        .instructions {
+            background-color: var(--color-light);
+            border-left: 5px solid var(--color-primary);
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.95em;
+        }
+        .button {
+            background-color: var(--color-primary); color: white; border: none; padding: 12px 25px;
+            border-radius: 8px; cursor: pointer; font-size: 1em; font-weight: bold; transition: background-color 0.3s;
+        }
+        .button:hover { background-color: #0056b3; }
+        .print-button { background-color: var(--color-secondary); }
+        .print-button:hover { background-color: #5a6268; }
+        
+        /* Estilos de Slides */
+        .slide { display: none; animation: fadeIn 0.5s; }
+        .slide.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .navigation-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .nav-button {
+            background-color: var(--color-secondary);
+        }
+        .nav-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #progress-indicator {
+            font-weight: bold;
+            color: var(--color-secondary);
+        }
+
+        .feedback { margin-top: 20px; padding: 15px; border-radius: 8px; font-size: 1.2em; font-weight: bold; text-align: center; display: none; }
+        .correct { border: 2px solid var(--color-success) !important; background-color: #e9f7ef !important; }
+        .incorrect { border: 2px solid var(--color-danger) !important; background-color: #fceeed !important; }
+        .correct-text { color: var(--color-success); background-color: #e9f7ef; display: block; }
+        .incorrect-text { color: var(--color-danger); background-color: #fceeed; display: block; }
+
+        .emoji-display {
+            font-size: 4em;
+            line-height: 1;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .emoji-display svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Actividad A */
+        .activity-a-item { display: flex; align-items: center; gap: 20px; }
+        .activity-a-item .choice-grid { flex-grow: 1; }
+        .choice-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 10px; }
+        .choice-box {
+            background-color: #fff; border: 2px solid #ccc; border-radius: 8px; padding: 15px;
+            text-align: center; cursor: pointer; transition: all 0.2s ease; flex-grow: 1;
+        }
+        .choice-box:hover { background-color: #f0f8ff; border-color: var(--color-primary); }
+        .choice-box.selected { background-color: var(--color-primary); color: white; border-color: var(--color-primary); }
+        
+        /* Actividad C */
+        .listen-options { display: flex; flex-wrap: wrap; gap: 20px; font-size: 3em; justify-content: center; padding: 10px; }
+        .listen-options .emoji { 
+            cursor: pointer; transition: transform 0.2s, border-color 0.2s; padding: 5px; border: 3px solid transparent; border-radius: 10px;
+            width: 1.5em; height: 1.5em; display: inline-flex; justify-content: center; align-items: center; vertical-align: middle;
+        }
+        .listen-options .emoji:hover { transform: scale(1.2); }
+        .listen-options .emoji.selected { transform: scale(1.1); background-color: #e0f0ff; border-color: var(--color-primary); }
+        .listen-options .emoji svg { width: 100%; height: 100%; }
+
+        /* Actividad D */
+        .guess-word-container { display: flex; align-items: center; gap: 20px; margin-bottom:15px; justify-content: center; }
+        .guess-word-inputs { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+        .guess-word-inputs input { width: 40px; height: 40px; text-align: center; font-size: 1.5em; text-transform: uppercase; border: 2px solid #ccc; border-radius: 6px; }
+        
+        /* Actividad E */
+        .coloring-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: center; background: #fafafa; padding: 20px; border-radius: 8px; }
+        .instructions-list ul { list-style-type: disc; margin-left: 20px; padding-left: 0; font-size: 1.1em; }
+        .objects-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
+        .coloring-object { width: 120px; height: 120px; cursor: pointer; border: 2px dashed #ccc; border-radius: 8px; padding: 5px; }
+        .coloring-object:hover { border-color: var(--color-primary); }
+        .coloring-object svg { width: 100%; height: 100%; }
+        .coloring-object .fillable { transition: fill 0.3s; }
+        .shared-color-palette { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
+        .color-choice { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        .color-choice.selected { transform: scale(1.2); border-color: var(--color-warning); }
+        
+        /* Actividad F */
+        .sentence-builder { background-color: var(--color-light); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .word-bank, .drop-zone { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px; min-height: 50px; border-radius: 8px; }
+        .word-bank { justify-content: center; border: 2px dashed #ddd; background: #fff; }
+        .drop-zone { border: 2px dashed var(--color-secondary); background-color: #e9e9e9; }
+        .word-block { background-color: #fff; color: var(--color-primary); border: 1px solid var(--color-primary); padding: 8px 15px; border-radius: 6px; cursor: grab; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .speak-button { background: none; border: none; cursor: pointer; padding: 0; transition: transform 0.2s; font-size: 1.5em; }
+        .speak-button:hover { transform: scale(1.2); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Worksheet Dinámico y Comunicativo 🚀</h1>
+            <button class="button print-button no-print" onclick="window.print()">Imprimir Hoja</button>
+        </header>
+        
+        <section id="slides-container">
+            <div class="slide">
+                <h3>Actividad A: ¿Qué es?</h3>
+                <div class="instructions">Mira la imagen y selecciona la frase correcta.</div>
+                <div id="activity-a-container"></div>
+            </div>
+
+            <div class="slide">
+                <h3>Actividad C: Escucha y Encuentra</h3>
+                <div class="instructions">Escucha la instrucción y haz clic en la imagen correcta.</div>
+                <div id="activity-c-container"></div>
+            </div>
+
+            <div class="slide">
+                <h3>Actividad D: Adivina la Palabra</h3>
+                <div class="instructions">Mira la imagen y escribe el nombre del objeto letra por letra.</div>
+                <div id="activity-d-container"></div>
+            </div>
+
+            <div class="slide">
+                <h3>Actividad E: ¡A Colorear!</h3>
+                <div class="instructions">Lee la lista, selecciona un color de la paleta y colorea cada objeto.</div>
+                <div id="activity-e-container"></div>
+            </div>
+
+            <div class="slide">
+                <h3>Actividad F: Ordena la Frase</h3>
+                <div class="instructions">Arrastra o haz clic en las palabras para formar la oración correcta.</div>
+                <div id="activity-f-container"></div>
+            </div>
+            
+            <div class="slide">
+                <h3>¡Buen trabajo!</h3>
+                <div class="instructions">Has completado todas las actividades. ¡Ahora puedes revisar tus respuestas!</div>
+                <div style="text-align: center; margin-top: 40px;">
+                    <button id="check-button" class="button no-print">Revisar Todas las Actividades</button>
+                    <div id="feedback" class="feedback no-print"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="navigation-controls no-print">
+            <button id="prev-btn" class="button nav-button">Anterior</button>
+            <span id="progress-indicator"></span>
+            <button id="next-btn" class="button nav-button">Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- BANCO DE SVGs REALISTAS ---
+            const svgs = {
+                libro: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><path class="fillable" fill="#FFF" d="M85 90V10H18c-5 0-8 4-8 8v64c0 4 3 8 8 8h67z"/><path class="fillable-secondary" fill="#DDD" d="M18 10H12v80h6V10z"/><path fill="none" d="M25 25h50M25 35h50M25 45h50M25 55h50M25 65h50M25 75h30"/></g></svg>`,
+                mochila: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><path class="fillable" fill="#FFF" d="M25 20h50a10 10 0 0110 10v50a10 10 0 01-10 10H25a10 10 0 01-10-10V30a10 10 0 0110-10z"/><path class="fillable-secondary" fill="#DDD" d="M35 18a15 15 0 0130 0v-8a15 15 0 00-30 0z" stroke-linejoin="round"/><path class="fillable-tertiary" fill="#EEE" d="M30 45h40a5 5 0 015 5v20a5 5 0 01-5 5H30a5 5 0 01-5-5V50a5 5 0 015-5z"/><path fill="none" d="M50 48v24"/></g></svg>`,
+                silla: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2" fill="#FFF" class="fillable"><path d="M25 95V45h50v50zM25 45V10h8v35zM75 45V10h-8v35zM30 65h40"/></g></svg>`,
+                lapiz: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="1.5"><path class="fillable" fill="#FFF" d="M20 95L30 15h40l10 80z"/><path class="fillable-secondary" fill="#DDD" d="M30 15L50 5l20 10z"/><path fill="#333" d="M50 5l-1 4h2z"/><path class="fillable-tertiary" fill="#AAA" d="M20 95h60v5H20z"/></g></svg>`,
+                cuaderno: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><path class="fillable" fill="#FFF" d="M80 90H25c-3 0-5-2-5-5V15c0-3 2-5 5-5h55v80z"/><circle fill="#555" cx="28" cy="20" r="2.5"/><circle fill="#555" cx="28" cy="35" r="2.5"/><circle fill="#555" cx="28" cy="50" r="2.5"/><circle fill="#555" cx="28" cy="65" r="2.5"/><circle fill="#555" cx="28" cy="80" r="2.5"/></g></svg>`,
+                regla: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="1.5"><rect class="fillable" fill="#FFF" x="10" y="40" width="80" height="20" rx="2"/><path fill="none" d="M15 50v-5M20 50v-8M25 50v-5M30 50v-8M35 50v-5M40 50v-8M45 50v-5M50 50v-8M55 50v-5M60 50v-8M65 50v-5M70 50v-8M75 50v-5M80 50v-8M85 50v-5"/></g></svg>`,
+                tijeras: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2" fill="none"><path d="M25 25l50 50M25 75l50-50"/><circle cx="50" cy="50" r="4" fill="#000"/><g stroke-width="3" class="fillable" fill="#FFF"><circle cx="30" cy="85" r="12"/><circle cx="70" cy="85" r="12"/></g></g></svg>`,
+                pegamento: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><rect class="fillable" fill="#FFF" x="30" y="25" width="40" height="70" rx="5"/><rect class="fillable-secondary" fill="#DDD" x="25" y="10" width="50" height="15" rx="5"/></g></svg>`,
+                goma: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="1.5" stroke-linejoin="round"><path class="fillable" fill="#FFC0CB" d="M15 65 L30 35 h40 l15 30 z" /><path class="fillable-secondary" fill="#ADD8E6" d="M15 65 h70 v10 h-70 z" /></g></svg>`,
+                sacapuntas: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2" stroke-linejoin="round"><path class="fillable" fill="#FFF" d="M20 70 V30 a5,5 0 0 1 5,-5 h50 a5,5 0 0 1 5,5 V70 a5,5 0 0 1 -5,5 H25 a5,5 0 0 1 -5,-5 z" /><path fill="#DDD" d="M30 35 h40 v-10 h-40 z" /><circle fill="#FFF" stroke-width="1.5" cx="50" cy="55" r="12" /><path fill="#555" d="M50 55 l-5 8 h10 z" /><path fill="none" stroke-width="1.5" d="M22 40 h-5 M22 50 h-5 M22 60 h-5 M78 40 h5 M78 50 h5 M78 60 h5" /></g></svg>`,
+                pizarra: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><rect class="fillable" fill="#FFF" x="10" y="15" width="80" height="60" rx="3"/><rect class="fillable-secondary" fill="#D2B48C" x="5" y="75" width="90" height="10" rx="2"/><path d="M20 85v10 M80 85v10" fill="none"/></g></svg>`,
+                boligrafo: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="1.5"><path class="fillable" fill="#FFF" d="M40 95 L45 25 h10 l5 70 z"/><path fill="#333" d="M48 25 l2 -10 l2 10z" /><path class="fillable-secondary" fill="#DDD" d="M47 35 h6 M40 95h20v-5H40z" fill="none"/></g></svg>`,
+                ordenador: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><rect class="fillable-secondary" x="10" y="75" width="80" height="5" rx="2" /><rect class="fillable" x="15" y="20" width="70" height="55" rx="3" /><rect fill="#555" x="20" y="25" width="60" height="45" rx="1"/></g></svg>`,
+                mesa: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2" class="fillable" fill="#D2B48C"><rect x="10" y="30" width="80" height="10" /><path d="M15 40v50 M85 40v50" fill="none" /></g></svg>`,
+                diccionario: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="3"><path class="fillable" fill="#FFF" d="M85 90V10H28c-5 0-8 4-8 8v64c0 4 3 8 8 8h57z"/><path class="fillable-secondary" fill="#DDD" d="M28 10H18v80h10V10z"/><text x="45" y="65" font-family="serif" font-size="45" fill="#000">D</text></g></svg>`,
+            };
+
+            // --- BANCO DE VOCABULARIO ---
+            const vocabulary = [
+                { name: 'libro', article: 'el', gender: 'm', emoji: '📖', svg: svgs.libro }, 
+                { name: 'mochila', article: 'la', gender: 'f', emoji: '🎒', svg: svgs.mochila },
+                { name: 'silla', article: 'la', gender: 'f', emoji: '🪑', svg: svgs.silla }, 
+                { name: 'lápiz', article: 'el', gender: 'm', emoji: '✏️', svg: svgs.lapiz },
+                { name: 'cuaderno', article: 'el', gender: 'm', emoji: '📓', svg: svgs.cuaderno }, 
+                { name: 'regla', article: 'la', gender: 'f', emoji: '📏', svg: svgs.regla },
+                { name: 'tijeras', article: 'las', gender: 'fpl', emoji: '✂️', svg: svgs.tijeras }, 
+                { name: 'pegamento', article: 'el', gender: 'm', emoji: '🧴', svg: svgs.pegamento },
+                { name: 'sacapuntas', article: 'el', gender: 'm', emoji: '✏️', svg: svgs.sacapuntas }, 
+                { name: 'goma', article: 'la', gender: 'f', emoji: svgs.goma, svg: svgs.goma },
+                { name: 'borrador', article: 'el', gender: 'm', emoji: svgs.goma, svg: svgs.goma },
+                { name: 'pizarra', article: 'la', gender: 'f', emoji: svgs.pizarra, svg: svgs.pizarra },
+                { name: 'bolígrafo', article: 'el', gender: 'm', emoji: '🖊️', svg: svgs.boligrafo },
+                { name: 'ordenador', article: 'el', gender: 'm', emoji: '💻', svg: svgs.ordenador },
+                { name: 'mesa', article: 'la', gender: 'f', emoji: svgs.mesa, svg: svgs.mesa },
+                { name: 'diccionario', article: 'el', gender: 'm', emoji: '📚', svg: svgs.diccionario },
+            ];
+
+            const colors = [
+                { name_es: 'rojo', name_en: 'red', gender: 'm' }, { name_es: 'azul', name_en: 'blue', gender: 'm' },
+                { name_es: 'verde', name_en: 'green', gender: 'm' }, { name_es: 'amarillo', name_en: 'yellow', gender: 'm' },
+                { name_es: 'rosa', name_en: 'pink', gender: 'm' }, { name_es: 'naranja', name_en: 'orange', gender: 'm' },
+            ];
+            
+            let answers = {};
+            let selectedColor = null;
+            let spanishVoice = null;
+
+            // --- Lógica de Slides ---
+            let currentSlide = 0;
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const progressIndicator = document.getElementById('progress-indicator');
+
+
+            // --- FUNCIONES UTILITARIAS ---
+            function loadVoices() {
+                const voices = speechSynthesis.getVoices();
+                spanishVoice = voices.find(voice => voice.name === 'Google español') || voices.find(voice => voice.lang === 'es-ES');
+            }
+            speechSynthesis.onvoiceschanged = loadVoices;
+            loadVoices();
+
+            const shuffle = (array) => array.sort(() => 0.5 - Math.random());
+            const speak = (text) => {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-ES';
+                if (spanishVoice) utterance.voice = spanishVoice;
+                window.speechSynthesis.speak(utterance);
+            };
+            const getColorAdjective = (word, color) => {
+                if (['rosa', 'naranja', 'verde', 'azul'].includes(color.name_es)) return color.name_es;
+                if (word.gender === 'f') return color.name_es.slice(0, -1) + 'a';
+                if (word.gender === 'fpl') return color.name_es.slice(0, -1) + 'as';
+                return color.name_es;
+            };
+            const getDisplayIcon = (item) => {
+                if (['goma', 'borrador', 'pizarra', 'mesa'].includes(item.name)) return item.svg;
+                return item.emoji;
+            };
+
+            // --- GENERADORES DE ACTIVIDADES ---
+            function generateActivityA() {
+                const container = document.getElementById('activity-a-container');
+                let content = '';
+                const questions = shuffle([...vocabulary]).slice(0, 5);
+                questions.forEach((q, index) => {
+                    const questionId = `q_a${index}`;
+                    answers[questionId] = q.name;
+                    let options = [q, ...shuffle(vocabulary.filter(v => v.name !== q.name)).slice(0, 3)];
+                    content += `<div id="${questionId}" class="activity-a-item"><div class="emoji-display">${getDisplayIcon(q)}</div><div class="choice-grid">`;
+                    shuffle(options).forEach(opt => {
+                        content += `<div class="choice-box" data-value="${opt.name}">${opt.article} ${opt.name}</div>`;
+                    });
+                    content += `</div></div><hr style="margin: 25px 0;">`;
+                });
+                container.innerHTML = content;
+            }
+            
+            function generateActivityC() {
+                const container = document.getElementById('activity-c-container');
+                let content = '';
+                const questions = shuffle([...vocabulary]).slice(0, 5); // Aumentado a 5
+                questions.forEach((q, index) => {
+                    const questionId = `q_c${index}`;
+                    answers[questionId] = q.name;
+                    const textToSpeak = `Encuentra ${q.article} ${q.name}`;
+                    let options = [q, ...shuffle(vocabulary.filter(v => v.name !== q.name)).slice(0, 5)];
+                    content += `<h4>Pregunta ${index + 1} <button class="speak-button" data-text="${textToSpeak}">🔊</button></h4>
+                                <div class="listen-options" id="${questionId}">`;
+                    shuffle(options).forEach(opt => {
+                        content += `<span class="emoji" data-value="${opt.name}">${getDisplayIcon(opt)}</span>`;
+                    });
+                    content += `</div><hr>`;
+                });
+                container.innerHTML = content;
+            }
+            
+            function generateActivityD() {
+                 const container = document.getElementById('activity-d-container');
+                 let content = '';
+                 const questions = shuffle(vocabulary.filter(v => v.name.length < 12)).slice(0, 5); // Aumentado a 5
+                 questions.forEach((q, index) => {
+                    const questionId = `q_d${index}`;
+                    answers[questionId] = q.name;
+                    content += `<div class="guess-word-container" id="${questionId}">
+                                    <div class="emoji-display">${getDisplayIcon(q)}</div>
+                                    <div class="guess-word-inputs">
+                                        ${q.name.split('').map(() => `<input type="text" maxlength="1">`).join('')}
+                                    </div>
+                                </div>`;
+                 });
+                 container.innerHTML = content;
+            }
+
+            function generateActivityE() {
+                const container = document.getElementById('activity-e-container');
+                const questionId = `q_e0`;
+                answers[questionId] = {};
+                const questions = shuffle([...vocabulary]).slice(0, 4);
+                let instructionsHTML = '<ul>';
+                let objectsHTML = '';
+                
+                questions.forEach(q => {
+                    const color = shuffle(colors)[0];
+                    answers[questionId][q.name] = color.name_en;
+                    const adjColor = getColorAdjective(q, color);
+                    const verb = (q.gender.endsWith('pl')) ? 'son' : 'es';
+                    instructionsHTML += `<li>${q.article} ${q.name} ${verb} ${adjColor}.</li>`;
+                    objectsHTML += `<div class="coloring-object" data-name="${q.name}">${q.svg}</div>`;
+                });
+                instructionsHTML += '</ul>';
+
+                const paletteHTML = shuffle([...colors]).map(c => `<div class="color-choice" style="background-color: ${c.name_en};" data-color="${c.name_en}"></div>`).join('');
+
+                container.innerHTML = `<div class="coloring-container" id="${questionId}">
+                    <div class="instructions-list">${instructionsHTML}</div>
+                    <div class="objects-grid">${objectsHTML}</div>
+                    <div class="shared-color-palette">${paletteHTML}</div>
+                </div>`;
+            }
+
+            function generateActivityF() {
+                const container = document.getElementById('activity-f-container');
+                let content = '';
+                const questions = shuffle([...vocabulary]).slice(0, 3);
+                questions.forEach((q, index) => {
+                    const color = shuffle([...colors])[0];
+                    const adjColor = getColorAdjective(q, color);
+                    const verb = (q.gender.endsWith('pl')) ? 'son' : 'es';
+                    const sentence = `${q.article} ${q.name} ${verb} de color ${adjColor}`;
+                    const questionId = `q_f${index}`;
+                    answers[questionId] = sentence;
+
+                    content += `<div class="sentence-builder" id="${questionId}">
+                        <h4>${index + 1}.</h4>
+                        <div class="drop-zone"></div>
+                        <div class="word-bank">
+                            ${shuffle(sentence.split(' ')).map(word => `<div class="word-block" draggable="true">${word}</div>`).join('')}
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = content;
+            }
+            
+            function updateNavigation() {
+                progressIndicator.textContent = `Paso ${currentSlide + 1} de ${slides.length}`;
+                prevBtn.disabled = currentSlide === 0;
+                nextBtn.disabled = currentSlide === slides.length - 1;
+            }
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
+                });
+                currentSlide = index;
+                updateNavigation();
+            }
+
+            function initWorksheet() {
+                generateActivityA();
+                generateActivityC();
+                generateActivityD();
+                generateActivityE();
+                generateActivityF();
+                setupEventListeners();
+                showSlide(0);
+            }
+
+            function setupEventListeners() {
+                const container = document.querySelector('.container');
+                let currentDraggable = null;
+
+                prevBtn.addEventListener('click', () => { if (currentSlide > 0) showSlide(currentSlide - 1); });
+                nextBtn.addEventListener('click', () => { if (currentSlide < slides.length - 1) showSlide(currentSlide + 1); });
+
+                container.addEventListener('click', (e) => {
+                    if (e.target.closest('.speak-button')) speak(e.target.closest('.speak-button').dataset.text);
+                    
+                    const choiceBox = e.target.closest('.choice-box');
+                    if(choiceBox) {
+                        choiceBox.parentElement.querySelectorAll('.choice-box').forEach(b => b.classList.remove('selected'));
+                        choiceBox.classList.add('selected');
+                    }
+                    const emojiOption = e.target.closest('.listen-options .emoji');
+                    if(emojiOption) {
+                        emojiOption.parentElement.querySelectorAll('.emoji').forEach(b => b.classList.remove('selected'));
+                        emojiOption.classList.add('selected');
+                    }
+                    const colorChoice = e.target.closest('.color-choice');
+                    if (colorChoice) {
+                        document.querySelectorAll('.color-choice').forEach(c => c.classList.remove('selected'));
+                        colorChoice.classList.add('selected');
+                        selectedColor = colorChoice.dataset.color;
+                    }
+                    const coloringObject = e.target.closest('.coloring-object');
+                    if(coloringObject && selectedColor) {
+                        coloringObject.querySelectorAll('.fillable, .fillable-secondary, .fillable-tertiary').forEach(path => path.style.fill = selectedColor);
+                        coloringObject.dataset.appliedColor = selectedColor;
+                    }
+                    const wordBlock = e.target.closest('.word-block');
+                    if (wordBlock) {
+                        const parent = wordBlock.parentElement;
+                        if (parent.classList.contains('word-bank')) parent.previousElementSibling.appendChild(wordBlock);
+                        else if (parent.classList.contains('drop-zone')) parent.nextElementSibling.appendChild(wordBlock);
+                    }
+                });
+
+                container.addEventListener('keyup', e => {
+                    const inputTarget = e.target;
+                    if (inputTarget.parentElement?.classList.contains('guess-word-inputs') && inputTarget.tagName === 'INPUT') {
+                        if (e.key.length === 1 && e.key.match(/[a-z0-9ñ]/i) && inputTarget.value && inputTarget.nextElementSibling) inputTarget.nextElementSibling.focus();
+                        else if (e.key === "Backspace" && !inputTarget.value && inputTarget.previousElementSibling) inputTarget.previousElementSibling.focus();
+                    }
+                });
+                
+                container.addEventListener('dragstart', e => { if(e.target.closest('.word-block')) currentDraggable = e.target.closest('.word-block'); });
+                container.addEventListener('dragover', e => e.preventDefault());
+                container.addEventListener('drop', e => {
+                    e.preventDefault();
+                    const dropTarget = e.target.closest('.drop-zone, .word-bank');
+                    if(currentDraggable && dropTarget) dropTarget.appendChild(currentDraggable);
+                });
+
+                document.getElementById('check-button').addEventListener('click', checkAllAnswers);
+            }
+            
+            function checkAllAnswers() {
+                let score = 0, totalQuestions = 0;
+                document.querySelectorAll('.correct, .incorrect').forEach(el => el.classList.remove('correct, .incorrect'));
+                
+                for(const id in answers) {
+                    const el = document.getElementById(id);
+                    if (!el) continue;
+                    let isCorrect = false;
+
+                    if (id.startsWith('q_e')) {
+                        totalQuestions++;
+                        const correctColors = answers[id];
+                        let allCorrectInE = true;
+                        el.querySelectorAll('.coloring-object').forEach(obj => {
+                            const objectName = obj.dataset.name;
+                            const appliedColor = obj.dataset.appliedColor || '';
+                            if (correctColors[objectName] !== appliedColor) allCorrectInE = false;
+                        });
+                        if (allCorrectInE) isCorrect = true;
+                    } else {
+                        totalQuestions++;
+                        if (id.startsWith('q_a')) {
+                            const sel = el.querySelector('.choice-box.selected');
+                            if (sel && sel.dataset.value === answers[id]) isCorrect = true;
+                        } else if (id.startsWith('q_c')) {
+                            const sel = el.querySelector('.emoji.selected');
+                            if (sel && sel.dataset.value === answers[id]) isCorrect = true;
+                        } else if (id.startsWith('q_d')) {
+                            const word = Array.from(el.querySelectorAll('input')).map(i => i.value).join('');
+                            if (word.toLowerCase() === answers[id]) isCorrect = true;
+                        } else if (id.startsWith('q_f')) {
+                            const sentence = Array.from(el.querySelector('.drop-zone').querySelectorAll('.word-block')).map(w => w.textContent).join(' ');
+                            if (sentence === answers[id]) isCorrect = true;
+                        }
+                    }
+
+                    if(isCorrect) { score++; el.classList.add('correct'); } else { el.classList.add('incorrect'); }
+                }
+
+                const fbEl = document.getElementById('feedback');
+                let fbText = `Tu puntuación: ${score} de ${totalQuestions}. ¡Sigue practicando!`;
+                if (score === totalQuestions) {
+                    fbText = `¡PERFECTO! 💯 Has completado todo correctamente. Puntuación: ${score} de ${totalQuestions}`;
+                    fbEl.className = 'feedback correct-text';
+                } else {
+                    fbEl.className = 'feedback incorrect-text';
+                }
+                fbEl.innerHTML = fbText;
+                speak(fbText);
+            }
+
+            initWorksheet();
+        });
+    </script>
+</body>
+</html>
+
