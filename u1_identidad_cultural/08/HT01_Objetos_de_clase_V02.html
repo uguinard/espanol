@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Describir los objetos de clase</title>
+    <title>Worksheet: Objetos de la Clase</title>
     <style>
         :root {
             --color-primary: #007bff;
@@ -43,12 +43,28 @@
         h1 { font-size: 2.2em; margin: 0; color: var(--color-primary); }
         h3, h4 { display: flex; align-items: center; gap: 15px; }
         h4 { margin-top: 30px; margin-bottom: 5px; font-size: 1.2em; }
+        
+        .title-en {
+            font-size: 0.8em;
+            color: var(--color-secondary);
+            font-weight: normal;
+            margin-left: 5px;
+        }
+
         .instructions {
             background-color: var(--color-light);
             border-left: 5px solid var(--color-primary);
             padding: 15px;
             margin: 20px 0;
-            font-size: 0.95em;
+        }
+        .instructions-es {
+            font-size: 1em;
+            font-weight: bold;
+        }
+        .instructions-en {
+            font-size: 0.85em;
+            color: var(--color-secondary);
+            margin-top: 5px;
         }
         .button {
             background-color: var(--color-primary); color: white; border: none; padding: 12px 25px;
@@ -132,14 +148,29 @@
         .guess-word-inputs input { width: 40px; height: 40px; text-align: center; font-size: 1.5em; text-transform: uppercase; border: 2px solid #ccc; border-radius: 6px; }
         
         /* Actividad E */
-        .coloring-container { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: center; background: #fafafa; padding: 20px; border-radius: 8px; }
+        .coloring-container {
+            display: grid;
+            grid-template-areas: "palette palette" "instructions objects";
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .shared-color-palette {
+            grid-area: palette;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .instructions-list { grid-area: instructions; }
         .instructions-list ul { list-style-type: disc; margin-left: 20px; padding-left: 0; font-size: 1.1em; }
-        .objects-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
+        .objects-grid { grid-area: objects; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: center; }
         .coloring-object { width: 120px; height: 120px; cursor: pointer; border: 2px dashed #ccc; border-radius: 8px; padding: 5px; }
         .coloring-object:hover { border-color: var(--color-primary); }
         .coloring-object svg { width: 100%; height: 100%; }
         .coloring-object .fillable { transition: fill 0.3s; }
-        .shared-color-palette { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
         .color-choice { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
         .color-choice.selected { transform: scale(1.2); border-color: var(--color-warning); }
         
@@ -157,44 +188,62 @@
 <body>
     <div class="container">
         <header>
-            <h1>Describir los objetos de clase 🚀</h1>
+            <h1>Objetos de la Clase <span class="title-en">| Classroom Objects</span> 🚀</h1>
             <button class="button print-button no-print" onclick="window.print()">Imprimir Hoja</button>
         </header>
         
         <section id="slides-container">
             <div class="slide">
-                <h3>Actividad A: ¿Qué es?</h3>
-                <div class="instructions">Mira la imagen y selecciona la frase correcta.</div>
+                <h3>1. ¿Qué es? <span class="title-en">| What is it?</span></h3>
+                <div class="instructions">
+                    <div class="instructions-es">Mira la imagen y selecciona la frase correcta.</div>
+                    <div class="instructions-en">Look at the image and select the correct sentence.</div>
+                </div>
                 <div id="activity-a-container"></div>
             </div>
 
             <div class="slide">
-                <h3>Actividad C: Escucha y Encuentra</h3>
-                <div class="instructions">Escucha la instrucción y haz clic en la imagen correcta.</div>
+                <h3>2. Escucha y Encuentra <span class="title-en">| Listen and Find</span></h3>
+                <div class="instructions">
+                    <div class="instructions-es">Escucha la instrucción y haz clic en la imagen correcta.</div>
+                    <div class="instructions-en">Listen to the instruction and click on the correct image.</div>
+                </div>
                 <div id="activity-c-container"></div>
             </div>
 
             <div class="slide">
-                <h3>Actividad D: Adivina la Palabra</h3>
-                <div class="instructions">Mira la imagen y escribe el nombre del objeto letra por letra.</div>
+                <h3>3. Adivina la Palabra <span class="title-en">| Guess the Word</span></h3>
+                <div class="instructions">
+                    <div class="instructions-es">Mira la imagen y escribe el nombre del objeto letra por letra.</div>
+                    <div class="instructions-en">Look at the image and write the name of the object letter by letter.</div>
+                </div>
                 <div id="activity-d-container"></div>
             </div>
 
             <div class="slide">
-                <h3>Actividad E: ¡A Colorear!</h3>
-                <div class="instructions">Lee la lista, selecciona un color de la paleta y colorea cada objeto.</div>
+                <h3>4. ¡A Colorear! <span class="title-en">| Let's Color!</span></h3>
+                <div class="instructions">
+                    <div class="instructions-es">Lee la lista, selecciona un color de la paleta y colorea cada objeto.</div>
+                    <div class="instructions-en">Read the list, select a color from the palette, and color each object.</div>
+                </div>
                 <div id="activity-e-container"></div>
             </div>
 
             <div class="slide">
-                <h3>Actividad F: Ordena la Frase</h3>
-                <div class="instructions">Arrastra o haz clic en las palabras para formar la oración correcta.</div>
+                <h3>5. Ordena la Frase <span class="title-en">| Order the Sentence</span></h3>
+                <div class="instructions">
+                    <div class="instructions-es">Arrastra o haz clic en las palabras para formar la oración correcta.</div>
+                    <div class="instructions-en">Drag or click on the words to form the correct sentence.</div>
+                </div>
                 <div id="activity-f-container"></div>
             </div>
             
             <div class="slide">
-                <h3>¡Buen trabajo!</h3>
-                <div class="instructions">Has completado todas las actividades. ¡Ahora puedes revisar tus respuestas!</div>
+                <h3>¡Buen trabajo! <span class="title-en">| Good job!</span></h3>
+                <div class="instructions">
+                    <div class="instructions-es">Has completado todas las actividades. ¡Ahora puedes revisar tus respuestas!</div>
+                    <div class="instructions-en">You have completed all the activities. Now you can check your answers!</div>
+                </div>
                 <div style="text-align: center; margin-top: 40px;">
                     <button id="check-button" class="button no-print">Revisar Todas las Actividades</button>
                     <div id="feedback" class="feedback no-print"></div>
@@ -211,8 +260,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- BANCO DE SVGs REALISTAS ---
-            const svgs = {
+             const svgs = {
                 libro: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><path class="fillable" fill="#FFF" d="M85 90V10H18c-5 0-8 4-8 8v64c0 4 3 8 8 8h67z"/><path class="fillable-secondary" fill="#DDD" d="M18 10H12v80h6V10z"/><path fill="none" d="M25 25h50M25 35h50M25 45h50M25 55h50M25 65h50M25 75h30"/></g></svg>`,
                 mochila: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><path class="fillable" fill="#FFF" d="M25 20h50a10 10 0 0110 10v50a10 10 0 01-10 10H25a10 10 0 01-10-10V30a10 10 0 0110-10z"/><path class="fillable-secondary" fill="#DDD" d="M35 18a15 15 0 0130 0v-8a15 15 0 00-30 0z" stroke-linejoin="round"/><path class="fillable-tertiary" fill="#EEE" d="M30 45h40a5 5 0 015 5v20a5 5 0 01-5 5H30a5 5 0 01-5-5V50a5 5 0 015-5z"/><path fill="none" d="M50 48v24"/></g></svg>`,
                 silla: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2" fill="#FFF" class="fillable"><path d="M25 95V45h50v50zM25 45V10h8v35zM75 45V10h-8v35zM30 65h40"/></g></svg>`,
@@ -220,34 +268,32 @@
                 cuaderno: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><path class="fillable" fill="#FFF" d="M80 90H25c-3 0-5-2-5-5V15c0-3 2-5 5-5h55v80z"/><circle fill="#555" cx="28" cy="20" r="2.5"/><circle fill="#555" cx="28" cy="35" r="2.5"/><circle fill="#555" cx="28" cy="50" r="2.5"/><circle fill="#555" cx="28" cy="65" r="2.5"/><circle fill="#555" cx="28" cy="80" r="2.5"/></g></svg>`,
                 regla: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="1.5"><rect class="fillable" fill="#FFF" x="10" y="40" width="80" height="20" rx="2"/><path fill="none" d="M15 50v-5M20 50v-8M25 50v-5M30 50v-8M35 50v-5M40 50v-8M45 50v-5M50 50v-8M55 50v-5M60 50v-8M65 50v-5M70 50v-8M75 50v-5M80 50v-8M85 50v-5"/></g></svg>`,
                 tijeras: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2" fill="none"><path d="M25 25l50 50M25 75l50-50"/><circle cx="50" cy="50" r="4" fill="#000"/><g stroke-width="3" class="fillable" fill="#FFF"><circle cx="30" cy="85" r="12"/><circle cx="70" cy="85" r="12"/></g></g></svg>`,
-                pegamento: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><rect class="fillable" fill="#FFF" x="30" y="25" width="40" height="70" rx="5"/><rect class="fillable-secondary" fill="#DDD" x="25" y="10" width="50" height="15" rx="5"/></g></svg>`,
-                goma: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="1.5" stroke-linejoin="round"><path class="fillable" fill="#FFC0CB" d="M15 65 L30 35 h40 l15 30 z" /><path class="fillable-secondary" fill="#ADD8E6" d="M15 65 h70 v10 h-70 z" /></g></svg>`,
+                'goma de borrar': `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="1.5" stroke-linejoin="round"><path class="fillable" fill="#FFC0CB" d="M15 65 L30 35 h40 l15 30 z" /><path class="fillable-secondary" fill="#ADD8E6" d="M15 65 h70 v10 h-70 z" /></g></svg>`,
                 sacapuntas: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2" stroke-linejoin="round"><path class="fillable" fill="#FFF" d="M20 70 V30 a5,5 0 0 1 5,-5 h50 a5,5 0 0 1 5,5 V70 a5,5 0 0 1 -5,5 H25 a5,5 0 0 1 -5,-5 z" /><path fill="#DDD" d="M30 35 h40 v-10 h-40 z" /><circle fill="#FFF" stroke-width="1.5" cx="50" cy="55" r="12" /><path fill="#555" d="M50 55 l-5 8 h10 z" /><path fill="none" stroke-width="1.5" d="M22 40 h-5 M22 50 h-5 M22 60 h-5 M78 40 h5 M78 50 h5 M78 60 h5" /></g></svg>`,
                 pizarra: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><rect class="fillable" fill="#FFF" x="10" y="15" width="80" height="60" rx="3"/><rect class="fillable-secondary" fill="#D2B48C" x="5" y="75" width="90" height="10" rx="2"/><path d="M20 85v10 M80 85v10" fill="none"/></g></svg>`,
                 boligrafo: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="1.5"><path class="fillable" fill="#FFF" d="M40 95 L45 25 h10 l5 70 z"/><path fill="#333" d="M48 25 l2 -10 l2 10z" /><path class="fillable-secondary" fill="#DDD" d="M47 35 h6 M40 95h20v-5H40z" fill="none"/></g></svg>`,
                 ordenador: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2"><rect class="fillable-secondary" x="10" y="75" width="80" height="5" rx="2" /><rect class="fillable" x="15" y="20" width="70" height="55" rx="3" /><rect fill="#555" x="20" y="25" width="60" height="45" rx="1"/></g></svg>`,
                 mesa: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="2" class="fillable" fill="#D2B48C"><rect x="10" y="30" width="80" height="10" /><path d="M15 40v50 M85 40v50" fill="none" /></g></svg>`,
-                diccionario: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="3"><path class="fillable" fill="#FFF" d="M85 90V10H28c-5 0-8 4-8 8v64c0 4 3 8 8 8h57z"/><path class="fillable-secondary" fill="#DDD" d="M28 10H18v80h10V10z"/><text x="45" y="65" font-family="serif" font-size="45" fill="#000">D</text></g></svg>`,
+                diccionarios: `<svg viewBox="0 0 100 100"><g stroke="#000" stroke-width="3"><path class="fillable" fill="#FFF" d="M85 90V10H28c-5 0-8 4-8 8v64c0 4 3 8 8 8h57z"/><path class="fillable-secondary" fill="#DDD" d="M28 10H18v80h10V10z"/><text x="45" y="65" font-family="serif" font-size="45" fill="#000">D</text></g></svg>`,
             };
-
+            
             // --- BANCO DE VOCABULARIO ---
             const vocabulary = [
-                { name: 'libro', article: 'el', gender: 'm', emoji: '📖', svg: svgs.libro }, 
-                { name: 'mochila', article: 'la', gender: 'f', emoji: '🎒', svg: svgs.mochila },
-                { name: 'silla', article: 'la', gender: 'f', emoji: '🪑', svg: svgs.silla }, 
                 { name: 'lápiz', article: 'el', gender: 'm', emoji: '✏️', svg: svgs.lapiz },
-                { name: 'cuaderno', article: 'el', gender: 'm', emoji: '📓', svg: svgs.cuaderno }, 
                 { name: 'regla', article: 'la', gender: 'f', emoji: '📏', svg: svgs.regla },
-                { name: 'tijeras', article: 'las', gender: 'fpl', emoji: '✂️', svg: svgs.tijeras }, 
-                { name: 'pegamento', article: 'el', gender: 'm', emoji: '🧴', svg: svgs.pegamento },
-                { name: 'sacapuntas', article: 'el', gender: 'm', emoji: '✏️', svg: svgs.sacapuntas }, 
-                { name: 'goma', article: 'la', gender: 'f', emoji: svgs.goma, svg: svgs.goma },
-                { name: 'borrador', article: 'el', gender: 'm', emoji: svgs.goma, svg: svgs.goma },
+                { name: 'mochila', article: 'la', gender: 'f', emoji: '🎒', svg: svgs.mochila },
+                { name: 'borrador', article: 'el', gender: 'm', emoji: svgs.goma, svg: svgs['goma de borrar'] },
+                { name: 'mesa', article: 'la', gender: 'f', emoji: svgs.mesa, svg: svgs.mesa },
                 { name: 'pizarra', article: 'la', gender: 'f', emoji: svgs.pizarra, svg: svgs.pizarra },
                 { name: 'bolígrafo', article: 'el', gender: 'm', emoji: '🖊️', svg: svgs.boligrafo },
+                { name: 'diccionarios', article: 'los', gender: 'mpl', emoji: '📚', svg: svgs.diccionarios },
+                { name: 'silla', article: 'la', gender: 'f', emoji: '🪑', svg: svgs.silla },
+                { name: 'libro', article: 'el', gender: 'm', emoji: '📖', svg: svgs.libro },
                 { name: 'ordenador', article: 'el', gender: 'm', emoji: '💻', svg: svgs.ordenador },
-                { name: 'mesa', article: 'la', gender: 'f', emoji: svgs.mesa, svg: svgs.mesa },
-                { name: 'diccionario', article: 'el', gender: 'm', emoji: '📚', svg: svgs.diccionario },
+                { name: 'cuaderno', article: 'el', gender: 'm', emoji: '📓', svg: svgs.cuaderno },
+                { name: 'sacapuntas', article: 'el', gender: 'm', emoji: '✏️', svg: svgs.sacapuntas },
+                { name: 'tijeras', article: 'las', gender: 'fpl', emoji: '✂️', svg: svgs.tijeras },
+                { name: 'goma de borrar', article: 'la', gender: 'f', emoji: svgs.goma, svg: svgs['goma de borrar'] },
             ];
 
             const colors = [
@@ -287,11 +333,11 @@
             const getColorAdjective = (word, color) => {
                 if (['rosa', 'naranja', 'verde', 'azul'].includes(color.name_es)) return color.name_es;
                 if (word.gender === 'f') return color.name_es.slice(0, -1) + 'a';
-                if (word.gender === 'fpl') return color.name_es.slice(0, -1) + 'as';
+                if (word.gender.endsWith('pl')) return color.name_es + 's';
                 return color.name_es;
             };
             const getDisplayIcon = (item) => {
-                if (['goma', 'borrador', 'pizarra', 'mesa'].includes(item.name)) return item.svg;
+                if (['borrador', 'goma de borrar', 'pizarra', 'mesa'].includes(item.name)) return item.svg;
                 return item.emoji;
             };
 
@@ -308,7 +354,8 @@
                     shuffle(options).forEach(opt => {
                         content += `<div class="choice-box" data-value="${opt.name}">${opt.article} ${opt.name}</div>`;
                     });
-                    content += `</div></div><hr style="margin: 25px 0;">`;
+                    content += `</div></div>`;
+                    if(index < questions.length - 1) content += `<hr style="margin: 25px 0;">`;
                 });
                 container.innerHTML = content;
             }
@@ -316,7 +363,7 @@
             function generateActivityC() {
                 const container = document.getElementById('activity-c-container');
                 let content = '';
-                const questions = shuffle([...vocabulary]).slice(0, 5); // Aumentado a 5
+                const questions = shuffle([...vocabulary]).slice(0, 5);
                 questions.forEach((q, index) => {
                     const questionId = `q_c${index}`;
                     answers[questionId] = q.name;
@@ -327,7 +374,8 @@
                     shuffle(options).forEach(opt => {
                         content += `<span class="emoji" data-value="${opt.name}">${getDisplayIcon(opt)}</span>`;
                     });
-                    content += `</div><hr>`;
+                    content += `</div>`;
+                     if(index < questions.length - 1) content += `<hr style="margin: 25px 0;">`;
                 });
                 container.innerHTML = content;
             }
@@ -335,7 +383,7 @@
             function generateActivityD() {
                  const container = document.getElementById('activity-d-container');
                  let content = '';
-                 const questions = shuffle(vocabulary.filter(v => v.name.length < 12)).slice(0, 5); // Aumentado a 5
+                 const questions = shuffle(vocabulary.filter(v => !v.name.includes(" "))).slice(0, 5);
                  questions.forEach((q, index) => {
                     const questionId = `q_d${index}`;
                     answers[questionId] = q.name;
@@ -353,7 +401,7 @@
                 const container = document.getElementById('activity-e-container');
                 const questionId = `q_e0`;
                 answers[questionId] = {};
-                const questions = shuffle([...vocabulary]).slice(0, 4);
+                const questions = shuffle([...vocabulary]).slice(0, 5);
                 let instructionsHTML = '<ul>';
                 let objectsHTML = '';
                 
@@ -370,9 +418,9 @@
                 const paletteHTML = shuffle([...colors]).map(c => `<div class="color-choice" style="background-color: ${c.name_en};" data-color="${c.name_en}"></div>`).join('');
 
                 container.innerHTML = `<div class="coloring-container" id="${questionId}">
+                    <div class="shared-color-palette">${paletteHTML}</div>
                     <div class="instructions-list">${instructionsHTML}</div>
                     <div class="objects-grid">${objectsHTML}</div>
-                    <div class="shared-color-palette">${paletteHTML}</div>
                 </div>`;
             }
 
@@ -483,7 +531,7 @@
             
             function checkAllAnswers() {
                 let score = 0, totalQuestions = 0;
-                document.querySelectorAll('.correct, .incorrect').forEach(el => el.classList.remove('correct, .incorrect'));
+                document.querySelectorAll('.correct, .incorrect').forEach(el => el.classList.remove('correct', 'incorrect'));
                 
                 for(const id in answers) {
                     const el = document.getElementById(id);
@@ -509,8 +557,8 @@
                             const sel = el.querySelector('.emoji.selected');
                             if (sel && sel.dataset.value === answers[id]) isCorrect = true;
                         } else if (id.startsWith('q_d')) {
-                            const word = Array.from(el.querySelectorAll('input')).map(i => i.value).join('');
-                            if (word.toLowerCase() === answers[id]) isCorrect = true;
+                            const word = Array.from(el.querySelectorAll('input')).map(i => i.value).join('').replace(/\s/g, '');
+                            if (word.toLowerCase() === answers[id].replace(/\s/g, '')) isCorrect = true;
                         } else if (id.startsWith('q_f')) {
                             const sentence = Array.from(el.querySelector('.drop-zone').querySelectorAll('.word-block')).map(w => w.textContent).join(' ');
                             if (sentence === answers[id]) isCorrect = true;
