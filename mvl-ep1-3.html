@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>Worksheet Interactivo: Mi Vida Loca</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .feedback {
+            display: none;
+        }
+        .draggable {
+            cursor: grab;
+        }
+        .draggable:active {
+            cursor: grabbing;
+        }
+        .instructions {
+            font-style: italic;
+            color: #4b5563; /* gray-600 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 sm:p-6 md:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-blue-700 mb-8">Mi Vida Loca: Worksheets Interactivos</h1>
+
+        <!-- Episodio 1 -->
+        <div class="episode bg-gray-50 p-6 rounded-lg border border-gray-200 mb-10">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-200 pb-2 mb-4">Episodio 1: En Madrid / <span class="instructions">In Madrid</span></h2>
+            <p class="mb-4">Mira el primer episodio y completa las actividades. / <span class="instructions">Watch the first episode and complete the activities.</span></p>
+            
+            <div class="bg-black rounded-lg overflow-hidden max-w-xl mx-auto shadow-md">
+                <video controls class="w-full">
+                    <source src="mvl01.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <div class="activity mt-6">
+                <h3 class="text-xl font-semibold mb-3">Actividad 1: Vocabulario Clave / <span class="instructions">Key Vocabulary</span></h3>
+                <p class="text-sm text-gray-600 mb-4">Haz clic en cada término para revelar su significado. / <span class="instructions">Click on each term to reveal its meaning.</span></p>
+                <ul class="list-none p-0">
+                    <li class="mb-2" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600 cursor-pointer hover:underline">Perdón</span>
+                        <span class="definition ml-4 text-gray-700 italic hidden">Excuse me</span>
+                    </li>
+                    <li class="mb-2" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600 cursor-pointer hover:underline">Gracias</span>
+                        <span class="definition ml-4 text-gray-700 italic hidden">Thank you</span>
+                    </li>
+                    <li class="mb-2" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600 cursor-pointer hover:underline">La calle</span>
+                        <span class="definition ml-4 text-gray-700 italic hidden">The street</span>
+                    </li>
+                    <li class="mb-2" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600 cursor-pointer hover:underline">No entiendo</span>
+                        <span class="definition ml-4 text-gray-700 italic hidden">I don't understand</span>
+                    </li>
+                     <li class="mb-2" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600 cursor-pointer hover:underline">Mi casa, tu casa</span>
+                        <span class="definition ml-4 text-gray-700 italic hidden">My house, your house</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="activity mt-6">
+                <h3 class="text-xl font-semibold mb-3">Actividad 2: ¿Qué dices? / <span class="instructions">What do you say?</span></h3>
+                <p class="text-sm text-gray-600 mb-4">Completa las frases con las palabras correctas. / <span class="instructions">Complete the sentences with the correct words.</span></p>
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md mb-4">
+                    <strong>Palabras / Words:</strong> amigo, casa, entiendo, eres
+                </div>
+                <div class="question space-y-2 mb-4">
+                    <label for="q1" class="block font-medium">Merche te pregunta: "¿Quién ______?" / <span class="instructions">Merche asks you: "Who ______?"</span></label>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="q1" class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <button onclick="checkTextAnswer('q1', 'eres')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Comprobar / <span class="instructions">Check</span></button>
+                        <span class="feedback font-bold" id="feedback-q1"></span>
+                    </div>
+                </div>
+                 <div class="question space-y-2 mb-4">
+                    <label for="q2" class="block font-medium">Tú respondes: "Soy ______ de Teresa." / <span class="instructions">You answer: "I am Teresa's ______."</span></label>
+                    <div class="flex items-center space-x-2">
+                         <input type="text" id="q2" class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <button onclick="checkTextAnswer('q2', 'amigo, amiga')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Comprobar / <span class="instructions">Check</span></button>
+                        <span class="feedback font-bold" id="feedback-q2"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Episodio 2 -->
+        <div class="episode bg-gray-50 p-6 rounded-lg border border-gray-200 mb-10">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-200 pb-2 mb-4">Episodio 2: Un amigo / <span class="instructions">A friend</span></h2>
+            <p class="mb-4">Mira el segundo episodio y completa las actividades. / <span class="instructions">Watch the second episode and complete the activities.</span></p>
+            
+             <div class="bg-black rounded-lg overflow-hidden max-w-xl mx-auto shadow-md">
+                <video controls class="w-full">
+                    <source src="mvl02.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <div class="activity mt-6">
+                <h3 class="text-xl font-semibold mb-3">Actividad 1: ¡A ordenar! / <span class="instructions">Let's order!</span></h3>
+                 <p class="text-sm text-gray-600 mb-4">Imagina que estás en la cafetería. El camarero pregunta "¿Qué quieres?". / <span class="instructions">Imagine you are at the cafe. The waiter asks "What do you want?".</span></p>
+                <div class="question space-y-2">
+                    <label for="q4" class="block font-medium">Pide por Merche: un café con leche y una tostada. / <span class="instructions">Order for Merche: a coffee with milk and a piece of toast.</span></label>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="q4" placeholder="Yo quiero..." class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto flex-grow">
+                        <button onclick="checkTextAnswer('q4', 'un café con leche y una tostada')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Comprobar / <span class="instructions">Check</span></button>
+                        <span class="feedback font-bold" id="feedback-q4"></span>
+                    </div>
+                </div>
+                 <div class="question space-y-2 mt-4">
+                    <label for="q5" class="block font-medium">Ahora, ¡pide algo para ti! (un té, una cerveza, un agua). / <span class="instructions">Now, order something for you! (a tea, a beer, a water).</span></label>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="q5" placeholder="Y para mí..." class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto flex-grow">
+                         <button onclick="document.getElementById('feedback-q5').textContent = '¡Buena elección! / Good choice!'; document.getElementById('feedback-q5').className = 'feedback font-bold text-green-600'; document.getElementById('feedback-q5').style.display = 'inline';" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Pedir / <span class="instructions">Order</span></button>
+                        <span class="feedback font-bold" id="feedback-q5"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Episodio 3 -->
+        <div class="episode bg-gray-50 p-6 rounded-lg border border-gray-200">
+            <h2 class="text-2xl font-bold text-blue-600 border-b-2 border-blue-200 pb-2 mb-4">Episodio 3: Kilómetro Cero</h2>
+            <p class="mb-4">Mira el tercer episodio y completa las actividades. / <span class="instructions">Watch the third episode and complete the activities.</span></p>
+            
+             <div class="bg-black rounded-lg overflow-hidden max-w-xl mx-auto shadow-md">
+                <video controls class="w-full">
+                    <source src="mvl03.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <div class="activity mt-6">
+                <h3 class="text-xl font-semibold mb-3">Actividad 1: Pidiendo Direcciones / <span class="instructions">Asking for Directions</span></h3>
+                <p class="text-sm text-gray-600 mb-4">Necesitas encontrar el metro. ¿Cómo preguntas? / <span class="instructions">You need to find the metro. How do you ask?</span></p>
+                <div class="question space-y-2">
+                    <label for="q6" class="block font-medium">Completa la pregunta: "Perdón, ¿_________?"</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" id="q6" placeholder="Escribe aquí..." class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        <button onclick="checkTextAnswer('q6', 'el metro, por favor')" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Comprobar / <span class="instructions">Check</span></button>
+                        <span class="feedback font-bold" id="feedback-q6"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="activity mt-6">
+                <h3 class="text-xl font-semibold mb-3">Actividad 2: ¿Derecha o Izquierda? / <span class="instructions">Right or Left?</span></h3>
+                <p class="text-sm text-gray-600 mb-4">Une la dirección con la imagen correcta. / <span class="instructions">Match the direction with the correct image.</span></p>
+                <div class="space-y-4">
+                    <div class="question flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+                        <label for="dir1" class="font-medium sm:w-1/3">Todo recto</label>
+                        <select id="dir1" class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto flex-grow">
+                            <option value="">Selecciona... / Select...</option>
+                            <option value="incorrect">➡️</option>
+                            <option value="correct">⬆️</option>
+                            <option value="incorrect">⬅️</option>
+                        </select>
+                    </div>
+                     <div class="question flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+                        <label for="dir2" class="font-medium sm:w-1/3">A la derecha</label>
+                        <select id="dir2" class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto flex-grow">
+                            <option value="">Selecciona... / Select...</option>
+                            <option value="incorrect">⬆️</option>
+                            <option value="incorrect">⬅️</option>
+                            <option value="correct">➡️</option>
+                        </select>
+                    </div>
+                     <div class="question flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+                        <label for="dir3" class="font-medium sm:w-1/3">A la izquierda</label>
+                         <select id="dir3" class="p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 w-full sm:w-auto flex-grow">
+                            <option value="">Selecciona... / Select...</option>
+                            <option value="correct">⬅️</option>
+                            <option value="incorrect">➡️</option>
+                            <option value="incorrect">⬆️</option>
+                        </select>
+                    </div>
+                </div>
+                 <div class="mt-4 text-center">
+                    <button onclick="checkDirections()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">Comprobar Direcciones / <span class="instructions">Check Directions</span></button>
+                    <span class="feedback font-bold ml-2" id="feedback-directions"></span>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDefinition(element) {
+            const definition = element.querySelector('.definition');
+            definition.classList.toggle('hidden');
+        }
+
+        function checkAnswer(questionId, correctAnswerValue) {
+            const select = document.getElementById(questionId);
+            const feedback = document.getElementById('feedback-' + questionId);
+            
+            if (select.value === correctAnswerValue) {
+                feedback.textContent = '¡Correcto! / Correct!';
+                feedback.className = 'feedback font-bold text-green-600';
+            } else {
+                feedback.textContent = 'Inténtalo de nuevo. / Try again.';
+                feedback.className = 'feedback font-bold text-red-600';
+            }
+            feedback.style.display = 'inline';
+        }
+
+        function checkTextAnswer(inputId, correctAnswers) {
+            const input = document.getElementById(inputId);
+            const feedback = document.getElementById('feedback-' + inputId);
+            const userAnswer = input.value.trim().toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+            const solutions = correctAnswers.toLowerCase().split(',').map(s => s.trim());
+            
+            const isCorrect = solutions.some(solution => userAnswer.includes(solution));
+
+            if (isCorrect) {
+                feedback.textContent = '¡Muy bien! / Very good!';
+                feedback.className = 'feedback font-bold text-green-600';
+            } else {
+                const exampleAnswer = correctAnswers.split(',')[0];
+                feedback.textContent = 'Incorrecto. La respuesta es: "' + exampleAnswer + '" / Incorrect. The answer is: "' + exampleAnswer + '"';
+                feedback.className = 'feedback font-bold text-red-600';
+            }
+            feedback.style.display = 'inline';
+        }
+        
+        function checkDirections() {
+            const dir1 = document.getElementById('dir1').value === 'correct';
+            const dir2 = document.getElementById('dir2').value === 'correct';
+            const dir3 = document.getElementById('dir3').value === 'correct';
+            const feedback = document.getElementById('feedback-directions');
+
+            if (dir1 && dir2 && dir3) {
+                feedback.textContent = '¡Excelente! / Excellent!';
+                feedback.className = 'feedback font-bold text-green-600';
+            } else {
+                feedback.textContent = 'Revisa tus respuestas. / Check your answers.';
+                feedback.className = 'feedback font-bold text-red-600';
+            }
+            feedback.style.display = 'inline';
+        }
+    </script>
+
+</body>
+</html>
+
