@@ -68,21 +68,18 @@
             </button>
             <div id="feedback" class="mt-6 text-2xl font-bold opacity-0 feedback"></div>
 
-            <!-- Formulario para enviar puntaje -->
+            <!-- Formulario para enviar puntaje a Google Sheets -->
             <div id="send-score-form" class="max-w-lg mx-auto mt-8 p-6 bg-white rounded-2xl shadow-lg text-left">
-                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Enviar Resultado al Profesor / Send Result to Teacher</h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Guardar Resultado / Save Result</h3>
                 <div class="mb-4">
                     <label for="studentName" class="block text-gray-700 font-semibold mb-2">Tu Nombre / Your Name:</label>
                     <input type="text" id="studentName" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Escribe tu nombre aquí...">
                 </div>
-                <div class="mb-4">
-                    <label for="teacherEmail" class="block text-gray-700 font-semibold mb-2">Email del Profesor / Teacher's Email:</label>
-                    <input type="email" id="teacherEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="profesor@ejemplo.com">
-                </div>
                 <div class="text-center">
-                    <button onclick="sendScoreToTeacher()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl text-lg transition-transform transform hover:scale-105">
-                        Enviar Puntaje / Send Score
+                    <button id="sendBtn" onclick="sendScoreToGoogleSheet()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl text-lg transition-transform transform hover:scale-105">
+                        Guardar Puntaje / Save Score
                     </button>
+                    <p id="send-status" class="text-sm mt-2 h-4"></p>
                 </div>
             </div>
         </div>
@@ -97,7 +94,6 @@
             { id: 'boligrafo', name: 'el bolígrafo', emoji: '🖊️' },
             { id: 'cuaderno', name: 'el cuaderno', emoji: '📓' },
             { id: 'tijeras', name: 'las tijeras', emoji: '✂️' },
-            // --- Custom SVGs ---
             { id: 'borrador', name: 'el borrador', emoji: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="16" height="8" rx="2" fill="#4A5568"/><rect x="4" y="13" width="16" height="4" rx="1" fill="#E2E8F0"/><path d="M6 8H18" stroke="#718096" stroke-width="1" stroke-linecap="round"/><path d="M6 10H18" stroke="#718096" stroke-width="1" stroke-linecap="round"/></svg>` },
             { id: 'sacapuntas', name: 'el sacapuntas', emoji: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5H15C15.5523 5 16 5.44772 16 6V18C16 18.5523 15.5523 19 15 19H5C4.44772 19 4 18.5523 4 18V6C4 5.44772 4.44772 5 5 5Z" fill="#4A90E2"/><path d="M16 6L20 9V15L16 18V6Z" fill="#3A7BC8"/><circle cx="10" cy="8" r="3" fill="#FFFFFF"/><circle cx="10" cy="8" r="2" fill="#2D3748"/><rect x="5" y="14" width="10" height="2" rx="1" fill="#D1D5DB"/></svg>` },
             { id: 'goma', name: 'la goma de borrar', emoji: `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5,7 L19,7 L21,12 L7,12 L5,7 Z" fill="#F56565"/><path d="M7,12 L21,12 L19,17 L5,17 L7,12 Z" fill="#4299E1"/><path d="M5,7 L19,7 L21,12 L7,12 L5,7 Z" stroke="#c53030" stroke-width="1.2"/><path d="M7,12 L21,12 L19,17 L5,17 L7,12 Z" stroke="#2c5282" stroke-width="1.2"/></svg>` }
@@ -107,7 +103,8 @@
         let childrenData = [];
         let timerInterval;
         let finalScore = 0;
-        let timeRemaining = 0;
+        let percentageScore = 0;
+        let gameFinished = false;
 
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -168,17 +165,15 @@
                 zone.addEventListener('drop', onDrop);
             });
             
-            startTimer(300); // Start 5-minute timer
+            startTimer(300);
         }
         
         function startTimer(durationInSeconds) {
             let timer = durationInSeconds;
-            timeRemaining = durationInSeconds;
             const countdownEl = document.getElementById('countdown');
             const timerContainer = document.getElementById('timer-container');
 
             timerInterval = setInterval(() => {
-                timeRemaining = timer;
                 const minutes = Math.floor(timer / 60);
                 let seconds = timer % 60;
                 seconds = seconds < 10 ? '0' + seconds : seconds;
@@ -187,13 +182,7 @@
                 if (--timer < 0) {
                     clearInterval(timerInterval);
                     countdownEl.textContent = "00:00";
-                    timerContainer.classList.remove('bg-yellow-100', 'border-yellow-300', 'text-yellow-800', 'bg-orange-100', 'border-orange-300', 'text-orange-800');
-                    timerContainer.classList.add('bg-red-100', 'border-red-300', 'text-red-800');
-                    document.querySelector('#timer-container h2:first-of-type').textContent = "¡El autobús se ha ido!";
-                    document.querySelector('#timer-container h2:last-of-type').textContent = "The bus has left!";
-                    document.getElementById('objectBank').style.pointerEvents = 'none';
-                    document.getElementById('checkBtn').disabled = true;
-                    document.getElementById('objectBank').style.opacity = '0.5';
+                    checkAnswers();
                 } else if (timer < 59) {
                     timerContainer.classList.remove('bg-yellow-100', 'border-yellow-300', 'text-yellow-800');
                     timerContainer.classList.add('bg-orange-100', 'border-orange-300', 'text-orange-800');
@@ -246,64 +235,99 @@
         }
 
         function checkAnswers() {
-            let allCorrect = true;
+            if (gameFinished) return;
+            gameFinished = true;
+            clearInterval(timerInterval);
+
             let correctItemsCount = 0;
+            let totalRequiredItems = 0;
             childrenData.forEach(child => {
                 correctItemsCount += child.found.length;
-                if (child.required.length !== child.found.length) {
-                    allCorrect = false;
-                }
+                totalRequiredItems += child.required.length;
             });
 
+            finalScore = correctItemsCount * 10;
+            percentageScore = totalRequiredItems > 0 ? Math.round((correctItemsCount / totalRequiredItems) * 100) : 0;
+            const emoji = percentageScore >= 70 ? '😊' : '😟';
+
             const feedbackEl = document.getElementById('feedback');
-            feedbackEl.classList.remove('opacity-0', 'text-green-600', 'text-red-600');
+            feedbackEl.classList.remove('opacity-0');
             feedbackEl.style.opacity = 1;
             
-            if (allCorrect) {
-                clearInterval(timerInterval);
-                const itemsScore = correctItemsCount * 10;
-                const timeBonus = timeRemaining;
-                finalScore = itemsScore + timeBonus;
-
-                feedbackEl.innerHTML = `<strong>ES:</strong> ¡Felicidades! Todas las mochilas están listas. ¡Llegaste a tiempo!<br><strong>Puntaje Final: ${finalScore}</strong> (${itemsScore} de objetos + ${timeBonus} de tiempo)<br><br><strong>EN:</strong> Congratulations! All backpacks are ready. You made it on time!<br><strong>Final Score: ${finalScore}</strong> (${itemsScore} from items + ${timeBonus} time bonus)`;
-                feedbackEl.classList.add('text-green-600');
-                
-                const timerContainer = document.getElementById('timer-container');
-                timerContainer.classList.remove('bg-yellow-100', 'border-yellow-300', 'text-yellow-800', 'bg-orange-100', 'border-orange-300', 'text-orange-800');
-                timerContainer.classList.add('bg-green-100', 'border-green-300', 'text-green-800');
-                document.querySelector('#timer-container h2:first-of-type').textContent = "¡Llegaste a tiempo!";
-                document.querySelector('#timer-container h2:last-of-type').textContent = "You made it on time!";
-                
-                document.getElementById('send-score-form').classList.add('visible');
-                document.getElementById('checkBtn').disabled = true;
-
+            feedbackEl.innerHTML = `<strong>ES:</strong> ¡Juego terminado!<br><strong>Puntaje: ${finalScore}</strong> (${percentageScore}% de aciertos) ${emoji}<br><br><strong>EN:</strong> Game Over!<br><strong>Score: ${finalScore}</strong> (${percentageScore}% correct) ${emoji}`;
+            
+            const timerContainer = document.getElementById('timer-container');
+            if (percentageScore >= 70) {
+                 feedbackEl.classList.add('text-green-600');
+                 timerContainer.classList.add('bg-green-100', 'border-green-300', 'text-green-800');
             } else {
-                feedbackEl.innerHTML = "<strong>ES:</strong> ¡Casi! Revisa las mochilas, parece que todavía faltan algunas cosas.<br><strong>EN:</strong> Almost! Check the backpacks, it looks like some things are still missing.";
-                feedbackEl.classList.add('text-red-600');
+                 feedbackEl.classList.add('text-red-600');
+                 timerContainer.classList.add('bg-red-100', 'border-red-300', 'text-red-800');
             }
+            document.querySelector('#timer-container h2:first-of-type').textContent = "¡Tiempo finalizado!";
+            document.querySelector('#timer-container h2:last-of-type').textContent = "Time's up!";
+            
+            document.getElementById('send-score-form').classList.add('visible');
+            document.getElementById('checkBtn').disabled = true;
+            document.getElementById('objectBank').style.pointerEvents = 'none';
+            document.getElementById('objectBank').style.opacity = '0.5';
         }
 
-        function sendScoreToTeacher() {
+        function sendScoreToGoogleSheet() {
             const studentName = document.getElementById('studentName').value;
-            const teacherEmail = document.getElementById('teacherEmail').value;
+            // The URL is now hardcoded here
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbz5YmkUBVLZiF9JA82iN2k3lK3v4t3eF-Hmjq2QeSmaOYVPkMaJ-59tqFtUtCuVgSRq2w/exec';
+            const sendStatus = document.getElementById('send-status');
+            const sendBtn = document.getElementById('sendBtn');
 
-            if (!studentName || !teacherEmail) {
-                alert("Por favor, ingresa tu nombre y el email de tu profesor. / Please enter your name and your teacher's email.");
+            if (!studentName) {
+                alert("Por favor, ingresa tu nombre. / Please enter your name.");
                 return;
             }
 
-            const subject = encodeURIComponent(`Resultado de la Actividad: Preparar Mochilas de ${studentName}`);
-            const body = encodeURIComponent(
-                `¡Hola!\n\n` +
-                `He completado la actividad "Preparar las Mochilas".\n\n` +
-                `Estudiante: ${studentName}\n` +
-                `Puntaje Final: ${finalScore}\n` +
-                `Tiempo Restante: ${Math.floor(timeRemaining/60)}m ${timeRemaining%60}s\n\n` +
-                `Saludos,\n` +
-                `${studentName}`
-            );
+            sendStatus.textContent = "Enviando... / Sending...";
+            sendBtn.disabled = true;
 
-            window.location.href = `mailto:${teacherEmail}?subject=${subject}&body=${body}`;
+            const data = new FormData();
+            data.append('name', studentName);
+            data.append('score', finalScore);
+            data.append('percentage', percentageScore);
+            
+            fetch(scriptURL, { method: 'POST', body: data})
+                .then(response => {
+                    sendStatus.textContent = "¡Resultado guardado con éxito! / Result saved successfully!";
+                    sendStatus.style.color = 'green';
+                    sendBtn.style.backgroundColor = '#4a5568';
+                })
+                .catch(error => {
+                    sendStatus.textContent = "Error al guardar el resultado. / Error saving result.";
+                    sendStatus.style.color = 'red';
+                    sendBtn.disabled = false;
+                    console.error('Error!', error.message);
+                });
+        }
+        
+        // This function is needed to handle the POST data correctly in Google Apps Script when sent from fetch
+        function doPost(e) {
+            try {
+                const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+                const data = e.parameter;
+                
+                sheet.appendRow([
+                  new Date(),
+                  data.name,
+                  data.score,
+                  data.percentage
+                ]);
+                
+                return ContentService
+                  .createTextOutput(JSON.stringify({ 'result': 'success' }))
+                  .setMimeType(ContentService.MimeType.JSON);
+            } catch (error) {
+                return ContentService
+                  .createTextOutput(JSON.stringify({ 'result': 'error', 'message': error.toString() }))
+                  .setMimeType(ContentService.MimeType.JSON);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', initializeActivity);
