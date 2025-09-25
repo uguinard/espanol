@@ -16,6 +16,8 @@
         .feedback { transition: opacity 0.5s; }
         .correct-item { text-decoration: line-through; color: #9ca3af; }
         #timer-container { transition: all 0.5s ease-in-out; }
+        #send-score-form { transition: all 0.5s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
+        #send-score-form.visible { max-height: 500px; opacity: 1; }
     </style>
 </head>
 <body class="bg-blue-50">
@@ -65,8 +67,25 @@
                 Reiniciar / Restart
             </button>
             <div id="feedback" class="mt-6 text-2xl font-bold opacity-0 feedback"></div>
-        </div>
 
+            <!-- Formulario para enviar puntaje -->
+            <div id="send-score-form" class="max-w-lg mx-auto mt-8 p-6 bg-white rounded-2xl shadow-lg text-left">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Enviar Resultado al Profesor / Send Result to Teacher</h3>
+                <div class="mb-4">
+                    <label for="studentName" class="block text-gray-700 font-semibold mb-2">Tu Nombre / Your Name:</label>
+                    <input type="text" id="studentName" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Escribe tu nombre aquí...">
+                </div>
+                <div class="mb-4">
+                    <label for="teacherEmail" class="block text-gray-700 font-semibold mb-2">Email del Profesor / Teacher's Email:</label>
+                    <input type="email" id="teacherEmail" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="profesor@ejemplo.com">
+                </div>
+                <div class="text-center">
+                    <button onclick="sendScoreToTeacher()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl text-lg transition-transform transform hover:scale-105">
+                        Enviar Puntaje / Send Score
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -87,8 +106,9 @@
         const childrenNames = ["Ana", "Luis", "Sofía", "Carlos", "Elena"];
         let childrenData = [];
         let timerInterval;
+        let finalScore = 0;
+        let timeRemaining = 0;
 
-        // Function to shuffle an array
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -97,7 +117,6 @@
             return array;
         }
 
-        // Initialize the activity
         function initializeActivity() {
             const objectBank = document.getElementById('objectBank');
             const childrenContainer = document.getElementById('childrenContainer');
@@ -152,16 +171,16 @@
             startTimer(300); // Start 5-minute timer
         }
         
-        // Timer Function
         function startTimer(durationInSeconds) {
             let timer = durationInSeconds;
+            timeRemaining = durationInSeconds;
             const countdownEl = document.getElementById('countdown');
             const timerContainer = document.getElementById('timer-container');
 
             timerInterval = setInterval(() => {
+                timeRemaining = timer;
                 const minutes = Math.floor(timer / 60);
                 let seconds = timer % 60;
-
                 seconds = seconds < 10 ? '0' + seconds : seconds;
                 countdownEl.textContent = `${minutes}:${seconds}`;
 
@@ -175,19 +194,16 @@
                     document.getElementById('objectBank').style.pointerEvents = 'none';
                     document.getElementById('checkBtn').disabled = true;
                     document.getElementById('objectBank').style.opacity = '0.5';
-                } else if (timer < 59) { // Change color in the last minute
+                } else if (timer < 59) {
                     timerContainer.classList.remove('bg-yellow-100', 'border-yellow-300', 'text-yellow-800');
                     timerContainer.classList.add('bg-orange-100', 'border-orange-300', 'text-orange-800');
                 }
             }, 1000);
         }
 
-        // Drag & Drop Functions
         function onDragStart(event) {
             event.dataTransfer.setData('text/plain', event.target.id);
-            setTimeout(() => {
-                event.target.classList.add('dragging');
-            }, 0);
+            setTimeout(() => event.target.classList.add('dragging'), 0);
         }
         
         function onDragEnd(event) {
@@ -224,17 +240,16 @@
                 clonedElement.title = '';
                 
                 dropZone.appendChild(clonedElement);
-                
                 child.found.push(droppedItemId);
-                
                 document.getElementById(`req-${childName}-${droppedItemId}`).classList.add('correct-item');
             }
         }
 
-        // Function to check answers
         function checkAnswers() {
             let allCorrect = true;
+            let correctItemsCount = 0;
             childrenData.forEach(child => {
+                correctItemsCount += child.found.length;
                 if (child.required.length !== child.found.length) {
                     allCorrect = false;
                 }
@@ -245,14 +260,22 @@
             feedbackEl.style.opacity = 1;
             
             if (allCorrect) {
-                feedbackEl.innerHTML = "<strong>ES:</strong> ¡Felicidades! Todas las mochilas están listas. ¡Llegaste a tiempo!<br><strong>EN:</strong> Congratulations! All backpacks are ready. You made it on time!";
-                feedbackEl.classList.add('text-green-600');
                 clearInterval(timerInterval);
+                const itemsScore = correctItemsCount * 10;
+                const timeBonus = timeRemaining;
+                finalScore = itemsScore + timeBonus;
+
+                feedbackEl.innerHTML = `<strong>ES:</strong> ¡Felicidades! Todas las mochilas están listas. ¡Llegaste a tiempo!<br><strong>Puntaje Final: ${finalScore}</strong> (${itemsScore} de objetos + ${timeBonus} de tiempo)<br><br><strong>EN:</strong> Congratulations! All backpacks are ready. You made it on time!<br><strong>Final Score: ${finalScore}</strong> (${itemsScore} from items + ${timeBonus} time bonus)`;
+                feedbackEl.classList.add('text-green-600');
+                
                 const timerContainer = document.getElementById('timer-container');
                 timerContainer.classList.remove('bg-yellow-100', 'border-yellow-300', 'text-yellow-800', 'bg-orange-100', 'border-orange-300', 'text-orange-800');
                 timerContainer.classList.add('bg-green-100', 'border-green-300', 'text-green-800');
                 document.querySelector('#timer-container h2:first-of-type').textContent = "¡Llegaste a tiempo!";
                 document.querySelector('#timer-container h2:last-of-type').textContent = "You made it on time!";
+                
+                document.getElementById('send-score-form').classList.add('visible');
+                document.getElementById('checkBtn').disabled = true;
 
             } else {
                 feedbackEl.innerHTML = "<strong>ES:</strong> ¡Casi! Revisa las mochilas, parece que todavía faltan algunas cosas.<br><strong>EN:</strong> Almost! Check the backpacks, it looks like some things are still missing.";
@@ -260,7 +283,29 @@
             }
         }
 
-        // Initialize the activity when the page loads
+        function sendScoreToTeacher() {
+            const studentName = document.getElementById('studentName').value;
+            const teacherEmail = document.getElementById('teacherEmail').value;
+
+            if (!studentName || !teacherEmail) {
+                alert("Por favor, ingresa tu nombre y el email de tu profesor. / Please enter your name and your teacher's email.");
+                return;
+            }
+
+            const subject = encodeURIComponent(`Resultado de la Actividad: Preparar Mochilas de ${studentName}`);
+            const body = encodeURIComponent(
+                `¡Hola!\n\n` +
+                `He completado la actividad "Preparar las Mochilas".\n\n` +
+                `Estudiante: ${studentName}\n` +
+                `Puntaje Final: ${finalScore}\n` +
+                `Tiempo Restante: ${Math.floor(timeRemaining/60)}m ${timeRemaining%60}s\n\n` +
+                `Saludos,\n` +
+                `${studentName}`
+            );
+
+            window.location.href = `mailto:${teacherEmail}?subject=${subject}&body=${body}`;
+        }
+
         document.addEventListener('DOMContentLoaded', initializeActivity);
     </script>
 </body>
