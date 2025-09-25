@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad: ¡A preparar las mochilas!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
+        .item-utiles { transition: transform 0.2s ease-in-out; }
+        .item-utiles:hover { transform: scale(1.1); }
+        .dragging { opacity: 0.5; cursor: grabbing; }
+        .drop-zone { border: 3px dashed #cbd5e1; transition: background-color 0.3s, border-color 0.3s; }
+        .drag-over { background-color: #dbeafe; border-color: #3b82f6; }
+        .feedback { transition: opacity 0.5s; }
+        .correct-item { text-decoration: line-through; color: #9ca3af; }
+    </style>
+</head>
+<body class="bg-blue-50">
+    <div class="container mx-auto p-6 md:p-10">
+
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-blue-800 mb-2">🎒 ¡A preparar las mochilas! 🎒</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">Eres el padre de una familia numerosa. ¡Tus 5 hijos necesitan ayuda! Lee la lista de cada uno y arrastra los objetos que faltan desde la caja de útiles hasta su mochila.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow-lg mb-10 sticky top-4 z-10">
+            <h2 class="text-2xl font-bold text-gray-700 text-center mb-4">Caja de Útiles</h2>
+            <div id="objectBank" class="grid grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-4 justify-items-center">
+                </div>
+        </div>
+
+        <div id="childrenContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+
+        <div class="text-center mt-12">
+            <button onclick="checkAnswers()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl text-lg transition-transform transform hover:scale-105">
+                Revisar Mochilas
+            </button>
+            <button onclick="location.reload()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-xl text-lg ml-4 transition-transform transform hover:scale-105">
+                Reiniciar
+            </button>
+            <div id="feedback" class="mt-6 text-2xl font-bold opacity-0 feedback"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const vocabulary = [
+            { id: 'lapiz', name: 'el lápiz', emoji: '✏️' },
+            { id: 'regla', name: 'la regla', emoji: '📏' },
+            { id: 'mochila', name: 'la mochila', emoji: '🎒' }, // Se usa como icono de la zona
+            { id: 'borrador', name: 'el borrador', emoji: '🧽' },
+            { id: 'libro', name: 'el libro', emoji: '📚' },
+            { id: 'silla', name: 'la silla', emoji: '💺' },
+            { id: 'diccionario', name: 'el diccionario', emoji: '📖' },
+            { id: 'boligrafo', name: 'el bolígrafo', emoji: '🖊️' },
+            { id: 'pizarra', name: 'la pizarra', emoji: '⬛' },
+            { id: 'ordenador', name: 'el ordenador', emoji: '💻' },
+            { id: 'cuaderno', name: 'el cuaderno', emoji: '📓' },
+            { id: 'sacapuntas', name: 'el sacapuntas', emoji: '🔪' },
+            { id: 'tijeras', name: 'las tijeras', emoji: '✂️' },
+            { id: 'goma', name: 'la goma de borrar', emoji: '🧹' }
+        ];
+
+        const childrenNames = ["Ana", "Luis", "Sofía", "Carlos", "Elena"];
+        let childrenData = [];
+
+        // Función para barajar un array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Inicializar la actividad
+        function initializeActivity() {
+            const objectBank = document.getElementById('objectBank');
+            const childrenContainer = document.getElementById('childrenContainer');
+            
+            // 1. Llenar la caja de útiles
+            const usableVocabulary = vocabulary.filter(v => v.id !== 'mochila' && v.id !== 'silla' && v.id !== 'pizarra' && v.id !== 'ordenador'); // Objetos que caben en una mochila
+            
+            usableVocabulary.forEach(item => {
+                const div = document.createElement('div');
+                div.id = `item-${item.id}`;
+                div.dataset.itemId = item.id;
+                div.className = 'item-utiles p-3 bg-gray-100 rounded-lg text-center cursor-grab';
+                div.draggable = true;
+                div.innerHTML = `<div class="text-4xl">${item.emoji}</div><p class="text-xs font-semibold text-gray-600">${item.name}</p>`;
+                div.addEventListener('dragstart', onDragStart);
+                objectBank.appendChild(div);
+            });
+
+            // 2. Crear las mochilas de los hijos
+            childrenNames.forEach(name => {
+                const shuffledVocab = shuffleArray([...usableVocabulary]);
+                const missingItemsCount = Math.floor(Math.random() * 4) + 3; // Entre 3 y 6 objetos
+                const missingItems = shuffledVocab.slice(0, missingItemsCount);
+                
+                childrenData.push({ name: name, required: missingItems.map(item => item.id), found: [] });
+
+                const childCard = document.createElement('div');
+                childCard.className = 'bg-white p-6 rounded-2xl shadow-md';
+                
+                let listItemsHTML = '';
+                missingItems.forEach(item => {
+                    listItemsHTML += `<li id="req-${name}-${item.id}" class="text-gray-700 transition-colors">${item.name}</li>`;
+                });
+
+                childCard.innerHTML = `
+                    <h3 class="text-xl font-bold text-blue-700 mb-3">Mochila de ${name}</h3>
+                    <p class="font-semibold mb-2 text-gray-500">Faltan estos útiles:</p>
+                    <ul class="list-disc list-inside mb-4 space-y-1">${listItemsHTML}</ul>
+                    <div id="dropzone-${name}" data-child-name="${name}" class="drop-zone min-h-[150px] p-4 rounded-lg bg-gray-50 grid grid-cols-3 gap-2 items-start content-start">
+                         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-8xl text-gray-300 opacity-50 select-none">🎒</div>
+                    </div>
+                `;
+                childrenContainer.appendChild(childCard);
+            });
+            
+            // 3. Añadir listeners a las drop zones
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', onDragOver);
+                zone.addEventListener('dragleave', onDragLeave);
+                zone.addEventListener('drop', onDrop);
+            });
+        }
+
+        // Funciones de Drag & Drop
+        function onDragStart(event) {
+            event.dataTransfer.setData('text/plain', event.target.id);
+            event.target.classList.add('dragging');
+        }
+
+        function onDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function onDragLeave(event) {
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        function onDrop(event) {
+            event.preventDefault();
+            const itemId = event.dataTransfer.getData('text/plain');
+            const draggedElement = document.getElementById(itemId);
+            const dropZone = event.currentTarget;
+            const childName = dropZone.dataset.childName;
+            
+            draggedElement.classList.remove('dragging');
+            dropZone.classList.remove('drag-over');
+            
+            const child = childrenData.find(c => c.name === childName);
+            const droppedItemId = draggedElement.dataset.itemId;
+
+            // Verificar si el objeto es necesario y no ha sido encontrado ya
+            if (child.required.includes(droppedItemId) && !child.found.includes(droppedItemId)) {
+                dropZone.appendChild(draggedElement);
+                draggedElement.draggable = false; // No se puede mover una vez en la mochila
+                draggedElement.style.cursor = 'default';
+                
+                child.found.push(droppedItemId);
+                
+                // Tachar el item de la lista
+                document.getElementById(`req-${childName}-${droppedItemId}`).classList.add('correct-item');
+            }
+            // Si no es correcto, no hacer nada (el objeto vuelve a su sitio original visualmente)
+        }
+
+        // Función para revisar respuestas
+        function checkAnswers() {
+            let allCorrect = true;
+            childrenData.forEach(child => {
+                if (child.found.length !== child.required.length) {
+                    allCorrect = false;
+                }
+            });
+
+            const feedbackEl = document.getElementById('feedback');
+            feedbackEl.classList.remove('opacity-0', 'text-green-600', 'text-red-600');
+            
+            if (allCorrect) {
+                feedbackEl.textContent = "¡Felicidades! Todas las mochilas están listas para la escuela. ¡Gran trabajo!";
+                feedbackEl.classList.add('text-green-600');
+            } else {
+                feedbackEl.textContent = "¡Casi! Revisa las mochilas, parece que todavía faltan algunas cosas.";
+                feedbackEl.classList.add('text-red-600');
+            }
+        }
+
+        // Iniciar la actividad cuando la página cargue
+        document.addEventListener('DOMContentLoaded', initializeActivity);
+    </script>
+</body>
+</html>
