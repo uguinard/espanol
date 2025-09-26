@@ -23,7 +23,6 @@
 <body class="bg-blue-50">
     <div class="container mx-auto p-6 md:p-10">
 
-        <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-4xl font-bold text-blue-800 mb-2">🎒 ¡A preparar las mochilas! 🎒</h1>
             <p class="text-lg text-gray-600 max-w-3xl mx-auto">
@@ -33,7 +32,6 @@
             </p>
         </div>
 
-        <!-- Countdown Timer -->
         <div id="timer-container" class="bg-yellow-100 border-2 border-yellow-300 text-yellow-800 rounded-2xl p-4 max-w-md mx-auto mb-8 text-center shadow-lg">
             <div class="flex items-center justify-center">
                 <div class="text-4xl mr-4">🚌</div>
@@ -45,20 +43,15 @@
             </div>
         </div>
 
-        <!-- Caja de Útiles (Object Bank) -->
         <div class="bg-white p-6 rounded-2xl shadow-lg mb-10 sticky top-4 z-10">
             <h2 class="text-2xl font-bold text-gray-700 text-center mb-4">Caja de Útiles / School Supplies</h2>
             <div id="objectBank" class="grid grid-cols-5 md:grid-cols-8 lg:grid-cols-10 gap-4 justify-items-center">
-                <!-- Los objetos se generarán aquí con JavaScript -->
-            </div>
+                </div>
         </div>
 
-        <!-- Zona de las Mochilas -->
         <div id="childrenContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Las tarjetas de los hijos se generarán aquí -->
-        </div>
+            </div>
 
-        <!-- Botones de Acción y Feedback -->
         <div class="text-center mt-12">
             <button id="checkBtn" onclick="checkAnswers()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl text-lg transition-transform transform hover:scale-105">
                 Revisar Mochilas / Check Backpacks
@@ -68,7 +61,6 @@
             </button>
             <div id="feedback" class="mt-6 text-2xl font-bold opacity-0 feedback"></div>
 
-            <!-- Formulario para enviar puntaje a Google Sheets -->
             <div id="send-score-form" class="max-w-lg mx-auto mt-8 p-6 bg-white rounded-2xl shadow-lg text-left">
                 <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Guardar Resultado / Save Result</h3>
                 <div class="mb-4">
@@ -127,7 +119,8 @@
                 div.title = item.name;
                 div.className = 'item-utiles w-16 h-16 p-1 bg-gray-100 rounded-lg flex items-center justify-center cursor-grab';
                 div.draggable = true;
-                div.innerHTML = `<div class="text-4xl select-none flex items-center justify-center">${item.emoji}</div>`;
+                // --- ESTA ES LA LÍNEA CORREGIDA ---
+                div.innerHTML = `<img src="${item.emoji}" alt="${item.name}" class="w-full h-full object-contain">`;
                 div.addEventListener('dragstart', onDragStart);
                 div.addEventListener('dragend', onDragEnd);
                 objectBank.appendChild(div);
@@ -292,11 +285,6 @@
             formData.append('score', finalScore);
             formData.append('percentage', percentageScore);
             
-            // We use 'no-cors' mode as a simple way to submit data to a Google Script
-            // from a static HTML file without a complex server setup. The browser
-            // sends the data but can't read the response, preventing a CORS error.
-            // The .catch block often triggers even on success due to an opaque redirect,
-            // so we can treat it as a confirmation that the data was sent.
             fetch(scriptURL, { method: 'POST', body: formData, mode: 'no-cors'})
             .then(() => {
                 sendStatus.textContent = "¡Resultado guardado con éxito! / Result saved successfully!";
@@ -304,8 +292,6 @@
                 sendBtn.style.backgroundColor = '#4a5568';
             })
             .catch(error => {
-                // This is expected behavior with 'no-cors' mode and Google Scripts.
-                // We show a success message as the data has been sent.
                 sendStatus.textContent = "¡Resultado enviado con éxito! / Result sent successfully!";
                 sendStatus.style.color = 'green';
                 sendBtn.style.backgroundColor = '#4a5568';
@@ -317,4 +303,3 @@
     </script>
 </body>
 </html>
-
