@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objetos de Clase - Enfoque Comunicativo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
+        .slide { display: none; }
+        .slide.active { display: block; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .bounce { animation: bounce 0.6s ease-in-out; }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        .shake { animation: shake 0.5s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .pulse { animation: pulse 1s infinite; }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .drilling-item { transition: all 0.3s ease; }
+        .drilling-item:hover { transform: scale(1.1); }
+        .correct { background-color: #10b981 !important; color: white; }
+        .incorrect { background-color: #ef4444 !important; color: white; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/"
+  }
+}
+</script>
+</head>
+<body class="bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">📚 Objetos de Clase</h1>
+            <p class="text-xl text-white opacity-90">Enfoque Comunicativo y Accional</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-white rounded-full px-6 py-3 shadow-lg">
+                <span class="text-gray-600 font-medium">Diapositiva <span id="currentSlide">1</span> de <span id="totalSlides">15</span></span>
+            </div>
+        </div>
+
+        <!-- Slide 1: Introducción -->
+        <div class="slide active fade-in" id="slide1">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <div class="text-center">
+                    <div class="text-6xl mb-6">🎯</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">¡Bienvenidos a nuestra clase!</h2>
+                    <p class="text-xl text-gray-600 mb-8">Hoy vamos a aprender y practicar vocabulario esencial del aula</p>
+                    <div class="bg-blue-100 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4">Objetivos de la clase:</h3>
+                        <ul class="text-left text-lg text-blue-700 space-y-2">
+                            <li>✓ Identificar 15 objetos de clase</li>
+                            <li>✓ Usar artículos correctos (el/la/los/las)</li>
+                            <li>✓ Practicar pronunciación</li>
+                            <li>✓ Crear oraciones simples</li>
+                            <li>✓ Comunicarse sobre objetos del aula</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Presentación Visual -->
+        <div class="slide" id="slide2">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">👀 Observa y Escucha</h2>
+                <div class="grid grid-cols-3 md:grid-cols-5 gap-4">
+                    <div class="text-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors cursor-pointer" onclick="presentItem('lápiz')">
+                        <img src="/png/lapiz.png" alt="lápiz" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">el lápiz</p>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors cursor-pointer" onclick="presentItem('regla')">
+                        <img src="/png/regla.png" alt="regla" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">la regla</p>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-xl hover:bg-yellow-100 transition-colors cursor-pointer" onclick="presentItem('mochila')">
+                        <img src="/png/mochila.png" alt="mochila" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">la mochila</p>
+                    </div>
+                    <div class="text-center p-4 bg-pink-50 rounded-xl hover:bg-pink-100 transition-colors cursor-pointer" onclick="presentItem('borrador')">
+                        <img src="/png/borrador.png" alt="borrador" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">el borrador</p>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors cursor-pointer" onclick="presentItem('mesa')">
+                        <img src="/png/mesa.png" alt="mesa" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">la mesa</p>
+                    </div>
+                    <div class="text-center p-4 bg-indigo-50 rounded-xl hover:bg-indigo-100 transition-colors cursor-pointer" onclick="presentItem('libro')">
+                        <img src="/png/libro.png" alt="libro" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">el libro</p>
+                    </div>
+                    <div class="text-center p-4 bg-red-50 rounded-xl hover:bg-red-100 transition-colors cursor-pointer" onclick="presentItem('silla')">
+                        <img src="/png/silla.png" alt="silla" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">la silla</p>
+                    </div>
+                    <div class="text-center p-4 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors cursor-pointer" onclick="presentItem('diccionarios')">
+                        <img src="/png/diccionarios.png" alt="diccionarios" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">los diccionarios</p>
+                    </div>
+                    <div class="text-center p-4 bg-teal-50 rounded-xl hover:bg-teal-100 transition-colors cursor-pointer" onclick="presentItem('bolígrafo')">
+                        <img src="/png/boligrafo.png" alt="bolígrafo" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">el bolígrafo</p>
+                    </div>
+                    <div class="text-center p-4 bg-cyan-50 rounded-xl hover:bg-cyan-100 transition-colors cursor-pointer" onclick="presentItem('pizarra')">
+                        <img src="/png/pizarra.png" alt="pizarra" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">la pizarra</p>
+                    </div>
+                    <div class="text-center p-4 bg-lime-50 rounded-xl hover:bg-lime-100 transition-colors cursor-pointer" onclick="presentItem('ordenador')">
+                        <img src="/png/ordenador.png" alt="ordenador" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">el ordenador</p>
+                    </div>
+                    <div class="text-center p-4 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors cursor-pointer" onclick="presentItem('cuaderno')">
+                        <img src="/png/cuaderno.png" alt="cuaderno" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">el cuaderno</p>
+                    </div>
+                    <div class="text-center p-4 bg-violet-50 rounded-xl hover:bg-violet-100 transition-colors cursor-pointer" onclick="presentItem('sacapuntas')">
+                        <img src="/png/sacapuntas.png" alt="sacapuntas" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">el sacapuntas</p>
+                    </div>
+                    <div class="text-center p-4 bg-rose-50 rounded-xl hover:bg-rose-100 transition-colors cursor-pointer" onclick="presentItem('tijeras')">
+                        <img src="/png/tijeras.png" alt="tijeras" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">las tijeras</p>
+                    </div>
+                    <div class="text-center p-4 bg-amber-50 rounded-xl hover:bg-amber-100 transition-colors cursor-pointer" onclick="presentItem('goma de borrar')">
+                        <img src="/png/goma-de-borrar.png" alt="goma de borrar" class="h-12 w-12 mx-auto mb-2">
+                        <p class="font-bold text-sm">la goma de borrar</p>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <div id="presentationArea" class="bg-gray-100 p-6 rounded-2xl">
+                        <p class="text-lg text-gray-600">Haz clic en cualquier objeto para escuchar y practicar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Drilling - Repetición -->
+        <div class="slide" id="slide3">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">🔄 Drilling - Repetición</h2>
+                <p class="text-center text-gray-600 mb-6">Repite después de mí. Haz clic para escuchar y practicar</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="drillingArea">
+                    <!-- Drilling items will be populated by JavaScript -->
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="startDrilling()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors">
+                        🎯 Comenzar Drilling
+                    </button>
+                    <div class="mt-4">
+                        <span class="text-lg font-bold text-blue-800">Progreso: <span id="drillingProgress">0</span>/15</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Artículos Definidos -->
+        <div class="slide" id="slide4">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">📝 Los Artículos Definidos</h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-2">EL</h3>
+                        <p class="text-blue-600">masculino singular</p>
+                    </div>
+                    <div class="bg-pink-100 p-6 rounded-2xl text-center">
+                        <h3 class="text-2xl font-bold text-pink-800 mb-2">LA</h3>
+                        <p class="text-pink-600">femenino singular</p>
+                    </div>
+                    <div class="bg-green-100 p-6 rounded-2xl text-center">
+                        <h3 class="text-2xl font-bold text-green-800 mb-2">LOS</h3>
+                        <p class="text-green-600">masculino plural</p>
+                    </div>
+                    <div class="bg-purple-100 p-6 rounded-2xl text-center">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-2">LAS</h3>
+                        <p class="text-purple-600">femenino plural</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-8">
+                    <div class="bg-blue-50 p-6 rounded-2xl">
+                        <h4 class="text-xl font-bold text-blue-800 mb-4">Masculino (EL/LOS)</h4>
+                        <ul class="space-y-2 text-blue-700">
+                            <li>• <strong>el</strong> lápiz</li>
+                            <li>• <strong>el</strong> borrador</li>
+                            <li>• <strong>el</strong> libro</li>
+                            <li>• <strong>los</strong> diccionarios</li>
+                            <li>• <strong>el</strong> bolígrafo</li>
+                            <li>• <strong>el</strong> ordenador</li>
+                            <li>• <strong>el</strong> cuaderno</li>
+                            <li>• <strong>el</strong> sacapuntas</li>
+                        </ul>
+                    </div>
+                    <div class="bg-pink-50 p-6 rounded-2xl">
+                        <h4 class="text-xl font-bold text-pink-800 mb-4">Femenino (LA/LAS)</h4>
+                        <ul class="space-y-2 text-pink-700">
+                            <li>• <strong>la</strong> regla</li>
+                            <li>• <strong>la</strong> mochila</li>
+                            <li>• <strong>la</strong> mesa</li>
+                            <li>• <strong>la</strong> silla</li>
+                            <li>• <strong>la</strong> pizarra</li>
+                            <li>• <strong>las</strong> tijeras</li>
+                            <li>• <strong>la</strong> goma de borrar</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Práctica de Artículos -->
+        <div class="slide" id="slide5">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">🎯 Práctica de Artículos</h2>
+                <p class="text-center text-gray-600 mb-6">Selecciona el artículo correcto para cada objeto</p>
+                
+                <div id="articlePractice" class="space-y-6">
+                    <!-- Article practice will be populated by JavaScript -->
+                </div>
+                
+                <div class="text-center mt-8">
+                    <div class="bg-green-100 inline-block px-6 py-3 rounded-xl">
+                        <span class="text-lg font-bold text-green-800">Correctas: <span id="articleScore">0</span>/15</span>
+                    </div>
+                    <button onclick="resetArticlePractice()" class="ml-4 bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+                        🔄 Reiniciar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Funciones Comunicativas -->
+        <div class="slide" id="slide6">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">💬 Funciones Comunicativas</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-blue-50 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4">Para Pedir</h3>
+                        <div class="space-y-3 text-blue-700">
+                            <p class="bg-white p-3 rounded-lg">• "¿Me prestas <strong>el lápiz</strong>?"</p>
+                            <p class="bg-white p-3 rounded-lg">• "¿Tienes <strong>una regla</strong>?"</p>
+                            <p class="bg-white p-3 rounded-lg">• "Necesito <strong>las tijeras</strong>"</p>
+                            <p class="bg-white p-3 rounded-lg">• "¿Dónde está <strong>mi mochila</strong>?"</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">Para Ofrecer</h3>
+                        <div class="space-y-3 text-green-700">
+                            <p class="bg-white p-3 rounded-lg">• "Aquí tienes <strong>el bolígrafo</strong>"</p>
+                            <p class="bg-white p-3 rounded-lg">• "Toma <strong>mi cuaderno</strong>"</p>
+                            <p class="bg-white p-3 rounded-lg">• "Usa <strong>mi ordenador</strong>"</p>
+                            <p class="bg-white p-3 rounded-lg">• "Puedes usar <strong>la goma</strong>"</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 bg-yellow-50 p-6 rounded-2xl">
+                    <h3 class="text-2xl font-bold text-yellow-800 mb-4 text-center">Para Describir</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-yellow-700">
+                        <p class="bg-white p-3 rounded-lg text-center">• "<strong>El libro</strong> es grande"</p>
+                        <p class="bg-white p-3 rounded-lg text-center">• "<strong>La mesa</strong> es nueva"</p>
+                        <p class="bg-white p-3 rounded-lg text-center">• "<strong>Las tijeras</strong> están rotas"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Diálogos Modelo -->
+        <div class="slide" id="slide7">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">🗣️ Diálogos Modelo</h2>
+                
+                <div class="space-y-8">
+                    <div class="bg-blue-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4">Diálogo 1: En clase</h3>
+                        <div class="space-y-3">
+                            <div class="bg-white p-4 rounded-lg">
+                                <p><strong>Ana:</strong> "¿Me prestas el lápiz, por favor?"</p>
+                            </div>
+                            <div class="bg-blue-100 p-4 rounded-lg">
+                                <p><strong>Luis:</strong> "Claro, aquí tienes. ¿Necesitas también la goma?"</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p><strong>Ana:</strong> "Sí, gracias. ¿Dónde están las tijeras?"</p>
+                            </div>
+                            <div class="bg-blue-100 p-4 rounded-lg">
+                                <p><strong>Luis:</strong> "Las tijeras están en la mesa del profesor."</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-green-800 mb-4">Diálogo 2: Preparando la clase</h3>
+                        <div class="space-y-3">
+                            <div class="bg-white p-4 rounded-lg">
+                                <p><strong>Profesor:</strong> "¿Tienen todos el cuaderno y el bolígrafo?"</p>
+                            </div>
+                            <div class="bg-green-100 p-4 rounded-lg">
+                                <p><strong>María:</strong> "Sí, pero no tengo regla."</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p><strong>Profesor:</strong> "Aquí hay una regla. ¿Alguien necesita los diccionarios?"</p>
+                            </div>
+                            <div class="bg-green-100 p-4 rounded-lg">
+                                <p><strong>Pedro:</strong> "Yo necesito un diccionario, por favor."</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="practiceDialogue()" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors">
+                        🎭 Practicar Diálogos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Actividad Comunicativa - Role Play -->
+        <div class="slide" id="slide8">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">🎭 Role Play</h2>
+                <p class="text-center text-gray-600 mb-6">Practica situaciones reales del aula</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-blue-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4">Situación 1</h3>
+                        <div class="bg-white p-4 rounded-lg mb-4">
+                            <p class="font-bold text-blue-700">Eres un estudiante nuevo</p>
+                            <p class="text-gray-600">No tienes materiales para la clase. Pide ayuda a tus compañeros.</p>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <p><strong>Usa:</strong> ¿Me prestas...? / ¿Tienes...? / Necesito...</p>
+                            <p><strong>Objetos:</strong> lápiz, cuaderno, goma, regla</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-green-800 mb-4">Situación 2</h3>
+                        <div class="bg-white p-4 rounded-lg mb-4">
+                            <p class="font-bold text-green-700">Eres muy organizado</p>
+                            <p class="text-gray-600">Tienes todos los materiales y ayudas a tus compañeros.</p>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <p><strong>Usa:</strong> Aquí tienes... / Toma... / Puedes usar...</p>
+                            <p><strong>Objetos:</strong> bolígrafo, tijeras, diccionario, sacapuntas</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 bg-yellow-50 p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold text-yellow-800 mb-4 text-center">Situación 3: El Profesor Distraído</h3>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="text-gray-700 text-center">El profesor no encuentra sus cosas. Los estudiantes le ayudan a buscar y encontrar los objetos de clase.</p>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-sm"><strong>Usa:</strong> ¿Dónde está...? / Aquí está... / Lo encontré...</p>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="startRolePlay()" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors">
+                        🎬 Comenzar Role Play
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Juego de Memoria Avanzado -->
+        <div class="slide" id="slide9">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">🧠 Memoria Avanzada</h2>
+                <p class="text-center text-gray-600 mb-6">Encuentra las parejas: objeto + artículo correcto</p>
+                
+                <div class="grid grid-cols-5 md:grid-cols-6 gap-3 max-w-4xl mx-auto mb-6" id="advancedMemoryGame">
+                    <!-- Advanced memory cards will be generated by JavaScript -->
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-blue-100 inline-block px-6 py-3 rounded-xl">
+                        <span class="text-lg font-bold text-blue-800">Parejas: <span id="advancedPairsFound">0</span>/15</span>
+                    </div>
+                    <div class="bg-green-100 inline-block px-6 py-3 rounded-xl ml-4">
+                        <span class="text-lg font-bold text-green-800">Tiempo: <span id="memoryTimer">0</span>s</span>
+                    </div>
+                    <button onclick="resetAdvancedMemory()" class="ml-4 bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+                        🔄 Reiniciar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Construcción de Oraciones -->
+        <div class="slide" id="slide10">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">🔨 Construcción de Oraciones</h2>
+                <p class="text-center text-gray-600 mb-6">Arrastra las palabras para formar oraciones correctas</p>
+                
+                <div class="bg-blue-50 p-6 rounded-2xl mb-8">
+                    <h3 class="text-xl font-bold text-blue-800 mb-4 text-center">Oración a formar:</h3>
+                    <div id="targetSentence" class="text-2xl font-bold text-center text-blue-700 mb-4">
+                        "El estudiante necesita un lápiz"
+                    </div>
+                    <div id="sentenceBuilder" class="min-h-16 border-2 border-dashed border-blue-300 rounded-xl p-4 flex flex-wrap gap-2 justify-center items-center">
+                        <span class="text-gray-400">Arrastra las palabras aquí</span>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-6 rounded-2xl">
+                    <h3 class="text-lg font-bold text-gray-700 mb-4 text-center">Palabras disponibles:</h3>
+                    <div id="wordBank" class="flex flex-wrap gap-3 justify-center">
+                        <!-- Words will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <div class="bg-green-100 inline-block px-6 py-3 rounded-xl">
+                        <span class="text-lg font-bold text-green-800">Oraciones completadas: <span id="sentenceScore">0</span>/5</span>
+                    </div>
+                    <button onclick="nextSentence()" class="ml-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+                        ➡️ Siguiente Oración
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Descripción de Objetos -->
+        <div class="slide" id="slide11">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">🔍 Describe el Objeto</h2>
+                <p class="text-center text-gray-600 mb-6">Mira el objeto y completa la descripción</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="text-center">
+                        <div id="objectToDescribe" class="bg-blue-50 p-8 rounded-2xl mb-6">
+                            <img src="/png/lapiz.png" alt="lápiz" class="h-24 w-24 mx-auto mb-4">
+                            <h3 class="text-2xl font-bold text-blue-800 text-center">el lápiz</h3>
+                        </div>
+                        <button onclick="nextObjectToDescribe()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+                            🔄 Siguiente Objeto
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-yellow-50 p-6 rounded-2xl">
+                            <h4 class="text-lg font-bold text-yellow-800 mb-4">Completa las frases:</h4>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <p class="text-gray-700">Este objeto es <select id="color" class="border rounded px-2 py-1 ml-2">
+                                        <option value="">selecciona</option>
+                                        <option value="amarillo">amarillo</option>
+                                        <option value="azul">azul</option>
+                                        <option value="rojo">rojo</option>
+                                        <option value="verde">verde</option>
+                                        <option value="negro">negro</option>
+                                    </select></p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <p class="text-gray-700">Lo uso para <select id="function" class="border rounded px-2 py-1 ml-2">
+                                        <option value="">selecciona</option>
+                                        <option value="escribir">escribir</option>
+                                        <option value="borrar">borrar</option>
+                                        <option value="cortar">cortar</option>
+                                        <option value="medir">medir</option>
+                                        <option value="guardar">guardar</option>
+                                    </select></p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <p class="text-gray-700">Está <select id="location" class="border rounded px-2 py-1 ml-2">
+                                        <option value="">selecciona</option>
+                                        <option value="en la mesa">en la mesa</option>
+                                        <option value="en la mochila">en la mochila</option>
+                                        <option value="en el suelo">en el suelo</option>
+                                        <option value="en la silla">en la silla</option>
+                                    </select></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="checkDescription()" class="w-full bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+                            ✓ Verificar Descripción
+                        </button>
+                        
+                        <div id="descriptionFeedback" class="hidden bg-green-100 p-4 rounded-xl">
+                            <p class="text-green-800 font-bold text-center">¡Muy bien! Descripción completa.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Actividad de Escucha -->
+        <div class="slide" id="slide12">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">👂 Actividad de Escucha</h2>
+                <p class="text-center text-gray-600 mb-6">Escucha las instrucciones y selecciona los objetos correctos</p>
+                
+                <div class="bg-blue-50 p-6 rounded-2xl mb-8">
+                    <div class="text-center mb-6">
+                        <div class="text-4xl mb-4">🔊</div>
+                        <button id="playInstructionBtn" onclick="playInstruction()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors">
+                            ▶️ Escuchar Instrucción
+                        </button>
+                    </div>
+                    <div id="currentInstruction" class="text-center text-lg font-bold text-blue-800 hidden">
+                        "Selecciona el lápiz y la regla"
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-3 md:grid-cols-5 gap-4 mb-8" id="listeningObjects">
+                    <!-- Listening objects will be populated by JavaScript -->
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-green-100 inline-block px-6 py-3 rounded-xl">
+                        <span class="text-lg font-bold text-green-800">Correctas: <span id="listeningScore">0</span>/5</span>
+                    </div>
+                    <button onclick="nextListeningTask()" class="ml-4 bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+                        ➡️ Siguiente
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Juego de Adivinanzas -->
+        <div class="slide" id="slide13">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">🤔 ¿Qué objeto es?</h2>
+                <p class="text-center text-gray-600 mb-6">Lee las pistas y adivina el objeto</p>
+                
+                <div class="bg-purple-50 p-8 rounded-2xl mb-8">
+                    <div class="text-center mb-6">
+                        <div class="text-6xl mb-4">❓</div>
+                        <div id="riddleClues" class="space-y-4">
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-lg text-purple-700">🔍 <strong>Pista 1:</strong> Soy de madera y grafito</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg hidden" id="clue2">
+                                <p class="text-lg text-purple-700">🔍 <strong>Pista 2:</strong> Me usas para escribir</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg hidden" id="clue3">
+                                <p class="text-lg text-purple-700">🔍 <strong>Pista 3:</strong> Necesito un sacapuntas</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button onclick="showNextClue()" id="nextClueBtn" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-bold transition-colors mr-4">
+                            💡 Siguiente Pista
+                        </button>
+                        <button onclick="showRiddleAnswer()" id="showAnswerBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-bold transition-colors hidden">
+                            🎯 Ver Respuesta
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-3 md:grid-cols-5 gap-4 mb-8" id="riddleOptions">
+                    <!-- Riddle options will be populated by JavaScript -->
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-green-100 inline-block px-6 py-3 rounded-xl">
+                        <span class="text-lg font-bold text-green-800">Adivinanzas: <span id="riddleScore">0</span>/8</span>
+                    </div>
+                    <button onclick="nextRiddle()" class="ml-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold transition-colors">
+                        ➡️ Siguiente Adivinanza
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 14: Evaluación Final -->
+        <div class="slide" id="slide14">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">📊 Evaluación Final</h2>
+                <p class="text-center text-gray-600 mb-6">Demuestra todo lo que has aprendido</p>
+                
+                <div id="finalEvaluation" class="space-y-8">
+                    <div class="bg-blue-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4">Parte 1: Identificación (5 puntos)</h3>
+                        <div id="identificationTest" class="grid grid-cols-5 gap-4">
+                            <!-- Identification test will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-green-800 mb-4">Parte 2: Artículos (5 puntos)</h3>
+                        <div id="articleTest" class="space-y-3">
+                            <!-- Article test will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-yellow-800 mb-4">Parte 3: Uso Comunicativo (5 puntos)</h3>
+                        <div id="communicativeTest" class="space-y-4">
+                            <!-- Communicative test will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="submitFinalEvaluation()" class="bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors">
+                        📝 Enviar Evaluación
+                    </button>
+                    <div class="mt-4">
+                        <div class="bg-purple-100 inline-block px-6 py-3 rounded-xl">
+                            <span class="text-lg font-bold text-purple-800">Puntuación: <span id="finalScore">0</span>/15</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Resumen y Despedida -->
+        <div class="slide" id="slide15">
+            <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-4xl mx-auto">
+                <div class="text-center">
+                    <div class="text-6xl mb-6">🎉</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">¡Felicidades!</h2>
+                    <p class="text-xl text-gray-600 mb-8">Has completado exitosamente la lección sobre objetos de clase</p>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-8 rounded-2xl mb-8">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-6">Lo que has aprendido hoy:</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="text-lg font-bold text-blue-800 mb-3">📚 Vocabulario</h4>
+                                <p class="text-gray-600">15 objetos esenciales del aula con sus artículos correctos</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="text-lg font-bold text-green-800 mb-3">💬 Comunicación</h4>
+                                <p class="text-gray-600">Frases útiles para pedir, ofrecer y describir objetos</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="text-lg font-bold text-purple-800 mb-3">🎯 Práctica</h4>
+                                <p class="text-gray-600">Actividades interactivas y drilling para fijar el aprendizaje</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="text-lg font-bold text-yellow-800 mb-3">🗣️ Uso Real</h4>
+                                <p class="text-gray-600">Situaciones comunicativas auténticas del aula</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-xl font-bold text-green-800 mb-4">Para seguir practicando:</h3>
+                        <ul class="text-left text-green-700 space-y-2 max-w-md mx-auto">
+                            <li>✓ Usa estos objetos en conversaciones diarias</li>
+                            <li>✓ Practica los diálogos con compañeros</li>
+                            <li>✓ Describe tu aula usando este vocabulario</li>
+                            <li>✓ Crea tus propias situaciones comunicativas</li>
+                        </ul>
+                    </div>
+                    
+                    <p class="text-lg text-gray-600 mb-6">¡Sigue practicando y pronto dominarás el español! 🚀</p>
+                    
+                    <button onclick="restartPresentation()" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-colors">
+                        🔄 Repetir Lección
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-between items-center mt-8 max-w-4xl mx-auto">
+            <button id="prevBtn" onclick="changeSlide(-1)" class="bg-white hover:bg-gray-100 text-gray-800 px-6 py-3 rounded-xl font-bold shadow-lg transition-colors flex items-center">
+                ← Anterior
+            </button>
+            <button id="nextBtn" onclick="changeSlide(1)" class="bg-white hover:bg-gray-100 text-gray-800 px-6 py-3 rounded-xl font-bold shadow-lg transition-colors flex items-center">
+                Siguiente →
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSlideIndex = 1;
+        const totalSlides = 15;
+        
+        // Vocabulary data
+        const vocabulary = [
+            { word: 'lápiz', article: 'el', emoji: '✏️', gender: 'masculine', imageFile: 'lapiz.png' },
+            { word: 'regla', article: 'la', emoji: '📏', gender: 'feminine', imageFile: 'regla.png' },
+            { word: 'mochila', article: 'la', emoji: '🎒', gender: 'feminine', imageFile: 'mochila.png' },
+            { word: 'borrador', article: 'el', emoji: '🧽', gender: 'masculine', imageFile: 'borrador.png' },
+            { word: 'mesa', article: 'la', emoji: '🪑', gender: 'feminine', imageFile: 'mesa.png' },
+            { word: 'libro', article: 'el', emoji: '📚', gender: 'masculine', imageFile: 'libro.png' },
+            { word: 'silla', article: 'la', emoji: '💺', gender: 'feminine', imageFile: 'silla.png' },
+            { word: 'diccionarios', article: 'los', emoji: '📖', gender: 'masculine', imageFile: 'diccionarios.png' },
+            { word: 'bolígrafo', article: 'el', emoji: '🖊️', gender: 'masculine', imageFile: 'boligrafo.png' },
+            { word: 'pizarra', article: 'la', emoji: '⬛', gender: 'feminine', imageFile: 'pizarra.png' },
+            { word: 'ordenador', article: 'el', emoji: '💻', gender: 'masculine', imageFile: 'ordenador.png' },
+            { word: 'cuaderno', article: 'el', emoji: '📓', gender: 'masculine', imageFile: 'cuaderno.png' },
+            { word: 'sacapuntas', article: 'el', emoji: '🔪', gender: 'masculine', imageFile: 'sacapuntas.png' },
+            { word: 'tijeras', article: 'las', emoji: '✂️', gender: 'feminine', imageFile: 'tijeras.png' },
+            { word: 'goma de borrar', article: 'la', emoji: '🧹', gender: 'feminine', imageFile: 'goma-de-borrar.png' }
+        ];
+
+        // Game variables
+        let drillingProgress = 0;
+        let articleScore = 0;
+        let currentDrillingIndex = 0;
+        let memoryTimer = 0;
+        let memoryInterval;
+        let advancedMemoryCards = [];
+        let advancedFlippedCards = [];
+        let advancedPairsFound = 0;
+        let sentenceScore = 0;
+        let currentSentenceIndex = 0;
+        let listeningScore = 0;
+        let currentListeningTask = 0;
+        let riddleScore = 0;
+        let currentRiddleIndex = 0;
+        let currentClueIndex = 0;
+        let finalScore = 0;
+
+        // Sentences for construction activity
+        const sentences = [
+            { target: "El estudiante necesita un lápiz", words: ["El", "estudiante", "necesita", "un", "lápiz"] },
+            { target: "La profesora usa la pizarra", words: ["La", "profesora", "usa", "la", "pizarra"] },
+            { target: "Los libros están en la mesa", words: ["Los", "libros", "están", "en", "la", "mesa"] },
+            { target: "María tiene una regla nueva", words: ["María", "tiene", "una", "regla", "nueva"] },
+            { target: "Las tijeras cortan el papel", words: ["Las", "tijeras", "cortan", "el", "papel"] }
+        ];
+
+        // Listening tasks
+        const listeningTasks = [
+            { instruction: "Selecciona el lápiz y la regla", objects: ['lápiz', 'regla'] },
+            { instruction: "Toca la mochila y el cuaderno", objects: ['mochila', 'cuaderno'] },
+            { instruction: "Encuentra las tijeras y la goma", objects: ['tijeras', 'goma de borrar'] },
+            { instruction: "Señala el ordenador y los diccionarios", objects: ['ordenador', 'diccionarios'] },
+            { instruction: "Busca la silla y la pizarra", objects: ['silla', 'pizarra'] }
+        ];
+
+        // Riddles
+        const riddles = [
+            {
+                clues: [
+                    "Soy de madera y grafito",
+                    "Me usas para escribir",
+                    "Necesito un sacapuntas"
+                ],
+                answer: "lápiz"
+            },
+            {
+                clues: [
+                    "Soy rectangular y plana",
+                    "Te ayudo a medir",
+                    "Tengo números marcados"
+                ],
+                answer: "regla"
+            },
+            {
+                clues: [
+                    "Llevo tus libros y cuadernos",
+                    "Me pones en la espalda",
+                    "Tengo cremalleras y bolsillos"
+                ],
+                answer: "mochila"
+            },
+            {
+                clues: [
+                    "Corrijo tus errores",
+                    "Soy suave y flexible",
+                    "Hago desaparecer el lápiz"
+                ],
+                answer: "borrador"
+            },
+            {
+                clues: [
+                    "Tengo cuatro patas",
+                    "Sobre mí pones tus cosas",
+                    "Soy plana en la parte superior"
+                ],
+                answer: "mesa"
+            },
+            {
+                clues: [
+                    "Tengo muchas páginas",
+                    "Me lees para aprender",
+                    "Puedo ser de matemáticas o historia"
+                ],
+                answer: "libro"
+            },
+            {
+                clues: [
+                    "Me siento en ti",
+                    "Tengo respaldo",
+                    "Estoy junto a la mesa"
+                ],
+                answer: "silla"
+            },
+            {
+                clues: [
+                    "Corto papel y cartón",
+                    "Tengo dos hojas afiladas",
+                    "Me abres y me cierras"
+                ],
+                answer: "tijeras"
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateSlideCounter();
+            initializeDrilling();
+            initializeArticlePractice();
+            initializeAdvancedMemory();
+            initializeSentenceBuilder();
+            initializeListening();
+            initializeRiddles();
+            initializeFinalEvaluation();
+            
+            // Load voices for speech synthesis
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+            loadVoices();
+        });
+
+        // Navigation functions
+        function changeSlide(direction) {
+            const currentSlide = document.getElementById(`slide${currentSlideIndex}`);
+            currentSlide.classList.remove('active');
+            
+            currentSlideIndex += direction;
+            
+            if (currentSlideIndex > totalSlides) currentSlideIndex = 1;
+            if (currentSlideIndex < 1) currentSlideIndex = totalSlides;
+            
+            const newSlide = document.getElementById(`slide${currentSlideIndex}`);
+            newSlide.classList.add('active', 'fade-in');
+            
+            updateSlideCounter();
+            updateNavigationButtons();
+        }
+
+        function updateSlideCounter() {
+            document.getElementById('currentSlide').textContent = currentSlideIndex;
+            document.getElementById('totalSlides').textContent = totalSlides;
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentSlideIndex === 1) {
+                prevBtn.style.opacity = '0.5';
+            } else {
+                prevBtn.style.opacity = '1';
+            }
+            
+            if (currentSlideIndex === totalSlides) {
+                nextBtn.textContent = 'Finalizar';
+            } else {
+                nextBtn.textContent = 'Siguiente →';
+            }
+        }
+
+        // Speech synthesis variables and functions
+        let spanishVoice = null;
+
+        function loadVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            spanishVoice = voices.find(voice => voice.name === 'Google español')
+                           || voices.find(voice => voice.name.includes('Google') && voice.lang.startsWith('es'))
+                           || voices.find(voice => voice.lang.startsWith('es-ES'))
+                           || voices.find(voice => voice.lang.startsWith('es'));
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                // Cancel any ongoing speech
+                speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-ES';
+                
+                if (spanishVoice) {
+                    utterance.voice = spanishVoice;
+                }
+                
+                utterance.rate = 0.8; // Slightly slower for learning
+                utterance.pitch = 1;
+                utterance.volume = 1;
+                
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Presentation functions
+        function presentItem(word) {
+            const area = document.getElementById('presentationArea');
+            const item = vocabulary.find(v => v.word === word);
+            const fullText = `${item.article} ${word}`;
+            
+            area.innerHTML = `
+                <div class="text-center">
+                    <img src="/png/${item.imageFile}" alt="${item.word}" class="h-24 w-24 mx-auto mb-4 bounce">
+                    <h3 class="text-3xl font-bold text-gray-800 mb-2">${fullText}</h3>
+                    <button onclick="speakText('${fullText}')" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-lg transition-colors mt-4">
+                        🔊 Escuchar Pronunciación
+                    </button>
+                    <p class="text-lg text-gray-600 mt-2">Haz clic en el botón para escuchar</p>
+                </div>
+            `;
+            
+            // Auto-play the pronunciation
+            setTimeout(() => speakText(fullText), 500);
+        }
+
+        // Drilling functions
+        function initializeDrilling() {
+            const area = document.getElementById('drillingArea');
+            area.innerHTML = '';
+            
+            vocabulary.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'drilling-item bg-blue-50 p-4 rounded-xl cursor-pointer hover:bg-blue-100 transition-colors';
+                div.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <img src="/png/${item.imageFile}" alt="${item.word}" class="h-10 w-10 mr-4">
+                            <div>
+                                <h4 class="text-lg font-bold text-gray-800">${item.article} ${item.word}</h4>
+                                <p class="text-sm text-gray-600">Haz clic para practicar</p>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); speakText('${item.article} ${item.word}')" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-bold transition-colors">
+                            🔊
+                        </button>
+                    </div>
+                `;
+                div.onclick = () => practiceWord(index);
+                area.appendChild(div);
+            });
+        }
+
+        function startDrilling() {
+            currentDrillingIndex = 0;
+            drillingProgress = 0;
+            document.getElementById('drillingProgress').textContent = '0';
+            practiceWord(0);
+        }
+
+        function practiceWord(index) {
+            const item = vocabulary[index];
+            const element = document.querySelectorAll('.drilling-item')[index];
+            const fullText = `${item.article} ${item.word}`;
+            
+            // Speak the word
+            speakText(fullText);
+            
+            element.classList.add('bounce');
+            element.style.backgroundColor = '#10b981';
+            element.style.color = 'white';
+            
+            setTimeout(() => {
+                element.classList.remove('bounce');
+                element.style.backgroundColor = '';
+                element.style.color = '';
+                drillingProgress++;
+                document.getElementById('drillingProgress').textContent = drillingProgress;
+            }, 1000);
+        }
+
+        // Article practice functions
+        function initializeArticlePractice() {
+            const area = document.getElementById('articlePractice');
+            area.innerHTML = '';
+            
+            vocabulary.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-gray-50 p-4 rounded-xl';
+                div.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <img src="/png/${item.imageFile}" alt="${item.word}" class="h-10 w-10 mr-4">
+                            <span class="text-lg font-bold text-gray-800">_____ ${item.word}</span>
+                        </div>
+                        <div class="space-x-2">
+                            <button onclick="selectArticle(${index}, 'el')" class="article-btn bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded font-bold">el</button>
+                            <button onclick="selectArticle(${index}, 'la')" class="article-btn bg-pink-100 hover:bg-pink-200 px-3 py-1 rounded font-bold">la</button>
+                            <button onclick="selectArticle(${index}, 'los')" class="article-btn bg-green-100 hover:bg-green-200 px-3 py-1 rounded font-bold">los</button>
+                            <button onclick="selectArticle(${index}, 'las')" class="article-btn bg-purple-100 hover:bg-purple-200 px-3 py-1 rounded font-bold">las</button>
+                        </div>
+                    </div>
+                `;
+                area.appendChild(div);
+            });
+        }
+
+        function selectArticle(index, selectedArticle) {
+            const item = vocabulary[index];
+            const container = document.getElementById('articlePractice').children[index];
+            const buttons = container.querySelectorAll('.article-btn');
+            
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === item.article) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selectedArticle && selectedArticle !== item.article) {
+                    btn.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedArticle === item.article) {
+                articleScore++;
+                document.getElementById('articleScore').textContent = articleScore;
+                container.classList.add('bounce');
+            } else {
+                container.classList.add('shake');
+            }
+            
+            setTimeout(() => {
+                container.classList.remove('bounce', 'shake');
+            }, 600);
+        }
+
+        function resetArticlePractice() {
+            articleScore = 0;
+            document.getElementById('articleScore').textContent = '0';
+            initializeArticlePractice();
+        }
+
+        // Advanced memory game functions
+        function initializeAdvancedMemory() {
+            advancedMemoryCards = [];
+            vocabulary.forEach(item => {
+                advancedMemoryCards.push({ type: 'image', content: `/png/${item.imageFile}`, match: item.word, alt: item.word });
+                advancedMemoryCards.push({ type: 'word', content: `${item.article} ${item.word}`, match: item.word });
+            });
+            
+            advancedMemoryCards = shuffleArray(advancedMemoryCards);
+            renderAdvancedMemory();
+            startMemoryTimer();
+        }
+
+        function renderAdvancedMemory() {
+            const gameContainer = document.getElementById('advancedMemoryGame');
+            gameContainer.innerHTML = '';
+            
+            advancedMemoryCards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'memory-card bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-xl cursor-pointer text-center font-bold transition-colors text-sm flex items-center justify-center h-16';
+                cardElement.innerHTML = '<div class="text-lg">?</div>';
+                cardElement.dataset.index = index;
+                cardElement.onclick = () => flipAdvancedCard(index);
+                gameContainer.appendChild(cardElement);
+            });
+        }
+
+        function flipAdvancedCard(index) {
+            if (advancedFlippedCards.length >= 2 || advancedFlippedCards.includes(index)) return;
+            
+            const cardElement = document.querySelector(`#advancedMemoryGame [data-index="${index}"]`);
+            const card = advancedMemoryCards[index];
+            
+            if (card.type === 'image') {
+                cardElement.innerHTML = `<img src="${card.content}" alt="${card.alt}" class="h-10 w-10 mx-auto">`;
+            } else {
+                cardElement.innerHTML = `<div class="text-xs font-bold">${card.content}</div>`;
+            }
+            
+            cardElement.classList.add('bg-green-500');
+            advancedFlippedCards.push(index);
+            
+            if (advancedFlippedCards.length === 2) {
+                setTimeout(checkAdvancedMatch, 1000);
+            }
+        }
+
+        function checkAdvancedMatch() {
+            const [first, second] = advancedFlippedCards;
+            const firstCard = advancedMemoryCards[first];
+            const secondCard = advancedMemoryCards[second];
+            
+            if (firstCard.match === secondCard.match) {
+                advancedPairsFound++;
+                document.getElementById('advancedPairsFound').textContent = advancedPairsFound;
+                
+                if (advancedPairsFound === 15) {
+                    clearInterval(memoryInterval);
+                    setTimeout(() => alert('¡Increíble! Has completado el juego de memoria avanzado 🎉'), 500);
+                }
+            } else {
+                const firstElement = document.querySelector(`#advancedMemoryGame [data-index="${first}"]`);
+                const secondElement = document.querySelector(`#advancedMemoryGame [data-index="${second}"]`);
+                
+                firstElement.innerHTML = '<div class="text-lg">?</div>';
+                secondElement.innerHTML = '<div class="text-lg">?</div>';
+                firstElement.classList.remove('bg-green-500');
+                secondElement.classList.remove('bg-green-500');
+            }
+            
+            advancedFlippedCards = [];
+        }
+
+        function startMemoryTimer() {
+            memoryTimer = 0;
+            memoryInterval = setInterval(() => {
+                memoryTimer++;
+                document.getElementById('memoryTimer').textContent = memoryTimer;
+            }, 1000);
+        }
+
+        function resetAdvancedMemory() {
+            clearInterval(memoryInterval);
+            advancedPairsFound = 0;
+            advancedFlippedCards = [];
+            document.getElementById('advancedPairsFound').textContent = '0';
+            initializeAdvancedMemory();
+        }
+
+        // Sentence builder functions
+        function initializeSentenceBuilder() {
+            currentSentenceIndex = 0;
+            loadSentence();
+        }
+
+        function loadSentence() {
+            if (currentSentenceIndex >= sentences.length) {
+                alert('¡Has completado todas las oraciones! 🎉');
+                return;
+            }
+            
+            const sentence = sentences[currentSentenceIndex];
+            document.getElementById('targetSentence').textContent = `"${sentence.target}"`;
+            document.getElementById('sentenceBuilder').innerHTML = '<span class="text-gray-400">Arrastra las palabras aquí</span>';
+            
+            const wordBank = document.getElementById('wordBank');
+            wordBank.innerHTML = '';
+            
+            const shuffledWords = shuffleArray([...sentence.words]);
+            shuffledWords.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'bg-blue-100 hover:bg-blue-200 px-4 py-2 rounded-lg cursor-move font-bold transition-colors';
+                wordElement.textContent = word;
+                wordElement.draggable = true;
+                wordElement.addEventListener('dragstart', handleWordDragStart);
+                wordBank.appendChild(wordElement);
+            });
+            
+            const sentenceBuilder = document.getElementById('sentenceBuilder');
+            sentenceBuilder.addEventListener('dragover', handleSentenceDragOver);
+            sentenceBuilder.addEventListener('drop', handleSentenceDrop);
+        }
+
+        function handleWordDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.textContent);
+        }
+
+        function handleSentenceDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleSentenceDrop(e) {
+            e.preventDefault();
+            const word = e.dataTransfer.getData('text/plain');
+            const builder = document.getElementById('sentenceBuilder');
+            
+            if (builder.children.length === 0 || builder.textContent.includes('Arrastra')) {
+                builder.innerHTML = '';
+            }
+            
+            const wordElement = document.createElement('span');
+            wordElement.className = 'bg-green-100 px-3 py-1 rounded-lg font-bold mr-2';
+            wordElement.textContent = word;
+            builder.appendChild(wordElement);
+            
+            // Remove word from bank
+            const wordBank = document.getElementById('wordBank');
+            const wordElements = wordBank.children;
+            for (let element of wordElements) {
+                if (element.textContent === word) {
+                    element.remove();
+                    break;
+                }
+            }
+            
+            checkSentenceCompletion();
+        }
+
+        function checkSentenceCompletion() {
+            const builder = document.getElementById('sentenceBuilder');
+            const builtSentence = Array.from(builder.children).map(el => el.textContent).join(' ');
+            const targetSentence = sentences[currentSentenceIndex].target;
+            
+            if (builtSentence === targetSentence) {
+                sentenceScore++;
+                document.getElementById('sentenceScore').textContent = sentenceScore;
+                builder.classList.add('bounce');
+                setTimeout(() => {
+                    builder.classList.remove('bounce');
+                    alert('¡Correcto! Oración completada 🎉');
+                }, 600);
+            }
+        }
+
+        function nextSentence() {
+            currentSentenceIndex++;
+            loadSentence();
+        }
+
+        // Listening activity functions
+        function initializeListening() {
+            currentListeningTask = 0;
+            loadListeningTask();
+        }
+
+        function loadListeningTask() {
+            if (currentListeningTask >= listeningTasks.length) {
+                alert('¡Has completado todas las actividades de escucha! 🎉');
+                return;
+            }
+            
+            const task = listeningTasks[currentListeningTask];
+            document.getElementById('currentInstruction').textContent = `"${task.instruction}"`;
+            
+            const container = document.getElementById('listeningObjects');
+            container.innerHTML = '';
+            
+            const shuffledVocab = shuffleArray([...vocabulary]).slice(0, 8);
+            shuffledVocab.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'listening-object bg-gray-100 hover:bg-gray-200 p-4 rounded-xl cursor-pointer text-center transition-colors';
+                div.innerHTML = `
+                    <img src="/png/${item.imageFile}" alt="${item.word}" class="h-10 w-10 mx-auto mb-2">
+                    <p class="font-bold text-sm">${item.word}</p>
+                `;
+                div.onclick = () => selectListeningObject(item.word, task.objects);
+                container.appendChild(div);
+            });
+        }
+
+        function playInstruction() {
+            const task = listeningTasks[currentListeningTask];
+            document.getElementById('currentInstruction').classList.remove('hidden');
+            document.getElementById('playInstructionBtn').textContent = '🔊 Reproduciendo...';
+            
+            // Speak the instruction
+            speakText(task.instruction);
+            
+            setTimeout(() => {
+                document.getElementById('playInstructionBtn').textContent = '▶️ Escuchar Instrucción';
+            }, 3000);
+        }
+
+        function selectListeningObject(selectedWord, correctObjects) {
+            const objects = document.querySelectorAll('.listening-object');
+            objects.forEach(obj => {
+                const word = obj.querySelector('p').textContent;
+                if (word === selectedWord) {
+                    if (correctObjects.includes(selectedWord)) {
+                        obj.classList.add('bg-green-200');
+                        obj.innerHTML += ' <span class="text-green-600">✓</span>';
+                    } else {
+                        obj.classList.add('bg-red-200');
+                        obj.innerHTML += ' <span class="text-red-600">✗</span>';
+                    }
+                }
+            });
+            
+            if (correctObjects.includes(selectedWord)) {
+                listeningScore++;
+                document.getElementById('listeningScore').textContent = listeningScore;
+            }
+        }
+
+        function nextListeningTask() {
+            currentListeningTask++;
+            loadListeningTask();
+        }
+
+        // Riddle functions
+        function initializeRiddles() {
+            currentRiddleIndex = 0;
+            currentClueIndex = 0;
+            loadRiddle();
+        }
+
+        function loadRiddle() {
+            if (currentRiddleIndex >= riddles.length) {
+                alert('¡Has completado todas las adivinanzas! 🎉');
+                return;
+            }
+            
+            const riddle = riddles[currentRiddleIndex];
+            currentClueIndex = 0;
+            
+            // Reset clues
+            document.getElementById('clue2').classList.add('hidden');
+            document.getElementById('clue3').classList.add('hidden');
+            document.getElementById('nextClueBtn').classList.remove('hidden');
+            document.getElementById('showAnswerBtn').classList.add('hidden');
+            
+            // Show first clue
+            const firstClue = document.querySelector('#riddleClues .bg-white');
+            firstClue.innerHTML = `<p class="text-lg text-purple-700">🔍 <strong>Pista 1:</strong> ${riddle.clues[0]}</p>`;
+            
+            // Load options
+            const container = document.getElementById('riddleOptions');
+            container.innerHTML = '';
+            
+            const options = shuffleArray([...vocabulary]).slice(0, 6);
+            if (!options.find(item => item.word === riddle.answer)) {
+                options[0] = vocabulary.find(item => item.word === riddle.answer);
+            }
+            
+            options.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'riddle-option bg-yellow-100 hover:bg-yellow-200 p-4 rounded-xl cursor-pointer text-center transition-colors';
+                div.innerHTML = `
+                    <img src="/png/${item.imageFile}" alt="${item.word}" class="h-10 w-10 mx-auto mb-2">
+                    <p class="font-bold text-sm">${item.word}</p>
+                `;
+                div.onclick = () => selectRiddleAnswer(item.word);
+                container.appendChild(div);
+            });
+        }
+
+        function showNextClue() {
+            currentClueIndex++;
+            const riddle = riddles[currentRiddleIndex];
+            
+            if (currentClueIndex === 1) {
+                document.getElementById('clue2').classList.remove('hidden');
+                document.getElementById('clue2').innerHTML = `<p class="text-lg text-purple-700">🔍 <strong>Pista 2:</strong> ${riddle.clues[1]}</p>`;
+            } else if (currentClueIndex === 2) {
+                document.getElementById('clue3').classList.remove('hidden');
+                document.getElementById('clue3').innerHTML = `<p class="text-lg text-purple-700">🔍 <strong>Pista 3:</strong> ${riddle.clues[2]}</p>`;
+                document.getElementById('nextClueBtn').classList.add('hidden');
+                document.getElementById('showAnswerBtn').classList.remove('hidden');
+            }
+        }
+
+        function selectRiddleAnswer(selectedAnswer) {
+            const riddle = riddles[currentRiddleIndex];
+            const options = document.querySelectorAll('.riddle-option');
+            
+            options.forEach(option => {
+                const word = option.querySelector('p').textContent;
+                if (word === riddle.answer) {
+                    option.classList.add('bg-green-200');
+                } else if (word === selectedAnswer && selectedAnswer !== riddle.answer) {
+                    option.classList.add('bg-red-200');
+                }
+                option.onclick = null;
+            });
+            
+            if (selectedAnswer === riddle.answer) {
+                riddleScore++;
+                document.getElementById('riddleScore').textContent = riddleScore;
+                setTimeout(() => alert('¡Correcto! 🎉'), 500);
+            } else {
+                setTimeout(() => alert('Intenta de nuevo 🤔'), 500);
+            }
+        }
+
+        function showRiddleAnswer() {
+            const riddle = riddles[currentRiddleIndex];
+            const options = document.querySelectorAll('.riddle-option');
+            
+            options.forEach(option => {
+                const word = option.querySelector('p').textContent;
+                if (word === riddle.answer) {
+                    option.classList.add('bg-green-200');
+                    option.classList.add('pulse');
+                }
+            });
+        }
+
+        function nextRiddle() {
+            currentRiddleIndex++;
+            loadRiddle();
+        }
+
+        // Final evaluation functions
+        function initializeFinalEvaluation() {
+            // Identification test
+            const identContainer = document.getElementById('identificationTest');
+            const testItems = shuffleArray([...vocabulary]).slice(0, 5);
+            
+            testItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'text-center p-3 bg-blue-50 rounded-xl';
+                div.innerHTML = `
+                    <img src="/png/${item.imageFile}" alt="${item.word}" class="h-12 w-12 mx-auto mb-2">
+                    <input type="text" placeholder="Escribe el nombre" class="w-full p-2 border rounded text-center text-sm" data-answer="${item.word}">
+                `;
+                identContainer.appendChild(div);
+            });
+            
+            // Article test
+            const articleContainer = document.getElementById('articleTest');
+            const articleItems = shuffleArray([...vocabulary]).slice(0, 5);
+            
+            articleItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-green-50 p-3 rounded-xl';
+                div.innerHTML = `
+                    <span class="font-bold flex items-center"><img src="/png/${item.imageFile}" alt="${item.word}" class="h-8 w-8 mr-2"> _____ ${item.word}</span>
+                    <select class="border rounded p-1" data-answer="${item.article}">
+                        <option value="">Selecciona</option>
+                        <option value="el">el</option>
+                        <option value="la">la</option>
+                        <option value="los">los</option>
+                        <option value="las">las</option>
+                    </select>
+                `;
+                articleContainer.appendChild(div);
+            });
+            
+            // Communicative test
+            const commContainer = document.getElementById('communicativeTest');
+            const situations = [
+                { question: "¿Cómo pides un lápiz?", answer: "¿Me prestas el lápiz?" },
+                { question: "¿Cómo ofreces tu regla?", answer: "Aquí tienes la regla" },
+                { question: "¿Cómo describes una mesa grande?", answer: "La mesa es grande" },
+                { question: "¿Cómo preguntas por las tijeras?", answer: "¿Dónde están las tijeras?" },
+                { question: "¿Cómo agradeces por un favor?", answer: "Gracias" }
+            ];
+            
+            situations.forEach((situation, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-yellow-50 p-3 rounded-xl';
+                div.innerHTML = `
+                    <p class="font-bold mb-2">${situation.question}</p>
+                    <input type="text" placeholder="Tu respuesta" class="w-full p-2 border rounded" data-answer="${situation.answer}">
+                `;
+                commContainer.appendChild(div);
+            });
+        }
+
+        function submitFinalEvaluation() {
+            let score = 0;
+            
+            // Check identification
+            const identInputs = document.querySelectorAll('#identificationTest input');
+            identInputs.forEach(input => {
+                if (input.value.toLowerCase().trim() === input.dataset.answer.toLowerCase()) {
+                    score++;
+                    input.classList.add('bg-green-100');
+                } else {
+                    input.classList.add('bg-red-100');
+                }
+            });
+            
+            // Check articles
+            const articleSelects = document.querySelectorAll('#articleTest select');
+            articleSelects.forEach(select => {
+                if (select.value === select.dataset.answer) {
+                    score++;
+                    select.classList.add('bg-green-100');
+                } else {
+                    select.classList.add('bg-red-100');
+                }
+            });
+            
+            // Check communicative (simplified - any reasonable answer gets points)
+            const commInputs = document.querySelectorAll('#communicativeTest input');
+            commInputs.forEach(input => {
+                if (input.value.trim().length > 3) {
+                    score++;
+                    input.classList.add('bg-green-100');
+                } else {
+                    input.classList.add('bg-red-100');
+                }
+            });
+            
+            finalScore = score;
+            document.getElementById('finalScore').textContent = score;
+            
+            let message = '';
+            if (score >= 13) message = '¡Excelente! Dominas el vocabulario 🌟';
+            else if (score >= 10) message = '¡Muy bien! Buen progreso 👍';
+            else if (score >= 7) message = 'Bien, sigue practicando 📚';
+            else message = 'Necesitas más práctica 💪';
+            
+            setTimeout(() => alert(message), 500);
+        }
+
+        // Utility functions
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function practiceDialogue() {
+            const dialogues = [
+                "¿Me prestas el lápiz, por favor?",
+                "Claro, aquí tienes. ¿Necesitas también la goma?",
+                "Sí, gracias. ¿Dónde están las tijeras?",
+                "Las tijeras están en la mesa del profesor."
+            ];
+            
+            let currentLine = 0;
+            
+            function speakNextLine() {
+                if (currentLine < dialogues.length) {
+                    speakText(dialogues[currentLine]);
+                    currentLine++;
+                    setTimeout(speakNextLine, 3000);
+                } else {
+                    alert('¡Ahora practica tú con un compañero! 🗣️');
+                }
+            }
+            
+            speakNextLine();
+        }
+
+        function startRolePlay() {
+            alert('¡Comienza el role play! Elige una situación y practica con tus compañeros 🎭');
+        }
+
+        function nextObjectToDescribe() {
+            const objects = shuffleArray([...vocabulary]);
+            const randomObject = objects[0];
+            const container = document.getElementById('objectToDescribe');
+            container.innerHTML = `
+                <img src="/png/${randomObject.imageFile}" alt="${randomObject.word}" class="h-24 w-24 mx-auto mb-4">
+                <h3 class="text-2xl font-bold text-blue-800 text-center">${randomObject.article} ${randomObject.word}</h3>
+            `;
+        }
+
+        function checkDescription() {
+            const color = document.getElementById('color').value;
+            const func = document.getElementById('function').value;
+            const location = document.getElementById('location').value;
+            
+            if (color && func && location) {
+                document.getElementById('descriptionFeedback').classList.remove('hidden');
+                setTimeout(() => {
+                    document.getElementById('descriptionFeedback').classList.add('hidden');
+                    nextObjectToDescribe();
+                }, 2000);
+            } else {
+                alert('Por favor completa todas las opciones 📝');
+            }
+        }
+
+        function restartPresentation() {
+            currentSlideIndex = 1;
+            changeSlide(0);
+            // Reset all scores and progress
+            drillingProgress = 0;
+            articleScore = 0;
+            sentenceScore = 0;
+            listeningScore = 0;
+            riddleScore = 0;
+            finalScore = 0;
+            
+            // Update displays
+            document.getElementById('drillingProgress').textContent = '0';
+            document.getElementById('articleScore').textContent = '0';
+            document.getElementById('sentenceScore').textContent = '0';
+            document.getElementById('listeningScore').textContent = '0';
+            document.getElementById('riddleScore').textContent = '0';
+            document.getElementById('finalScore').textContent = '0';
+        }
+
+        // Initialize navigation
+        updateNavigationButtons();
+    </script>
+</body>
+</html>
