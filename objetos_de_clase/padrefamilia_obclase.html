@@ -119,7 +119,6 @@
                 div.title = item.name;
                 div.className = 'item-utiles w-16 h-16 p-1 bg-gray-100 rounded-lg flex items-center justify-center cursor-grab';
                 div.draggable = true;
-                // --- ESTA ES LA LÍNEA CORREGIDA ---
                 div.innerHTML = `<img src="${item.emoji}" alt="${item.name}" class="w-full h-full object-contain">`;
                 div.addEventListener('dragstart', onDragStart);
                 div.addEventListener('dragend', onDragEnd);
@@ -184,12 +183,18 @@
         }
 
         function onDragStart(event) {
-            event.dataTransfer.setData('text/plain', event.target.id);
-            setTimeout(() => event.target.classList.add('dragging'), 0);
+            const draggableElement = event.target.closest('.item-utiles');
+            if (!draggableElement) return;
+
+            event.dataTransfer.setData('text/plain', draggableElement.id);
+            setTimeout(() => draggableElement.classList.add('dragging'), 0);
         }
         
         function onDragEnd(event) {
-            event.target.classList.remove('dragging');
+            const draggableElement = event.target.closest('.item-utiles');
+            if (draggableElement) {
+                draggableElement.classList.remove('dragging');
+            }
         }
 
         function onDragOver(event) {
@@ -205,6 +210,9 @@
             event.preventDefault();
             const itemId = event.dataTransfer.getData('text/plain');
             const draggedElement = document.getElementById(itemId);
+
+            if (!draggedElement) return; // Si no hay elemento, no hacer nada
+
             const dropZone = event.currentTarget;
             const childName = dropZone.dataset.childName;
             
