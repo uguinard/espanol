@@ -211,7 +211,9 @@
             const itemId = event.dataTransfer.getData('text/plain');
             const draggedElement = document.getElementById(itemId);
 
-            if (!draggedElement) return; // Si no hay elemento, no hacer nada
+            if (!draggedElement) {
+                return;
+            }
 
             const dropZone = event.currentTarget;
             const childName = dropZone.dataset.childName;
@@ -222,14 +224,11 @@
             const droppedItemId = draggedElement.dataset.itemId;
 
             if (child.required.includes(droppedItemId) && !child.found.includes(droppedItemId)) {
-                const clonedElement = draggedElement.cloneNode(true);
-                clonedElement.id = `clone-${childName}-${droppedItemId}`;
-                clonedElement.draggable = false;
-                clonedElement.style.cursor = 'default';
-                clonedElement.classList.remove('item-utiles', 'cursor-grab');
-                clonedElement.title = '';
+                const newItem = document.createElement('div');
+                newItem.className = 'w-16 h-16 p-1 bg-gray-100 rounded-lg flex items-center justify-center';
+                newItem.innerHTML = draggedElement.innerHTML;
                 
-                dropZone.appendChild(clonedElement);
+                dropZone.appendChild(newItem);
                 child.found.push(droppedItemId);
                 document.getElementById(`req-${childName}-${droppedItemId}`).classList.add('correct-item');
             }
