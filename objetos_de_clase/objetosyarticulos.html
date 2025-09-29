@@ -31,8 +31,14 @@
             border-color: #10B981; /* green-500 */
             transform: scale(1.02);
         }
-        .draggable { cursor: grab; transition: transform 0.2s; }
+        .draggable { cursor: grab; transition: all 0.2s; }
         .draggable:active { cursor: grabbing; transform: scale(1.1); z-index: 10;}
+        .draggable.selected {
+            outline: 3px solid #8B5CF6; /* purple-500 */
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
         .correct-drop { border-style: solid; border-color: #22C55E; background-color: #F0FDF4; }
     </style>
 </head>
@@ -51,7 +57,7 @@
         <!-- Reto 1: Vocabulario -->
         <section id="mission1" class="mission-card bg-gray-50 p-6 rounded-lg border mb-8">
             <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center"><span class="text-3xl mr-3">🎒</span> Reto 1: Identifica tu Equipo / <span class="instructions ml-2">Identify Your Gear</span></h3>
-            <p class="text-sm text-gray-600 mb-4">Arrastra cada palabra en español a su significado en inglés. / <span class="instructions">Drag each Spanish word to its English meaning.</span></p>
+            <p class="text-sm text-gray-600 mb-4">Arrastra o toca cada palabra en español y luego su significado en inglés. / <span class="instructions">Drag or tap each Spanish word then its English meaning.</span></p>
             
             <div class="flex flex-col md:flex-row gap-6">
                 <div class="w-full md:w-2/3 space-y-3" id="meaning-list">
@@ -116,7 +122,7 @@
         <!-- Reto 4: Aplicación -->
         <section id="mission4" class="mission-card bg-gray-50 p-6 rounded-lg border">
             <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center"><span class="text-3xl mr-3">✅</span> Reto 4: Prepara la Mochila / <span class="instructions">Pack Your Backpack</span></h3>
-            <p class="text-sm text-gray-600 mb-4">Arrastra los objetos correctos de la estantería a tu mochila. / <span class="instructions">Drag the correct items from the shelf to your backpack.</span></p>
+            <p class="text-sm text-gray-600 mb-4">Arrastra o toca los objetos correctos de la estantería y luego tu mochila. / <span class="instructions">Drag or tap the correct items from the shelf then your backpack.</span></p>
 
             <div id="supply-shelf" class="flex flex-wrap gap-2 justify-center p-4 bg-white rounded-lg shadow-inner my-4">
                 <!-- Draggable items for mission 4 will be generated here -->
@@ -150,6 +156,7 @@
 
     <script>
         const missionStatus = { 1: false, 2: false, 3: false, 4: false };
+        let selectedItemId = null;
         const successIcon = `<svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
         const errorIcon = `<svg class="h-6 w-6 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
 
@@ -176,18 +183,12 @@
             let shuffledObjects = shuffle([...classroomObjects]);
 
             shuffledObjects.forEach(obj => {
-                // Mission 1
                 meaningList.innerHTML += `<div class="flex items-center space-x-2 bg-gray-100 p-2 rounded-lg"><span class="flex-grow capitalize text-lg">${obj.english}</span><div id="drop-${obj.id}" class="droppable-area h-12 w-32" data-answer="${obj.id}"></div></div>`;
                 wordBank.innerHTML += `<div id="drag-${obj.id}" class="draggable bg-gray-200 p-2 rounded text-center text-lg" draggable="true" data-word="${obj.id}">${obj.name.split(' ')[1]}</div>`;
-            
-                // Mission 2
                 sortBank.innerHTML += `<div id="sort-${obj.id}" class="draggable bg-gray-200 p-2 rounded" draggable="true" data-gender="${obj.gender}">${obj.name}</div>`;
-                
-                // Mission 3
                 pluralTasks.innerHTML += `<div class="flex items-center space-x-2"><span>${obj.name}</span><span>→</span><input id="plural-${obj.id}" data-answer="${obj.plural}" type="text" placeholder="plural..." class="p-1 border border-gray-300 rounded-md w-40"></div>`;
             });
             
-            // Mission 4 Supplies
             supplyShelf.innerHTML += `<div id="supply-libro1" class="draggable bg-gray-200 p-2 rounded" draggable="true" data-item="libro">el libro</div>`;
             supplyShelf.innerHTML += `<div id="supply-libro2" class="draggable bg-gray-200 p-2 rounded" draggable="true" data-item="libro">el libro</div>`;
             supplyShelf.innerHTML += `<div id="supply-lapiz1" class="draggable bg-gray-200 p-2 rounded" draggable="true" data-item="lapiz">el lápiz</div>`;
@@ -195,7 +196,7 @@
             supplyShelf.innerHTML += `<div id="supply-silla1" class="draggable bg-gray-200 p-2 rounded" draggable="true" data-item="silla">la silla</div>`;
             supplyShelf.innerHTML += `<div id="supply-cuaderno1" class="draggable bg-gray-200 p-2 rounded" draggable="true" data-item="cuaderno">el cuaderno</div>`;
 
-            addDragListeners();
+            initializeInteractions();
         }
 
         function updateProgressBar() {
@@ -214,10 +215,11 @@
             updateProgressBar();
         }
         
-        function addDragListeners() {
+        function initializeInteractions() {
             const draggables = document.querySelectorAll('.draggable');
             const droppables = document.querySelectorAll('.droppable-area');
 
+            // Traditional Drag and Drop for mouse users
             draggables.forEach(draggable => {
                 draggable.addEventListener('dragstart', e => {
                     e.target.classList.add('opacity-50');
@@ -227,25 +229,61 @@
             });
 
             droppables.forEach(droppable => {
-                droppable.addEventListener('dragover', e => {
-                    e.preventDefault();
-                    e.target.closest('.droppable-area').classList.add('drag-over');
-                });
+                droppable.addEventListener('dragover', e => { e.preventDefault(); e.target.closest('.droppable-area').classList.add('drag-over'); });
                 droppable.addEventListener('dragleave', e => e.target.closest('.droppable-area').classList.remove('drag-over'));
                 droppable.addEventListener('drop', e => {
                     e.preventDefault();
                     const dropTarget = e.target.closest('.droppable-area');
                     dropTarget.classList.remove('drag-over');
                     const draggableId = e.dataTransfer.getData('text/plain');
-                    const draggableElement = document.getElementById(draggableId);
-                    
-                    if (dropTarget.id.startsWith('drop-')) {
-                        if(dropTarget.children.length === 0) dropTarget.appendChild(draggableElement);
+                    handleDrop(draggableId, dropTarget);
+                });
+            });
+
+            // Tap-to-move functionality for touch/mouse users
+            draggables.forEach(draggable => {
+                draggable.addEventListener('click', () => {
+                    if (selectedItemId === draggable.id) {
+                        draggable.classList.remove('selected');
+                        selectedItemId = null;
                     } else {
-                        dropTarget.appendChild(draggableElement);
+                        if (selectedItemId) document.getElementById(selectedItemId)?.classList.remove('selected');
+                        selectedItemId = draggable.id;
+                        draggable.classList.add('selected');
                     }
                 });
             });
+
+            droppables.forEach(droppable => {
+                droppable.addEventListener('click', () => {
+                    if (selectedItemId) {
+                         handleDrop(selectedItemId, droppable);
+                    }
+                });
+            });
+        }
+
+        function handleDrop(draggableId, dropTarget) {
+            const draggableElement = document.getElementById(draggableId);
+            if (!draggableElement) return;
+
+            // Mission 1: Only one item per slot
+            if (dropTarget.id.startsWith('drop-') && dropTarget.children.length > 0) {
+                 return; 
+            }
+            
+            // Mission 4: Drop inside the correct container
+            if (dropTarget.id === 'backpack-drop') {
+                document.getElementById('backpack-items').appendChild(draggableElement);
+            } else {
+                dropTarget.appendChild(draggableElement);
+            }
+
+            // Clear selection after a successful drop
+            if (selectedItemId) {
+                draggableElement.classList.remove('selected');
+                selectedItemId = null;
+            }
         }
         
         function checkMatching() {
@@ -274,15 +312,12 @@
         function checkGenderSort() {
             let allCorrect = true;
             document.querySelectorAll('#masculino-drop, #femenino-drop').forEach(dropArea => {
-                if (dropArea.children.length === 0 && (dropArea.id === 'masculino-drop' || dropArea.id === 'femenino-drop')) {
-                   const gender = dropArea.dataset.gender;
-                   const expectedItems = classroomObjects.filter(obj => obj.gender === gender).length;
-                   if (expectedItems > 0) allCorrect = false;
-                }
+                const gender = dropArea.dataset.gender;
+                const expectedCount = classroomObjects.filter(obj => obj.gender === gender).length;
+                if (dropArea.children.length !== expectedCount) allCorrect = false;
+
                 Array.from(dropArea.children).forEach(item => {
-                    if(item.dataset.gender !== dropArea.dataset.gender) {
-                        allCorrect = false;
-                    }
+                    if(item.dataset.gender !== gender) allCorrect = false;
                 });
             });
 
@@ -347,7 +382,6 @@
             }
             feedback.style.display = 'flex';
         }
-
 
         window.onload = initializeMissions;
     </script>
