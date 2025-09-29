@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyecto: Todo Sobre Mí y Mi Identidad Cultural</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3 {
+            font-family: 'Lora', serif;
+        }
+        .slide-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .slide-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Header Section -->
+    <header class="bg-white shadow-md">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-800">Todo Sobre Mí y Mi Identidad Cultural</h1>
+            <p class="mt-4 text-lg md:text-xl text-gray-600">All About Me and My Cultural Identity</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Project Goal Section -->
+        <section id="goal" class="bg-white rounded-lg shadow-lg p-8 mb-12">
+            <h2 class="text-3xl font-bold text-blue-700 mb-4 border-b-2 border-blue-200 pb-2">🎯 Project Goal</h2>
+            <p class="mb-4 text-base leading-relaxed">This project has two goals. First, you will demonstrate your knowledge of the basic Spanish vocabulary and sentences from Unit 1. Second, you will use English to reflect on the unit's Statement of Inquiry:</p>
+            <blockquote class="bg-blue-50 border-l-4 border-blue-500 text-blue-900 p-4 rounded-r-lg italic my-4">
+                "Our cultural Identity is revealed through the country we live in, the people around us, and the relationships that we establish."
+            </blockquote>
+        </section>
+
+        <!-- Instructions Section -->
+        <section id="instructions">
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-12">
+                <h2 class="text-3xl font-bold text-green-700 mb-6 border-b-2 border-green-200 pb-2">📝 Instructions for Students</h2>
+                <p class="text-base leading-relaxed">You will create an <strong>8-slide presentation</strong>. Each slide will have two parts:</p>
+                <div class="mt-6 grid md:grid-cols-2 gap-6">
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h3 class="font-bold text-green-800 text-lg">1. Spanish Content</h3>
+                        <p class="text-sm text-green-700">Simple sentences and images using the vocabulary you have learned.</p>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <h3 class="font-bold text-yellow-800 text-lg">2. English Reflection</h3>
+                        <p class="text-sm text-yellow-700">A short, thoughtful reflection connecting the Spanish content to the theme of cultural identity.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide by Slide Breakdown -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                
+                <!-- Slide 1 -->
+                <div class="slide-card bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold">1</span>
+                            <h3 class="text-2xl font-bold ml-3 text-gray-900">Title Slide</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-blue-600">Spanish Content:</h4>
+                                <p><strong>Title:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Mi Identidad Cultural</code></p>
+                                <p><strong>Your Name:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Soy [Carlos]</code></p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-yellow-600">English Reflection:</h4>
+                                <p>Copy and paste the unit's Statement of Inquiry onto this slide.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2 -->
+                <div class="slide-card bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold">2</span>
+                            <h3 class="text-2xl font-bold ml-3 text-gray-900">My Introduction & Name</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-blue-600">Spanish Content:</h4>
+                                <p>A picture of you or an avatar.</p>
+                                <p><strong>Greeting:</strong> <code class="bg-gray-200 p-1 rounded text-sm">¡Hola!</code> or <code class="bg-gray-200 p-1 rounded text-sm">Buenos días.</code></p>
+                                <p><strong>Introduction:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Me llamo....</code></p>
+                                <p><strong>Age:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Tengo... años.</code></p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-yellow-600">English Reflection:</h4>
+                                <p>Answer: "How does your name connect to your family, your culture, or your personal identity? What does it mean to you?"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3 -->
+                <div class="slide-card bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold">3</span>
+                            <h3 class="text-2xl font-bold ml-3 text-gray-900">My Origins</h3>
+                        </div>
+                         <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-blue-600">Spanish Content:</h4>
+                                <p>A map or flag of where you are from.</p>
+                                <p><code class="bg-gray-200 p-1 rounded text-sm">Yo soy de....</code></p>
+                                <p class="mt-2">A picture of where you live now.</p>
+                                <p><code class="bg-gray-200 p-1 rounded text-sm">Vivo en....</code></p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-yellow-600">English Reflection:</h4>
+                                <p>Answer: "How does the country you are from AND the place you live now shape who you are?"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 4 -->
+                <div class="slide-card bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold">4</span>
+                            <h3 class="text-2xl font-bold ml-3 text-gray-900">My Languages</h3>
+                        </div>
+                         <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-blue-600">Spanish Content:</h4>
+                                <p>Images or flags representing the languages you speak.</p>
+                                <p><code class="bg-gray-200 p-1 rounded text-sm">Yo hablo....</code></p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-yellow-600">English Reflection:</h4>
+                                <p>Answer: "How do the languages you speak connect you to different people and cultures? How do they form a part of your identity?"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 5 -->
+                <div class="slide-card bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold">5</span>
+                            <h3 class="text-2xl font-bold ml-3 text-gray-900">A Personal Relationship</h3>
+                        </div>
+                         <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-blue-600">Spanish Content:</h4>
+                                <p>A picture of a close friend or family member.</p>
+                                <p><strong>Introduce:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Te presento a....</code></p>
+                                <p><strong>Name:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Se llama....</code></p>
+                                <p><strong>From:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Es de....</code></p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-yellow-600">English Reflection:</h4>
+                                <p>Answer: "How does your relationship with this person help shape your identity or your daily life?"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 6 -->
+                <div class="slide-card bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold">6</span>
+                            <h3 class="text-2xl font-bold ml-3 text-gray-900">A Community Relationship</h3>
+                        </div>
+                         <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-blue-600">Spanish Content:</h4>
+                                <p>A picture of a teacher, mentor, or community leader you respect.</p>
+                                <p><strong>Introduce formally:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Le presento al Señor / a la Señora....</code></p>
+                                <p><strong>From:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Es de....</code></p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-yellow-600">English Reflection:</h4>
+                                <p>Answer: "How does your interaction with this person, or their role in the community, influence you?"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 7 -->
+                <div class="slide-card bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold">7</span>
+                            <h3 class="text-2xl font-bold ml-3 text-gray-900">My Time, My Identity</h3>
+                        </div>
+                         <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-blue-600">Spanish Content:</h4>
+                                <p><strong>Title:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Los Días de la Semana.</code></p>
+                                <p><strong>Favorite Day:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Mi día favorito es....</code></p>
+                                <p>Add an image that represents that day for you.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-yellow-600">English Reflection:</h4>
+                                <p>Answer: "How do your weekly routines and the way you spend your time reflect what is important to you?"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 8 -->
+                <div class="slide-card bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            <span class="bg-blue-500 text-white rounded-full h-8 w-8 flex items-center justify-center font-bold">8</span>
+                            <h3 class="text-2xl font-bold ml-3 text-gray-900">Final Conclusion</h3>
+                        </div>
+                         <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-blue-600">Spanish Content:</h4>
+                                <p><strong>Farewell:</strong> <code class="bg-gray-200 p-1 rounded text-sm">Gracias</code> and <code class="bg-gray-200 p-1 rounded text-sm">Adiós</code>.</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-yellow-600">English Reflection:</h4>
+                                <p>Write a concluding paragraph summarizing your thoughts on the Statement of Inquiry, using examples from your presentation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 Spanish Class Project. Happy creating!</p>
+        </div>
+    </footer>
+
+</body>
+</html>
