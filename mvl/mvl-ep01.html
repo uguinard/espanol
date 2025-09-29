@@ -1,1 +1,961 @@
+<!DOCTYPE html>
+<html lang="es" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>Mi Vida Loca - Episodio 1: En Madrid</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        .feedback {
+            display: none;
+        }
+        .draggable {
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+        .drop-zone {
+            min-height: 50px;
+            transition: all 0.3s ease;
+        }
+        .drop-zone.drag-over {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+            transform: scale(1.02);
+        }
+        .instructions {
+            font-style: italic;
+            color: #6b7280;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #16a34a !important;
+        }
+        .incorrect {
+            background-color: #fef2f2 !important;
+            border-color: #dc2626 !important;
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .celebration {
+            animation: celebrate 0.6s ease-out;
+        }
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .character-speech {
+            border-left: 4px solid #3b82f6;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .phrase-book {
+            border-left: 4px solid #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800 p-4 sm:p-6 md:p-8 min-h-screen">
 
+    <!-- Progress Bar -->
+    <div class="max-w-4xl mx-auto mb-6">
+        <div class="bg-white rounded-full p-1 shadow-sm">
+            <div class="bg-gray-200 rounded-full h-3 relative overflow-hidden">
+                <div id="progressBar" class="progress-bar bg-gradient-to-r from-green-400 to-blue-500 h-full rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="flex justify-between mt-2 text-sm text-gray-600">
+            <span>Progreso del Episodio 1</span>
+            <span id="progressText">0% completado</span>
+        </div>
+    </div>
+
+    <!-- Score Display -->
+    <div class="max-w-4xl mx-auto mb-6">
+        <div class="bg-white rounded-lg p-4 shadow-sm flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="text-2xl">🏆</div>
+                <div>
+                    <div class="font-semibold">Puntuación: <span id="totalScore" class="text-blue-600">0</span></div>
+                    <div class="text-sm text-gray-600">Racha: <span id="streak">0</span> 🔥</div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-sm text-gray-600">Ejercicios completados</div>
+                <div class="font-semibold"><span id="completedExercises">0</span>/8</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-8">Mi Vida Loca - Episodio 1: En Madrid</h1>
+
+        <!-- Contexto del Episodio -->
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-200 mb-8">
+            <h2 class="text-xl font-bold text-blue-700 mb-3">📖 Contexto del Episodio</h2>
+            <p class="text-gray-700 mb-3">
+                Llegas a Madrid para quedarte en el apartamento de tu amiga Teresa, pero ella no puede estar allí. 
+                Te ha dejado las llaves y un libro de frases para ayudarte. Al llegar al edificio, conoces a Merche, 
+                la hermana de Teresa, quien no sabía de tu visita.
+            </p>
+            <p class="text-sm text-gray-600 italic">
+                You arrive in Madrid to stay at your friend Teresa's apartment, but she can't be there. 
+                She has left you the keys and a phrase book to help you. When you arrive at the building, 
+                you meet Merche, Teresa's sister, who didn't know about your visit.
+            </p>
+        </div>
+
+        <!-- Video Placeholder -->
+        <div class="bg-black rounded-lg overflow-hidden max-w-xl mx-auto shadow-md mb-8">
+            <div class="aspect-video bg-gray-800 flex items-center justify-center text-white">
+                <div class="text-center">
+                    <div class="text-4xl mb-2">🎬</div>
+                    <p class="text-lg font-semibold">Mi Vida Loca - Episodio 1</p>
+                    <p class="text-sm text-gray-300">Mira el episodio antes de continuar</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ejercicio 1: Vocabulario Esencial del Episodio -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500" data-exercise="1">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                Vocabulario Esencial / <span class="instructions">Essential Vocabulary</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Haz clic en cada palabra para revelar su significado y contexto del episodio.</p>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-3">
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">Perdón</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "Excuse me" - Usado para pedir disculpas o llamar la atención
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">Gracias</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "Thank you" - Para agradecer
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">La calle</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "The street" - Calle Dos Hermanas es donde vive Teresa
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">No entiendo</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "I don't understand" - Frase esencial cuando no comprendes
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">¿Quién eres?</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "Who are you?" - Pregunta que hace Merche
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">Soy amiga/amigo de Teresa</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "I'm Teresa's friend" - Amiga (female) / Amigo (male)
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">Mi casa, tu casa</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "My house, your house" - Expresión de hospitalidad española
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">Hasta luego</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "See you later" - Despedida casual
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="completeExercise(1)" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    ✓ Marcar como completado
+                </button>
+            </div>
+        </div>
+
+        <!-- Ejercicio 2: Direcciones y Números -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500" data-exercise="2">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                Direcciones y Números / <span class="instructions">Addresses and Numbers</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Completa la información de la dirección de Teresa según el episodio.</p>
+            
+            <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold mb-3">🏠 Dirección de Teresa:</h4>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Nombre de la calle:</label>
+                        <input type="text" id="street-name" class="w-full p-2 border rounded-lg" placeholder="Calle...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Número:</label>
+                        <input type="number" id="street-number" class="w-full p-2 border rounded-lg" placeholder="Número">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Piso:</label>
+                        <select id="floor" class="w-full p-2 border rounded-lg">
+                            <option value="">Selecciona el piso...</option>
+                            <option value="primero">Primero</option>
+                            <option value="segundo">Segundo</option>
+                            <option value="tercero">Tercero</option>
+                            <option value="cuarto">Cuarto</option>
+                            <option value="quinto">Quinto</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Lado:</label>
+                        <select id="side" class="w-full p-2 border rounded-lg">
+                            <option value="">Selecciona...</option>
+                            <option value="izquierda">Izquierda</option>
+                            <option value="derecha">Derecha</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkAddress()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Dirección
+                </button>
+            </div>
+            <div id="address-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 3: Diálogo con Merche -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-purple-500" data-exercise="3">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-purple-100 text-purple-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
+                Conversación con Merche / <span class="instructions">Conversation with Merche</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Ordena el diálogo entre tú y Merche según aparece en el episodio.</p>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold mb-3 text-gray-700">Frases desordenadas:</h4>
+                    <div class="space-y-2" id="dialogue-options">
+                        <div class="draggable bg-purple-100 border-2 border-purple-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-order="3">
+                            "Soy amiga de Teresa"
+                        </div>
+                        <div class="draggable bg-purple-100 border-2 border-purple-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-order="1">
+                            "¿Quién eres? ¿Qué quieres?"
+                        </div>
+                        <div class="draggable bg-purple-100 border-2 border-purple-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-order="4">
+                            "Yo soy la hermana de Teresa"
+                        </div>
+                        <div class="draggable bg-purple-100 border-2 border-purple-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-order="2">
+                            "Perdón"
+                        </div>
+                        <div class="draggable bg-purple-100 border-2 border-purple-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-order="5">
+                            "Mi casa, tu casa"
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-3 text-gray-700">Orden correcto:</h4>
+                    <div class="space-y-2" id="dialogue-order">
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50 min-h-[50px] flex items-center justify-center" data-position="1">
+                            1. Merche pregunta...
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50 min-h-[50px] flex items-center justify-center" data-position="2">
+                            2. Tú respondes...
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50 min-h-[50px] flex items-center justify-center" data-position="3">
+                            3. Tú te presentas...
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50 min-h-[50px] flex items-center justify-center" data-position="4">
+                            4. Merche se presenta...
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50 min-h-[50px] flex items-center justify-center" data-position="5">
+                            5. Merche te da la bienvenida...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkDialogueOrder()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Orden
+                </button>
+                <button onclick="resetDialogue()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">
+                    Reiniciar
+                </button>
+            </div>
+            <div id="dialogue-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 4: Comprensión del Phrase Book -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-yellow-500" data-exercise="4">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-yellow-100 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</span>
+                El Libro de Frases / <span class="instructions">The Phrase Book</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Responde las preguntas sobre lo que dice el libro de frases en el episodio.</p>
+            
+            <div class="space-y-4">
+                <div class="phrase-book p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">📚 Pregunta 1:</h4>
+                    <p class="mb-3">¿Cómo suena "perdón" según el libro de frases?</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="pronunciation" value="pardon" class="mr-2">
+                            <span>Like "pardon"</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="pronunciation" value="parton" class="mr-2">
+                            <span>Like "parton"</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="pronunciation" value="perdon" class="mr-2">
+                            <span>Like "perdon"</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="phrase-book p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">📚 Pregunta 2:</h4>
+                    <p class="mb-3">¿Qué dice el libro sobre la letra H en español?</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="letter-h" value="silent" class="mr-2">
+                            <span>Siempre es silenciosa</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="letter-h" value="strong" class="mr-2">
+                            <span>Se pronuncia fuerte</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="letter-h" value="soft" class="mr-2">
+                            <span>Se pronuncia suave</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkPhraseBook()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Respuestas
+                </button>
+            </div>
+            <div id="phrasebook-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 5: Género Gramatical -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500" data-exercise="5">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-red-100 text-red-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">5</span>
+                Amigo vs Amiga / <span class="instructions">Friend (Male vs Female)</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">El episodio explica la diferencia entre amigo y amiga. Practica eligiendo la forma correcta.</p>
+            
+            <div class="bg-red-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">📝 Regla:</h4>
+                <p class="text-sm">• <strong>Amigo</strong> = friend (male) • <strong>Amiga</strong> = friend (female)</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="mb-2"><strong>Si eres mujer, dices:</strong></p>
+                    <div class="space-y-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="female-form" value="amiga" class="mr-2">
+                            <span>"Soy amiga de Teresa"</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="female-form" value="amigo" class="mr-2">
+                            <span>"Soy amigo de Teresa"</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="mb-2"><strong>Si eres hombre, dices:</strong></p>
+                    <div class="space-y-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="male-form" value="amiga" class="mr-2">
+                            <span>"Soy amiga de Teresa"</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="male-form" value="amigo" class="mr-2">
+                            <span>"Soy amigo de Teresa"</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkGender()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Género
+                </button>
+            </div>
+            <div id="gender-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 6: Números Ordinales -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-indigo-500" data-exercise="6">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-indigo-100 text-indigo-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">6</span>
+                Números Ordinales / <span class="instructions">Ordinal Numbers</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">En el episodio escuchas los pisos del edificio. Empareja cada número con su forma ordinal.</p>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold mb-3 text-gray-700">Números:</h4>
+                    <div class="space-y-2" id="numbers">
+                        <div class="draggable bg-indigo-100 border-2 border-indigo-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-number="1">
+                            1
+                        </div>
+                        <div class="draggable bg-indigo-100 border-2 border-indigo-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-number="2">
+                            2
+                        </div>
+                        <div class="draggable bg-indigo-100 border-2 border-indigo-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-number="3">
+                            3
+                        </div>
+                        <div class="draggable bg-indigo-100 border-2 border-indigo-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-number="4">
+                            4
+                        </div>
+                        <div class="draggable bg-indigo-100 border-2 border-indigo-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-number="5">
+                            5
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-3 text-gray-700">Ordinales en español:</h4>
+                    <div class="space-y-2">
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50" data-ordinal="1">
+                            Primero
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50" data-ordinal="2">
+                            Segundo
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50" data-ordinal="3">
+                            Tercero
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50" data-ordinal="4">
+                            Cuarto
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50" data-ordinal="5">
+                            Quinto
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkOrdinals()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Ordinales
+                </button>
+                <button onclick="resetOrdinals()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">
+                    Reiniciar
+                </button>
+            </div>
+            <div id="ordinals-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 7: Frases del Taxista -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-pink-500" data-exercise="7">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-pink-100 text-pink-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">7</span>
+                Conversación del Taxi / <span class="instructions">Taxi Conversation</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Completa lo que dice el taxista sobre los lugares de Madrid.</p>
+            
+            <div class="space-y-4">
+                <div class="character-speech p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">🚕 El taxista dice:</h4>
+                    <p class="mb-3">"Calle Dos Hermanas, esquina con 
+                        <select id="taxi1" class="mx-1 p-1 border rounded">
+                            <option value="">...</option>
+                            <option value="embajadores">Embajadores</option>
+                            <option value="atocha">Atocha</option>
+                            <option value="toledo">Toledo</option>
+                        </select>
+                        . Muy bien, he's got it."
+                    </p>
+                    
+                    <p class="mb-3">"Esa la puerta de 
+                        <select id="taxi2" class="mx-1 p-1 border rounded">
+                            <option value="">...</option>
+                            <option value="embajadores">Embajadores</option>
+                            <option value="atocha">Atocha</option>
+                            <option value="toledo">Toledo</option>
+                        </select>
+                        ."
+                    </p>
+                    
+                    <p>"Allí hay la estación de 
+                        <select id="taxi3" class="mx-1 p-1 border rounded">
+                            <option value="">...</option>
+                            <option value="embajadores">Embajadores</option>
+                            <option value="atocha">Atocha</option>
+                            <option value="toledo">Toledo</option>
+                        </select>
+                        ."
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkTaxi()" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Conversación
+                </button>
+            </div>
+            <div id="taxi-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 8: Reflexión Cultural -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-teal-500" data-exercise="8">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-teal-100 text-teal-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">8</span>
+                Hospitalidad Española / <span class="instructions">Spanish Hospitality</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Reflexiona sobre la expresión "Mi casa, tu casa" y la hospitalidad española.</p>
+            
+            <div class="bg-teal-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">🏠 "Mi casa, tu casa"</h4>
+                <p class="text-sm mb-2">Esta expresión muestra la hospitalidad española. Merche la usa para hacerte sentir bienvenido/a.</p>
+                <p class="text-sm text-gray-600 italic">This expression shows Spanish hospitality. Merche uses it to make you feel welcome.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-medium mb-2">¿Qué significa "Mi casa, tu casa" en tu cultura?</label>
+                    <textarea id="cultural-meaning" class="w-full p-3 border border-gray-300 rounded-lg h-20 resize-none" placeholder="Explica qué significa esta expresión..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="block font-medium mb-2">¿Cómo muestras hospitalidad en tu país?</label>
+                    <textarea id="hospitality-customs" class="w-full p-3 border border-gray-300 rounded-lg h-20 resize-none" placeholder="Describe las costumbres de hospitalidad..."></textarea>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="submitCulturalReflection()" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Enviar Reflexión
+                </button>
+            </div>
+            <div id="cultural-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Resumen Final -->
+        <div id="final-summary" class="hidden mt-8 bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-lg border-2 border-green-300">
+            <h3 class="text-2xl font-bold text-center text-green-700 mb-4">¡Felicidades! 🎉</h3>
+            <p class="text-center text-gray-700 mb-4">Has completado todos los ejercicios del Episodio 1: En Madrid</p>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-blue-600 mb-2">Puntuación Final: <span id="finalScore">0</span></div>
+                <div class="text-lg text-gray-600 mb-4">¡Excelente trabajo aprendiendo español!</div>
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">🎯 Lo que has aprendido:</h4>
+                    <ul class="text-left text-sm space-y-1">
+                        <li>• Vocabulario esencial para presentarse</li>
+                        <li>• Cómo dar y entender direcciones</li>
+                        <li>• Diferencias de género en español (amigo/amiga)</li>
+                        <li>• Números ordinales para pisos</li>
+                        <li>• Expresiones de hospitalidad española</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let totalScore = 0;
+        let streak = 0;
+        let completedExercises = 0;
+        const totalExercisesCount = 8;
+        let exerciseStates = {};
+
+        // Toggle definition visibility
+        function toggleDefinition(element) {
+            const definition = element.querySelector('.definition');
+            definition.classList.toggle('hidden');
+            
+            if (!definition.classList.contains('hidden')) {
+                element.classList.add('celebration');
+                setTimeout(() => element.classList.remove('celebration'), 600);
+            }
+        }
+
+        // Complete exercise
+        function completeExercise(exerciseNum) {
+            if (!exerciseStates[exerciseNum]) {
+                exerciseStates[exerciseNum] = true;
+                completedExercises++;
+                addScore(10);
+                updateProgress();
+                
+                const button = event.target;
+                button.textContent = '✅ Completado';
+                button.classList.remove('bg-green-500', 'hover:bg-green-600');
+                button.classList.add('bg-gray-400');
+                button.disabled = true;
+            }
+        }
+
+        // Check address exercise
+        function checkAddress() {
+            const street = document.getElementById('street-name').value.toLowerCase();
+            const number = document.getElementById('street-number').value;
+            const floor = document.getElementById('floor').value;
+            const side = document.getElementById('side').value;
+            
+            const feedback = document.getElementById('address-feedback');
+            feedback.style.display = 'block';
+            
+            let correct = 0;
+            if (street.includes('dos hermanas')) correct++;
+            if (number === '30') correct++;
+            if (floor === 'quinto') correct++;
+            if (side === 'derecha') correct++;
+            
+            if (correct === 4) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Perfecto! Calle Dos Hermanas, 30, quinto derecha.';
+                addScore(20);
+                if (!exerciseStates[2]) {
+                    exerciseStates[2] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = `Tienes ${correct} de 4 correctas. Revisa el episodio para la dirección completa.`;
+            }
+        }
+
+        // Drag and drop functionality
+        let draggedElement = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+        });
+
+        function setupDragAndDrop() {
+            const draggables = document.querySelectorAll('.draggable');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.style.opacity = '0.5';
+                });
+
+                draggable.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                });
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                });
+
+                zone.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    if (draggedElement) {
+                        this.appendChild(draggedElement);
+                        draggedElement = null;
+                    }
+                });
+            });
+        }
+
+        function checkDialogueOrder() {
+            const dropZones = document.querySelectorAll('#dialogue-order .drop-zone');
+            let correct = 0;
+            let total = 0;
+
+            dropZones.forEach((zone, index) => {
+                const droppedItem = zone.querySelector('.draggable');
+                if (droppedItem) {
+                    total++;
+                    const expectedOrder = parseInt(droppedItem.dataset.order);
+                    const actualPosition = index + 1;
+                    
+                    if (expectedOrder === actualPosition) {
+                        zone.classList.add('correct');
+                        droppedItem.classList.add('correct');
+                        correct++;
+                    } else {
+                        zone.classList.add('incorrect');
+                        droppedItem.classList.add('incorrect');
+                    }
+                }
+            });
+
+            const feedback = document.getElementById('dialogue-feedback');
+            feedback.style.display = 'block';
+            
+            if (correct === 5 && total === 5) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Perfecto! Has ordenado el diálogo correctamente.';
+                addScore(25);
+                if (!exerciseStates[3]) {
+                    exerciseStates[3] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = `Tienes ${correct} de ${total} en orden correcto. ¡Sigue intentando!`;
+            }
+        }
+
+        function resetDialogue() {
+            const originalContainer = document.getElementById('dialogue-options');
+            const draggables = document.querySelectorAll('#dialogue-order .draggable');
+            const dropZones = document.querySelectorAll('#dialogue-order .drop-zone');
+            
+            draggables.forEach(item => {
+                item.classList.remove('correct', 'incorrect');
+                originalContainer.appendChild(item);
+            });
+            
+            dropZones.forEach(zone => {
+                zone.classList.remove('correct', 'incorrect', 'drag-over');
+            });
+            
+            document.getElementById('dialogue-feedback').style.display = 'none';
+        }
+
+        function checkPhraseBook() {
+            const pronunciation = document.querySelector('input[name="pronunciation"]:checked');
+            const letterH = document.querySelector('input[name="letter-h"]:checked');
+            
+            const feedback = document.getElementById('phrasebook-feedback');
+            feedback.style.display = 'block';
+            
+            let correct = 0;
+            if (pronunciation && pronunciation.value === 'pardon') correct++;
+            if (letterH && letterH.value === 'silent') correct++;
+            
+            if (correct === 2) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Correcto! "Perdón" suena como "pardon" y la H es siempre silenciosa.';
+                addScore(15);
+                if (!exerciseStates[4]) {
+                    exerciseStates[4] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = `Tienes ${correct} de 2 correctas. Escucha atentamente al libro de frases.`;
+            }
+        }
+
+        function checkGender() {
+            const femaleForm = document.querySelector('input[name="female-form"]:checked');
+            const maleForm = document.querySelector('input[name="male-form"]:checked');
+            
+            const feedback = document.getElementById('gender-feedback');
+            feedback.style.display = 'block';
+            
+            let correct = 0;
+            if (femaleForm && femaleForm.value === 'amiga') correct++;
+            if (maleForm && maleForm.value === 'amigo') correct++;
+            
+            if (correct === 2) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Perfecto! Mujer = amiga, Hombre = amigo.';
+                addScore(15);
+                if (!exerciseStates[5]) {
+                    exerciseStates[5] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = 'Recuerda: las mujeres usan "amiga" y los hombres "amigo".';
+            }
+        }
+
+        function checkOrdinals() {
+            const dropZones = document.querySelectorAll('#ordinals-feedback').length ? 
+                document.querySelectorAll('.drop-zone[data-ordinal]') : 
+                document.querySelectorAll('[data-ordinal]');
+            let correct = 0;
+            let total = 0;
+
+            dropZones.forEach(zone => {
+                const droppedItem = zone.querySelector('.draggable');
+                if (droppedItem) {
+                    total++;
+                    const number = droppedItem.dataset.number;
+                    const ordinal = zone.dataset.ordinal;
+                    
+                    if (number === ordinal) {
+                        zone.classList.add('correct');
+                        droppedItem.classList.add('correct');
+                        correct++;
+                    } else {
+                        zone.classList.add('incorrect');
+                        droppedItem.classList.add('incorrect');
+                    }
+                }
+            });
+
+            const feedback = document.getElementById('ordinals-feedback');
+            feedback.style.display = 'block';
+            
+            if (correct === 5 && total === 5) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Excelente! Has emparejado todos los números ordinales correctamente.';
+                addScore(20);
+                if (!exerciseStates[6]) {
+                    exerciseStates[6] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = `Tienes ${correct} de ${total} correctas. Escucha los pisos en el episodio.`;
+            }
+        }
+
+        function resetOrdinals() {
+            const originalContainer = document.getElementById('numbers');
+            const draggables = document.querySelectorAll('[data-ordinal] .draggable');
+            const dropZones = document.querySelectorAll('[data-ordinal]');
+            
+            draggables.forEach(item => {
+                item.classList.remove('correct', 'incorrect');
+                originalContainer.appendChild(item);
+            });
+            
+            dropZones.forEach(zone => {
+                zone.classList.remove('correct', 'incorrect', 'drag-over');
+            });
+            
+            document.getElementById('ordinals-feedback').style.display = 'none';
+        }
+
+        function checkTaxi() {
+            const taxi1 = document.getElementById('taxi1').value;
+            const taxi2 = document.getElementById('taxi2').value;
+            const taxi3 = document.getElementById('taxi3').value;
+            
+            const feedback = document.getElementById('taxi-feedback');
+            feedback.style.display = 'block';
+            
+            let correct = 0;
+            if (taxi1 === 'embajadores') correct++;
+            if (taxi2 === 'toledo') correct++;
+            if (taxi3 === 'atocha') correct++;
+            
+            if (correct === 3) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Perfecto! Embajadores, Toledo y Atocha son lugares importantes de Madrid.';
+                addScore(20);
+                if (!exerciseStates[7]) {
+                    exerciseStates[7] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = `Tienes ${correct} de 3 correctas. Escucha atentamente al taxista.`;
+            }
+        }
+
+        function submitCulturalReflection() {
+            const meaning = document.getElementById('cultural-meaning').value.trim();
+            const customs = document.getElementById('hospitality-customs').value.trim();
+            
+            const feedback = document.getElementById('cultural-feedback');
+            feedback.style.display = 'block';
+            
+            if (meaning.length > 20 && customs.length > 20) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Gracias por tu reflexión! La comprensión cultural es fundamental para aprender idiomas.';
+                addScore(15);
+                if (!exerciseStates[8]) {
+                    exerciseStates[8] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = '💭 Por favor, escribe reflexiones más detalladas en ambos campos.';
+            }
+        }
+
+        function addScore(points) {
+            totalScore += points;
+            streak++;
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('streak').textContent = streak;
+            
+            // Celebration animation
+            const scoreElement = document.getElementById('totalScore');
+            scoreElement.classList.add('celebration');
+            setTimeout(() => scoreElement.classList.remove('celebration'), 600);
+        }
+
+        function updateProgress() {
+            const progress = (completedExercises / totalExercisesCount) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '% completado';
+            document.getElementById('completedExercises').textContent = completedExercises;
+            
+            if (completedExercises === totalExercisesCount) {
+                showFinalSummary();
+            }
+        }
+
+        function showFinalSummary() {
+            const summary = document.getElementById('final-summary');
+            summary.classList.remove('hidden');
+            document.getElementById('finalScore').textContent = totalScore;
+            summary.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'986f57cad042d03c',t:'MTc1OTE4OTQwOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
