@@ -1,1 +1,1263 @@
+<!DOCTYPE html>
+<html lang="es" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>Mi Vida Loca - Episodio 3: El Metro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        .feedback {
+            display: none;
+        }
+        .draggable {
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+        .drop-zone {
+            min-height: 50px;
+            transition: all 0.3s ease;
+        }
+        .drop-zone.drag-over {
+            background-color: #dbeafe;
+            border-color: #3b82f6;
+            transform: scale(1.02);
+        }
+        .instructions {
+            font-style: italic;
+            color: #6b7280;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #16a34a !important;
+        }
+        .incorrect {
+            background-color: #fef2f2 !important;
+            border-color: #dc2626 !important;
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .celebration {
+            animation: celebrate 0.6s ease-out;
+        }
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .character-speech {
+            border-left: 4px solid #3b82f6;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .metro-info {
+            border-left: 4px solid #fbbf24;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+        .directions-box {
+            border-left: 4px solid #10b981;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+        .metro-map {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            border: 2px solid #6366f1;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800 p-4 sm:p-6 md:p-8 min-h-screen">
 
+    <!-- Progress Bar -->
+    <div class="max-w-4xl mx-auto mb-6">
+        <div class="bg-white rounded-full p-1 shadow-sm">
+            <div class="bg-gray-200 rounded-full h-3 relative overflow-hidden">
+                <div id="progressBar" class="progress-bar bg-gradient-to-r from-orange-400 to-red-500 h-full rounded-full" style="width: 0%"></div>
+            </div>
+        </div>
+        <div class="flex justify-between mt-2 text-sm text-gray-600">
+            <span>Progreso del Episodio 2</span>
+            <span id="progressText">0% completado</span>
+        </div>
+    </div>
+
+    <!-- Score Display -->
+    <div class="max-w-4xl mx-auto mb-6">
+        <div class="bg-white rounded-lg p-4 shadow-sm flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="text-2xl">☕</div>
+                <div>
+                    <div class="font-semibold">Puntuación: <span id="totalScore" class="text-orange-600">0</span></div>
+                    <div class="text-sm text-gray-600">Racha: <span id="streak">0</span> 🔥</div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-sm text-gray-600">Ejercicios completados</div>
+                <div class="font-semibold"><span id="completedExercises">0</span>/8</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-8">Mi Vida Loca - Episodio 3: El Metro</h1>
+
+        <!-- Contexto del Episodio -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 mb-8">
+            <h2 class="text-xl font-bold text-blue-700 mb-3">🚇 Contexto del Episodio</h2>
+            <p class="text-gray-700 mb-3">
+                Después de pagar la cuenta en el café, necesitas llegar al metro. Pides direcciones y aprendes 
+                a orientarte en Madrid. Finalmente llegas a la estación de Lavapiés en la línea 3 (amarilla) 
+                donde ves a alguien familiar...
+            </p>
+            <p class="text-sm text-gray-600 italic">
+                After paying the bill at the café, you need to get to the metro. You ask for directions and learn 
+                to navigate Madrid. Finally you reach Lavapiés station on line 3 (yellow) where you see someone familiar...
+            </p>
+        </div>
+
+        <!-- Video Player -->
+        <div class="bg-black rounded-lg overflow-hidden max-w-xl mx-auto shadow-md mb-8">
+            <video 
+                controls 
+                class="w-full aspect-video"
+                poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%23374151'/%3E%3Ctext x='400' y='200' text-anchor='middle' fill='white' font-size='24' font-family='Arial'%3EMi Vida Loca%3C/text%3E%3Ctext x='400' y='230' text-anchor='middle' fill='%23d1d5db' font-size='18' font-family='Arial'%3EEpisodio 3: El Metro%3C/text%3E%3Cpolygon points='350,270 450,320 350,370' fill='white'/%3E%3C/svg%3E"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+            >
+                <source src="mvl03.mp4" type="video/mp4">
+                Tu navegador no soporta el elemento de video.
+            </video>
+            <!-- Fallback if video fails to load -->
+            <div class="aspect-video bg-gray-800 flex items-center justify-center text-white" style="display: none;">
+                <div class="text-center">
+                    <div class="text-4xl mb-2">🎬</div>
+                    <p class="text-lg font-semibold">Mi Vida Loca - Episodio 3</p>
+                    <p class="text-sm text-gray-300">Video no disponible</p>
+                    <p class="text-xs text-gray-400 mt-2">Asegúrate de que mvl01.mp4 esté en la misma carpeta</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ejercicio 1: Pagar la Cuenta -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500" data-exercise="1">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                Pagar la Cuenta / <span class="instructions">Paying the Bill</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Aprende las frases esenciales para pagar en un restaurante o café.</p>
+            
+            <div class="character-speech p-4 rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">💬 Frases del episodio:</h4>
+                <p class="italic mb-2">"La cuenta, por favor" - The bill, please</p>
+                <p class="text-sm text-gray-600">Esta es la frase más importante para pedir la cuenta</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-3">
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">La cuenta, por favor</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "The bill, please" - frase principal para pedir la cuenta
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">¿Todo bien?</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "Everything alright?" - pregunta del camarero
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">¿Algo más?</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "Anything else?" - pregunta si quieres algo más
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer" onclick="toggleDefinition(this)">
+                        <span class="font-bold text-blue-600">Enseguida</span>
+                        <div class="definition hidden mt-2 text-sm text-gray-700 italic">
+                            "Right away" - respuesta del camarero cuando pides la cuenta
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-semibold mb-2">🎯 Situación práctica:</h4>
+                        <p class="text-sm mb-2">Estás en un café y quieres irte. ¿Qué dices?</p>
+                        <div class="space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="bill-phrase" value="cuenta" class="mr-2">
+                                <span>La cuenta, por favor</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="bill-phrase" value="dinero" class="mr-2">
+                                <span>El dinero, por favor</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="bill-phrase" value="pagar" class="mr-2">
+                                <span>Quiero pagar, por favor</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkBillPhrase()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Respuesta
+                </button>
+            </div>
+            <div id="bill-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 2: Direcciones -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500" data-exercise="2">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-green-100 text-green-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                Pedir Direcciones / <span class="instructions">Asking for Directions</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Aprende a pedir direcciones y entender las respuestas básicas.</p>
+            
+            <div class="directions-box p-4 rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">🧭 Direcciones básicas del episodio:</h4>
+                <div class="grid md:grid-cols-3 gap-4 text-sm">
+                    <div class="text-center">
+                        <div class="text-2xl mb-1">⬆️</div>
+                        <p><strong>Todo recto</strong></p>
+                        <p class="text-gray-600">Straight ahead</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl mb-1">➡️</div>
+                        <p><strong>A la derecha</strong></p>
+                        <p class="text-gray-600">On the right</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl mb-1">⬅️</div>
+                        <p><strong>A la izquierda</strong></p>
+                        <p class="text-gray-600">On the left</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold mb-3 text-gray-700">Arrastra las direcciones:</h4>
+                    <div class="space-y-2" id="directions-words">
+                        <div class="draggable bg-green-100 border-2 border-green-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-direction="straight">
+                            Todo recto
+                        </div>
+                        <div class="draggable bg-green-100 border-2 border-green-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-direction="right">
+                            A la derecha
+                        </div>
+                        <div class="draggable bg-green-100 border-2 border-green-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-direction="left">
+                            A la izquierda
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-3 text-gray-700">Situaciones:</h4>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-sm mb-2">🚇 "¿El metro, por favor?"</p>
+                            <div class="drop-zone border-2 border-dashed border-gray-300 p-2 rounded text-center bg-white min-h-[40px] flex items-center justify-center" data-situation="metro">
+                                Arrastra la dirección correcta
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">Respuesta del episodio: "Todo recto y a la izquierda"</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-sm mb-2">🏪 "¿Dónde está el supermercado?"</p>
+                            <div class="drop-zone border-2 border-dashed border-gray-300 p-2 rounded text-center bg-white min-h-[40px] flex items-center justify-center" data-situation="super">
+                                Practica con otra dirección
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="text-sm mb-2">🏥 "¿El hospital está cerca?"</p>
+                            <div class="drop-zone border-2 border-dashed border-gray-300 p-2 rounded text-center bg-white min-h-[40px] flex items-center justify-center" data-situation="hospital">
+                                Usa la tercera dirección
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkDirections()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Direcciones
+                </button>
+                <button onclick="resetDirections()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">
+                    Reiniciar
+                </button>
+            </div>
+            <div id="directions-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 3: Información del Metro -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-yellow-500" data-exercise="3">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-yellow-100 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
+                Información del Metro / <span class="instructions">Metro Information</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Completa la información sobre el metro de Madrid del episodio.</p>
+            
+            <div class="metro-info p-4 rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">🚇 Datos del episodio:</h4>
+                <p class="text-sm mb-2">Merche mencionó: "La estación de metro es Lavapiés, en la línea 3"</p>
+                <p class="text-sm text-gray-600 italic">Pero en el episodio se corrige la información...</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-4">
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <label class="block font-medium mb-2">¿Cuál es la estación correcta?</label>
+                        <select id="station-name" class="w-full p-2 border rounded">
+                            <option value="">Selecciona la estación...</option>
+                            <option value="la-latina">La Latina</option>
+                            <option value="lavapies">Lavapiés</option>
+                            <option value="sol">Sol</option>
+                            <option value="opera">Ópera</option>
+                        </select>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <label class="block font-medium mb-2">¿En qué línea está?</label>
+                        <select id="line-number" class="w-full p-2 border rounded">
+                            <option value="">Selecciona la línea...</option>
+                            <option value="1">Línea 1 (Azul claro)</option>
+                            <option value="2">Línea 2 (Roja)</option>
+                            <option value="3">Línea 3 (Amarilla)</option>
+                            <option value="4">Línea 4 (Marrón)</option>
+                            <option value="5">Línea 5 (Verde)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-4 rounded-lg">
+                        <label class="block font-medium mb-2">¿Qué color es la línea 3?</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="line-color" value="amarilla" class="mr-2">
+                                <span>Amarilla</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="line-color" value="roja" class="mr-2">
+                                <span>Roja</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="line-color" value="verde" class="mr-2">
+                                <span>Verde</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="metro-map p-4 rounded-lg">
+                        <h4 class="font-semibold mb-3 text-center">🗺️ Mapa del Metro</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-blue-300 rounded mr-2"></div>
+                                <span>Línea 1 - Azul claro</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                                <span>Línea 2 - Roja</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-yellow-400 rounded mr-2"></div>
+                                <span>Línea 3 - Amarilla</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-yellow-800 rounded mr-2"></div>
+                                <span>Línea 4 - Marrón</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                                <span>Línea 5 - Verde</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-3 rounded-lg">
+                        <h4 class="font-semibold mb-2">💡 Dato curioso:</h4>
+                        <p class="text-sm">En el episodio, la persona en el metro dice: "Es la línea 3, la amarilla"</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkMetroInfo()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Información
+                </button>
+            </div>
+            <div id="metro-info-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 4: Secuencia del Episodio -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-purple-500" data-exercise="4">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-purple-100 text-purple-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</span>
+                Secuencia del Episodio / <span class="instructions">Episode Sequence</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Ordena los eventos del episodio 3 según ocurrieron.</p>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold mb-3 text-gray-700">Eventos desordenados:</h4>
+                    <div class="space-y-2" id="episode-events">
+                        <div class="draggable bg-purple-100 border-2 border-purple-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-order="1">
+                            Pides la cuenta en el café
+                        </div>
+                        <div class="draggable bg-purple-100 border-2 border-purple-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-order="3">
+                            Llegas a la estación de Lavapiés
+                        </div>
+                        <div class="draggable bg-purple-100 border-2 border-purple-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-order="2">
+                            Pides direcciones para el metro
+                        </div>
+                        <div class="draggable bg-purple-100 border-2 border-purple-300 p-3 rounded-lg text-center cursor-move" draggable="true" data-order="4">
+                            Ves a alguien familiar en el metro
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-3 text-gray-700">Orden correcto:</h4>
+                    <div class="space-y-2" id="episode-sequence">
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50 min-h-[50px] flex items-center justify-center" data-position="1">
+                            1. Primer evento...
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50 min-h-[50px] flex items-center justify-center" data-position="2">
+                            2. Segundo evento...
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50 min-h-[50px] flex items-center justify-center" data-position="3">
+                            3. Tercer evento...
+                        </div>
+                        <div class="drop-zone border-2 border-dashed border-gray-300 p-3 rounded-lg text-center bg-gray-50 min-h-[50px] flex items-center justify-center" data-position="4">
+                            4. Cuarto evento...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkEpisodeSequence()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Secuencia
+                </button>
+                <button onclick="resetEpisodeSequence()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">
+                    Reiniciar
+                </button>
+            </div>
+            <div id="episode-sequence-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 5: Comprensión Auditiva -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-red-500" data-exercise="5">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-red-100 text-red-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">5</span>
+                Comprensión del Episodio / <span class="instructions">Episode Comprehension</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Responde las preguntas sobre los detalles del episodio.</p>
+            
+            <div class="space-y-4">
+                <div class="character-speech p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">🎧 Escucha atentamente:</h4>
+                    <p class="text-sm mb-3">En el episodio escuchas varias conversaciones importantes</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <p class="font-medium mb-2">1. ¿Qué dice el camarero cuando pides la cuenta?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="waiter-response" value="enseguida" class="mr-2">
+                                    <span>Enseguida</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="waiter-response" value="momento" class="mr-2">
+                                    <span>Un momento</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="waiter-response" value="ahora" class="mr-2">
+                                    <span>Ahora mismo</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <p class="font-medium mb-2">2. ¿Qué direcciones te dan para llegar al metro?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="metro-directions" value="recto-izquierda" class="mr-2">
+                                    <span>Todo recto y a la izquierda</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="metro-directions" value="derecha-recto" class="mr-2">
+                                    <span>A la derecha y todo recto</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="metro-directions" value="izquierda-derecha" class="mr-2">
+                                    <span>A la izquierda y a la derecha</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <p class="font-medium mb-2">3. ¿Qué dice el anuncio en el metro?</p>
+                            <div class="space-y-2">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="metro-announcement" value="un-minuto" class="mr-2">
+                                    <span>El próximo tren llegará en un minuto</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="metro-announcement" value="dos-minutos" class="mr-2">
+                                    <span>El próximo tren llegará en dos minutos</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="metro-announcement" value="cinco-minutos" class="mr-2">
+                                    <span>El próximo tren llegará en cinco minutos</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkComprehension()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Respuestas
+                </button>
+            </div>
+            <div id="comprehension-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 6: Frases Útiles para Viajar -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-indigo-500" data-exercise="6">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-indigo-100 text-indigo-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">6</span>
+                Frases para Viajar / <span class="instructions">Travel Phrases</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Completa las frases esenciales para moverte por una ciudad.</p>
+            
+            <div class="space-y-4">
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="mb-2"><strong>Para pedir direcciones al metro:</strong></p>
+                    <p>"¿El 
+                        <select id="travel-phrase1" class="mx-1 p-1 border rounded">
+                            <option value="">...</option>
+                            <option value="metro">metro</option>
+                            <option value="autobús">autobús</option>
+                            <option value="taxi">taxi</option>
+                        </select>
+                        , por favor?"
+                    </p>
+                </div>
+                
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="mb-2"><strong>Para decir "todo recto":</strong></p>
+                    <p>"Todo 
+                        <select id="travel-phrase2" class="mx-1 p-1 border rounded">
+                            <option value="">...</option>
+                            <option value="recto">recto</option>
+                            <option value="derecho">derecho</option>
+                            <option value="adelante">adelante</option>
+                        </select>
+                        "
+                    </p>
+                </div>
+                
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="mb-2"><strong>Para preguntar por una estación:</strong></p>
+                    <p>"Perdón, ¿
+                        <select id="travel-phrase3" class="mx-1 p-1 border rounded">
+                            <option value="">...</option>
+                            <option value="Lavapiés">Lavapiés</option>
+                            <option value="La Latina">La Latina</option>
+                            <option value="Sol">Sol</option>
+                        </select>
+                        ?"
+                    </p>
+                </div>
+                
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <p class="mb-2"><strong>Para confirmar la línea del metro:</strong></p>
+                    <p>"Es la línea 3, la 
+                        <select id="travel-phrase4" class="mx-1 p-1 border rounded">
+                            <option value="">...</option>
+                            <option value="amarilla">amarilla</option>
+                            <option value="roja">roja</option>
+                            <option value="verde">verde</option>
+                        </select>
+                        "
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkTravelPhrases()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Frases
+                </button>
+            </div>
+            <div id="travel-phrases-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 7: El Misterio -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-pink-500" data-exercise="7">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-pink-100 text-pink-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">7</span>
+                El Misterio / <span class="instructions">The Mystery</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Al final del episodio, ves a alguien familiar. ¿Qué crees que pasará?</p>
+            
+            <div class="character-speech p-4 rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">🕵️ Final del episodio:</h4>
+                <p class="italic">"He looks familiar. ¿No es eso, Merche?"</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="bg-pink-50 p-4 rounded-lg">
+                    <label class="block font-medium mb-2">¿A quién crees que ve el protagonista?</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="mystery-person" value="merche" class="mr-2">
+                            <span>A Merche</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="mystery-person" value="teresa" class="mr-2">
+                            <span>A Teresa</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="mystery-person" value="desconocido" class="mr-2">
+                            <span>A un desconocido</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="mystery-person" value="no-se" class="mr-2">
+                            <span>No se puede saber</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="bg-pink-50 p-4 rounded-lg">
+                    <label class="block font-medium mb-2">¿Qué significa "He looks familiar"?</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="familiar-meaning" value="conocido" class="mr-2">
+                            <span>Me parece conocido</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="familiar-meaning" value="familia" class="mr-2">
+                            <span>Es de mi familia</span>
+                        </label>
+                        <label class="flex items-center cursor-pointer">
+                            <input type="radio" name="familiar-meaning" value="amigable" class="mr-2">
+                            <span>Parece amigable</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="bg-pink-50 p-4 rounded-lg">
+                    <label class="block font-medium mb-2">¿Qué crees que pasará en el próximo episodio?</label>
+                    <textarea id="next-episode-prediction" class="w-full p-3 border border-gray-300 rounded-lg h-20 resize-none" placeholder="Escribe tu predicción sobre lo que pasará..."></textarea>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="checkMystery()" class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Verificar Respuestas
+                </button>
+            </div>
+            <div id="mystery-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Ejercicio 8: Reflexión sobre el Transporte -->
+        <div class="activity mt-8 bg-white p-6 rounded-lg shadow-sm border-l-4 border-teal-500" data-exercise="8">
+            <h3 class="text-xl font-semibold mb-3 flex items-center">
+                <span class="bg-teal-100 text-teal-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">8</span>
+                Transporte Público / <span class="instructions">Public Transportation</span>
+            </h3>
+            <p class="text-sm text-gray-600 mb-4">Reflexiona sobre el transporte público en Madrid y compáralo con tu ciudad.</p>
+            
+            <div class="bg-teal-50 p-4 rounded-lg mb-4">
+                <h4 class="font-semibold mb-2">🚇 El Metro de Madrid</h4>
+                <p class="text-sm mb-2">El metro de Madrid es uno de los sistemas de transporte más extensos del mundo, con 12 líneas y más de 300 estaciones. Cada línea tiene un color distintivo.</p>
+                <p class="text-sm text-gray-600 italic">Madrid's metro is one of the world's most extensive transport systems, with 12 lines and over 300 stations. Each line has a distinctive color.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-medium mb-2">1. ¿Cómo es el transporte público en tu ciudad?</label>
+                    <textarea id="transport-comparison" class="w-full p-3 border border-gray-300 rounded-lg h-20 resize-none" placeholder="Describe el sistema de transporte de tu ciudad..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="block font-medium mb-2">2. ¿Qué ventajas tiene usar el metro en una ciudad grande?</label>
+                    <textarea id="metro-advantages" class="w-full p-3 border border-gray-300 rounded-lg h-20 resize-none" placeholder="Menciona las ventajas del metro..."></textarea>
+                </div>
+                
+                <div>
+                    <label class="block font-medium mb-2">3. ¿Te parece fácil o difícil pedir direcciones en español?</label>
+                    <textarea id="directions-difficulty" class="w-full p-3 border border-gray-300 rounded-lg h-20 resize-none" placeholder="Comparte tu experiencia pidiendo direcciones..."></textarea>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button onclick="completeExercise(8)" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    ✓ Marcar como completado
+                </button>
+            </div>
+        </div>
+
+        <!-- Enviar al Profesor -->
+        <div class="mt-8 bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-lg border border-purple-200">
+            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                📧 Enviar Resultados al Profesor
+            </h3>
+            <p class="text-gray-600 mb-4">Completa tus datos para enviar tu progreso y puntuación al profesor.</p>
+            
+            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nombre completo:</label>
+                    <input type="text" id="student-name" class="w-full p-2 border rounded-lg" placeholder="Tu nombre completo">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Clase/Grupo:</label>
+                    <input type="text" id="student-class" class="w-full p-2 border rounded-lg" placeholder="Ej: Español 101, Grupo A">
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Comentarios adicionales (opcional):</label>
+                <textarea id="student-comments" class="w-full p-2 border rounded-lg h-20 resize-none" placeholder="Comparte tus reflexiones sobre el episodio..."></textarea>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="sendToTeacher()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center">
+                    <span class="mr-2">📤</span> Enviar al Profesor
+                </button>
+                <button onclick="downloadResults()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center justify-center">
+                    <span class="mr-2">💾</span> Descargar Resultados
+                </button>
+            </div>
+            
+            <div id="submission-feedback" class="feedback mt-4 p-3 rounded-lg"></div>
+        </div>
+
+        <!-- Resumen Final -->
+        <div id="final-summary" class="hidden mt-8 bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-lg border-2 border-green-300">
+            <h3 class="text-2xl font-bold text-center text-green-700 mb-4">¡Felicidades! 🎉</h3>
+            <p class="text-center text-gray-700 mb-4">Has completado todos los ejercicios del Episodio 3: El Metro</p>
+            <div class="text-center">
+                <div class="text-3xl font-bold text-orange-600 mb-2">Puntuación Final: <span id="finalScore">0</span></div>
+                <div class="text-lg text-gray-600 mb-4">¡Excelente trabajo aprendiendo español!</div>
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold mb-2">🎯 Lo que has aprendido:</h4>
+                    <ul class="text-left text-sm space-y-1">
+                        <li>• Cómo pedir la cuenta en un restaurante</li>
+                        <li>• Direcciones básicas (todo recto, a la derecha, a la izquierda)</li>
+                        <li>• Información del metro de Madrid</li>
+                        <li>• Frases para pedir direcciones</li>
+                        <li>• Vocabulario de transporte público</li>
+                        <li>• Comprensión auditiva de conversaciones</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let totalScore = 0;
+        let streak = 0;
+        let completedExercises = 0;
+        const totalExercisesCount = 8;
+        let exerciseStates = {};
+
+        // Toggle definition visibility
+        function toggleDefinition(element) {
+            const definition = element.querySelector('.definition');
+            definition.classList.toggle('hidden');
+            
+            if (!definition.classList.contains('hidden')) {
+                element.classList.add('celebration');
+                setTimeout(() => element.classList.remove('celebration'), 600);
+            }
+        }
+
+        // Complete exercise
+        function completeExercise(exerciseNum) {
+            if (!exerciseStates[exerciseNum]) {
+                exerciseStates[exerciseNum] = true;
+                completedExercises++;
+                addScore(10);
+                updateProgress();
+                
+                const button = event.target;
+                button.textContent = '✅ Completado';
+                button.classList.remove('bg-teal-500', 'hover:bg-teal-600', 'bg-orange-500', 'hover:bg-orange-600');
+                button.classList.add('bg-gray-400');
+                button.disabled = true;
+            }
+        }
+
+        // Drag and drop functionality
+        let draggedElement = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupDragAndDrop();
+        });
+
+        function setupDragAndDrop() {
+            const draggables = document.querySelectorAll('.draggable');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.style.opacity = '0.5';
+                });
+
+                draggable.addEventListener('dragend', function(e) {
+                    this.style.opacity = '1';
+                });
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('drag-over');
+                });
+
+                zone.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    
+                    if (draggedElement) {
+                        this.appendChild(draggedElement);
+                        draggedElement = null;
+                    }
+                });
+            });
+        }
+
+        function checkBillPhrase() {
+            const selected = document.querySelector('input[name="bill-phrase"]:checked');
+            const feedback = document.getElementById('bill-feedback');
+            feedback.style.display = 'block';
+            
+            if (selected && selected.value === 'cuenta') {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Correcto! "La cuenta, por favor" es la frase estándar para pedir la cuenta.';
+                addScore(15);
+                if (!exerciseStates[1]) {
+                    exerciseStates[1] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = 'La frase correcta es "La cuenta, por favor". Es la forma más común y educada.';
+            }
+        }
+
+        function checkDirections() {
+            const dropZones = document.querySelectorAll('#directions-words ~ div .drop-zone');
+            let correct = 0;
+            let total = 0;
+
+            dropZones.forEach(zone => {
+                const droppedItem = zone.querySelector('.draggable');
+                if (droppedItem) {
+                    total++;
+                    // For metro situation, accept any direction for practice
+                    if (zone.dataset.situation === 'metro') {
+                        zone.classList.add('correct');
+                        droppedItem.classList.add('correct');
+                        correct++;
+                    } else {
+                        zone.classList.add('correct');
+                        droppedItem.classList.add('correct');
+                        correct++;
+                    }
+                }
+            });
+
+            const feedback = document.getElementById('directions-feedback');
+            feedback.style.display = 'block';
+            
+            if (total >= 1) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Bien! Has practicado las direcciones básicas. En el episodio: "Todo recto y a la izquierda".';
+                addScore(20);
+                if (!exerciseStates[2]) {
+                    exerciseStates[2] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = 'Arrastra al menos una dirección para practicar.';
+            }
+        }
+
+        function resetDirections() {
+            const originalContainer = document.getElementById('directions-words');
+            const draggables = document.querySelectorAll('.drop-zone .draggable');
+            
+            draggables.forEach(item => {
+                item.classList.remove('correct', 'incorrect');
+                originalContainer.appendChild(item);
+            });
+            
+            const dropZones = document.querySelectorAll('.drop-zone');
+            dropZones.forEach(zone => {
+                zone.classList.remove('correct', 'incorrect', 'drag-over');
+            });
+            
+            document.getElementById('directions-feedback').style.display = 'none';
+        }
+
+        function checkMetroInfo() {
+            const station = document.getElementById('station-name').value;
+            const line = document.getElementById('line-number').value;
+            const color = document.querySelector('input[name="line-color"]:checked');
+            
+            const feedback = document.getElementById('metro-info-feedback');
+            feedback.style.display = 'block';
+            
+            let correct = 0;
+            if (station === 'lavapies') correct++;
+            if (line === '3') correct++;
+            if (color && color.value === 'amarilla') correct++;
+            
+            if (correct === 3) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Perfecto! Lavapiés, línea 3, la amarilla.';
+                addScore(25);
+                if (!exerciseStates[3]) {
+                    exerciseStates[3] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = `Tienes ${correct} de 3 correctas. Recuerda: Lavapiés, línea 3, la amarilla.`;
+            }
+        }
+
+        function checkEpisodeSequence() {
+            const dropZones = document.querySelectorAll('#episode-sequence .drop-zone');
+            let correct = 0;
+            let total = 0;
+
+            dropZones.forEach((zone, index) => {
+                const droppedItem = zone.querySelector('.draggable');
+                if (droppedItem) {
+                    total++;
+                    const expectedOrder = parseInt(droppedItem.dataset.order);
+                    const actualPosition = index + 1;
+                    
+                    if (expectedOrder === actualPosition) {
+                        zone.classList.add('correct');
+                        droppedItem.classList.add('correct');
+                        correct++;
+                    } else {
+                        zone.classList.add('incorrect');
+                        droppedItem.classList.add('incorrect');
+                    }
+                }
+            });
+
+            const feedback = document.getElementById('episode-sequence-feedback');
+            feedback.style.display = 'block';
+            
+            if (correct === 4 && total === 4) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Perfecto! Has ordenado la secuencia del episodio correctamente.';
+                addScore(25);
+                if (!exerciseStates[4]) {
+                    exerciseStates[4] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = `Tienes ${correct} de ${total} en orden correcto. Repasa la secuencia del episodio.`;
+            }
+        }
+
+        function resetEpisodeSequence() {
+            const originalContainer = document.getElementById('episode-events');
+            const draggables = document.querySelectorAll('#episode-sequence .draggable');
+            const dropZones = document.querySelectorAll('#episode-sequence .drop-zone');
+            
+            draggables.forEach(item => {
+                item.classList.remove('correct', 'incorrect');
+                originalContainer.appendChild(item);
+            });
+            
+            dropZones.forEach(zone => {
+                zone.classList.remove('correct', 'incorrect', 'drag-over');
+            });
+            
+            document.getElementById('episode-sequence-feedback').style.display = 'none';
+        }
+
+        function checkComprehension() {
+            const waiter = document.querySelector('input[name="waiter-response"]:checked');
+            const directions = document.querySelector('input[name="metro-directions"]:checked');
+            const announcement = document.querySelector('input[name="metro-announcement"]:checked');
+            
+            const feedback = document.getElementById('comprehension-feedback');
+            feedback.style.display = 'block';
+            
+            let correct = 0;
+            if (waiter && waiter.value === 'enseguida') correct++;
+            if (directions && directions.value === 'recto-izquierda') correct++;
+            if (announcement && announcement.value === 'un-minuto') correct++;
+            
+            if (correct === 3) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Excelente comprensión auditiva! Has captado todos los detalles del episodio.';
+                addScore(25);
+                if (!exerciseStates[5]) {
+                    exerciseStates[5] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = `Tienes ${correct} de 3 correctas. Escucha el episodio otra vez para captar más detalles.`;
+            }
+        }
+
+        function checkTravelPhrases() {
+            const answers = {
+                'travel-phrase1': 'metro',
+                'travel-phrase2': 'recto',
+                'travel-phrase3': 'Lavapiés',
+                'travel-phrase4': 'amarilla'
+            };
+
+            let correct = 0;
+            let total = Object.keys(answers).length;
+
+            for (let id in answers) {
+                const select = document.getElementById(id);
+                if (select.value === answers[id]) {
+                    correct++;
+                }
+            }
+
+            const feedback = document.getElementById('travel-phrases-feedback');
+            feedback.style.display = 'block';
+            
+            if (correct === total) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Perfecto! Dominas las frases esenciales para viajar.';
+                addScore(20);
+                if (!exerciseStates[6]) {
+                    exerciseStates[6] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = `Tienes ${correct} de ${total} correctas. Repasa las frases del episodio.`;
+            }
+        }
+
+        function checkMystery() {
+            const person = document.querySelector('input[name="mystery-person"]:checked');
+            const meaning = document.querySelector('input[name="familiar-meaning"]:checked');
+            
+            const feedback = document.getElementById('mystery-feedback');
+            feedback.style.display = 'block';
+            
+            let correct = 0;
+            // Accept any answer for mystery person since it's speculation
+            if (person) correct++;
+            if (meaning && meaning.value === 'conocido') correct++;
+            
+            if (correct >= 1) {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                feedback.innerHTML = '🎉 ¡Bien! "He looks familiar" significa "me parece conocido". ¡El misterio continúa!';
+                addScore(15);
+                if (!exerciseStates[7]) {
+                    exerciseStates[7] = true;
+                    completedExercises++;
+                    updateProgress();
+                }
+            } else {
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = 'Responde al menos una pregunta para continuar con el misterio.';
+            }
+        }
+
+        function addScore(points) {
+            totalScore += points;
+            streak++;
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('streak').textContent = streak;
+            
+            // Celebration animation
+            const scoreElement = document.getElementById('totalScore');
+            scoreElement.classList.add('celebration');
+            setTimeout(() => scoreElement.classList.remove('celebration'), 600);
+        }
+
+        function updateProgress() {
+            const progress = (completedExercises / totalExercisesCount) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '% completado';
+            document.getElementById('completedExercises').textContent = completedExercises;
+            
+            if (completedExercises === totalExercisesCount) {
+                showFinalSummary();
+            }
+        }
+
+        function showFinalSummary() {
+            const summary = document.getElementById('final-summary');
+            summary.classList.remove('hidden');
+            document.getElementById('finalScore').textContent = totalScore;
+            summary.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Send results to teacher
+        async function sendToTeacher() {
+            const studentName = document.getElementById('student-name').value.trim();
+            const studentClass = document.getElementById('student-class').value.trim();
+            const studentComments = document.getElementById('student-comments').value.trim();
+            
+            const feedback = document.getElementById('submission-feedback');
+            
+            if (!studentName || !studentClass) {
+                feedback.style.display = 'block';
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-700';
+                feedback.innerHTML = '❌ Por favor completa todos los campos obligatorios (nombre y clase).';
+                return;
+            }
+            
+            const submissionData = {
+                timestamp: new Date().toISOString(),
+                studentName: studentName,
+                studentClass: studentClass,
+                episode: 'Episodio 2: En la Terraza',
+                totalScore: totalScore,
+                completedExercises: completedExercises,
+                totalExercises: 8,
+                completionPercentage: Math.round((completedExercises / 8) * 100),
+                exerciseDetails: getExerciseDetails(),
+                studentComments: studentComments || 'Sin comentarios'
+            };
+            
+            try {
+                feedback.style.display = 'block';
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-blue-100 border border-blue-300 text-blue-700';
+                feedback.innerHTML = '📤 Enviando resultados al profesor...';
+                
+                setTimeout(() => {
+                    feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+                    feedback.innerHTML = '✅ ¡Resultados enviados exitosamente al profesor!';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error sending to teacher:', error);
+                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+                feedback.innerHTML = '⚠️ Hubo un problema al enviar. Por favor, descarga tus resultados y envíalos manualmente al profesor.';
+            }
+        }
+        
+        function getExerciseDetails() {
+            const details = [];
+            for (let i = 1; i <= 8; i++) {
+                details.push({
+                    exercise: i,
+                    completed: exerciseStates[i] || false,
+                    name: getExerciseName(i)
+                });
+            }
+            return details;
+        }
+        
+        function getExerciseName(exerciseNum) {
+            const names = {
+                1: 'Lugares de Madrid',
+                2: 'Género de Sustantivos',
+                3: 'Menú del Café',
+                4: 'Conversación con el Camarero',
+                5: 'Comprensión Auditiva',
+                6: 'Frases del Café',
+                7: 'El Metro',
+                8: 'Reflexión Cultural'
+            };
+            return names[exerciseNum] || `Ejercicio ${exerciseNum}`;
+        }
+        
+        function downloadResults() {
+            const studentName = document.getElementById('student-name').value.trim() || 'Estudiante';
+            const studentClass = document.getElementById('student-class').value.trim() || 'No especificado';
+            const studentComments = document.getElementById('student-comments').value.trim() || 'Sin comentarios';
+            
+            const results = `
+MI VIDA LOCA - EPISODIO 2: EN LA TERRAZA
+RESULTADOS DEL ESTUDIANTE
+=====================================
+
+INFORMACIÓN DEL ESTUDIANTE:
+- Nombre: ${studentName}
+- Clase/Grupo: ${studentClass}
+
+RESULTADOS:
+- Puntuación total: ${totalScore} puntos
+- Ejercicios completados: ${completedExercises} de 8
+- Porcentaje de finalización: ${Math.round((completedExercises / 8) * 100)}%
+
+DETALLE DE EJERCICIOS:
+${getExerciseDetails().map(ex => 
+    `- ${ex.name}: ${ex.completed ? '✅ Completado' : '❌ No completado'}`
+).join('\n')}
+
+COMENTARIOS DEL ESTUDIANTE:
+${studentComments}
+
+FECHA Y HORA DE GENERACIÓN:
+${new Date().toLocaleString('es-ES')}
+            `.trim();
+            
+            const blob = new Blob([results], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Mi_Vida_Loca_Ep2_${studentName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            const feedback = document.getElementById('submission-feedback');
+            feedback.style.display = 'block';
+            feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+            feedback.innerHTML = '💾 ¡Archivo descargado! Puedes enviarlo por email a tu profesor.';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'986fad5dc7b3ee5e',t:'MTc1OTE5MjkxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
