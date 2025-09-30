@@ -954,23 +954,70 @@
             summary.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Send results to teacher via Google Sheets
-        async function sendToTeacher() {
-            const studentName = document.getElementById('student-name').value.trim();
-            const studentEmail = document.getElementById('student-email').value.trim();
-            const studentClass = document.getElementById('student-class').value.trim();
-            const submissionDate = document.getElementById('submission-date').value;
-            const studentComments = document.getElementById('student-comments').value.trim();
-            
-            const feedback = document.getElementById('submission-feedback');
-            
-            // Validation
-            if (!studentName || !studentClass) {
-                feedback.style.display = 'block';
-                feedback.className = 'feedback mt-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-700';
-                feedback.innerHTML = '❌ Por favor completa todos los campos obligatorios (nombre y clase).';
-                return;
-            }
+// Reemplaza toda la función 'sendToTeacher' con esta versión actualizada
+async function sendToTeacher() {
+    const studentName = document.getElementById('student-name').value.trim();
+    const studentClass = document.getElementById('student-class').value.trim();
+    const studentComments = document.getElementById('student-comments').value.trim();
+
+    // Obtenemos los valores de las respuestas de reflexión
+    const culturalMeaning = document.getElementById('cultural-meaning').value.trim();
+    const hospitalityCustoms = document.getElementById('hospitality-customs').value.trim();
+    const culturalDifferences = document.getElementById('cultural-differences').value.trim();
+
+    const feedback = document.getElementById('submission-feedback');
+
+    if (!studentName || !studentClass) {
+        feedback.style.display = 'block';
+        feedback.className = 'feedback mt-4 p-3 rounded-lg bg-red-100 border border-red-300 text-red-700';
+        feedback.innerHTML = '❌ Por favor completa todos los campos obligatorios (nombre y clase).';
+        return;
+    }
+
+    // Preparamos los datos, incluyendo las reflexiones
+    const submissionData = {
+        studentName: studentName,
+        studentClass: studentClass,
+        episode: 'Episodio 1: En Madrid',
+        totalScore: totalScore,
+        completedExercises: completedExercises,
+        totalExercises: totalExercisesCount, // Usamos la variable ya existente
+        completionPercentage: Math.round((completedExercises / totalExercisesCount) * 100),
+        studentComments: studentComments || 'Sin comentarios',
+        culturalMeaning: culturalMeaning || 'No respondido',
+        hospitalityCustoms: hospitalityCustoms || 'No respondido',
+        culturalDifferences: culturalDifferences || 'No respondido'
+    };
+
+    try {
+        feedback.style.display = 'block';
+        feedback.className = 'feedback mt-4 p-3 rounded-lg bg-blue-100 border border-blue-300 text-blue-700';
+        feedback.innerHTML = '📤 Enviando resultados al profesor...';
+
+        // ▼▼▼ ¡Pega tu URL aquí! ▼▼▼
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycb.../exec'; // <-- PEGA TU URL AQUÍ
+
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            // ¡IMPORTANTE! Cambia el modo a 'cors' y el body a una cadena de texto
+            mode: 'cors',
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: 'follow',
+            body: JSON.stringify(submissionData) // Enviamos el objeto JSON como una cadena
+        });
+
+        feedback.className = 'feedback mt-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-700';
+        feedback.innerHTML = '✅ ¡Resultados enviados exitosamente!';
+
+    } catch (error) {
+        console.error('Error sending to teacher:', error);
+        feedback.className = 'feedback mt-4 p-3 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-700';
+        feedback.innerHTML = '⚠️ Hubo un problema al enviar. Por favor, descarga tus resultados y envíalos manualmente.';
+    }
+}
             
             // Prepare data for Google Sheets
             const submissionData = {
@@ -992,7 +1039,7 @@
                 feedback.innerHTML = '📤 Enviando resultados al profesor...';
                 
                 // Replace with your Google Apps Script Web App URL
-                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwm58bX6ymgsDUeR8cUvO-EgpD8C4KRE4q-D_CrHFONUPNbvBccZbKIpy7asboBtGAZBQ/exec';
                 
                 const response = await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
