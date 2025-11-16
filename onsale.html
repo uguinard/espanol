@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Items to Sell – Sheet Preview</title>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" defer></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+      :root {
+        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --bg-start: #eef2ff;
+        --bg-end: #fdf2f8;
+        --text: #0f172a;
+        --muted: #475569;
+        --accent: #2563eb;
+        --accent-soft: rgba(37, 99, 235, 0.12);
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --card-border: rgba(148, 163, 184, 0.4);
+        --shadow: 0 20px 40px -24px rgba(15, 23, 42, 0.65);
+      }
+      body {
+        margin: 0;
+        padding: clamp(1.5rem, 4vw, 3rem);
+        background: radial-gradient(circle at top, rgba(37, 99, 235, 0.28), transparent 45%),
+          radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.12), transparent 40%),
+          linear-gradient(135deg, var(--bg-start), var(--bg-end));
+        color: var(--text);
+        min-height: 100vh;
+      }
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 2.75rem);
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.9rem;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.9rem;
+      }
+      #refreshBtn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 999px;
+        padding: 0.6rem 1.7rem;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        box-shadow: 0 15px 35px -15px rgba(37, 99, 235, 0.8);
+      }
+      #refreshBtn:not([disabled]):hover {
+        transform: translateY(-1px);
+      }
+      #refreshBtn[disabled] {
+        opacity: 0.5;
+        cursor: progress;
+      }
+      #status {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.9rem;
+        background: var(--card-bg);
+        border-radius: 1rem;
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--card-border);
+        box-shadow: var(--shadow);
+      }
+      .controls label {
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .controls input,
+      .controls select {
+        width: 100%;
+        margin-top: 0.35rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: 0.65rem;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        background: rgba(255, 255, 255, 0.85);
+        font-size: 0.95rem;
+      }
+      .inventory-grid {
+        margin-top: 2.5rem;
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+      }
+      .card figure {
+        margin: 0;
+        aspect-ratio: 16 / 9;
+        background: #cbd5f5;
+        overflow: hidden;
+      }
+      .card figure img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+      .card .content {
+        padding: 1.2rem 1.4rem 1.35rem;
+      }
+      .card h2 {
+        margin: 0 0 0.35rem;
+        font-size: 1.2rem;
+      }
+      .chip {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 0.2rem 0.7rem;
+        font-size: 0.85rem;
+        margin-right: 0.4rem;
+        background: rgba(37, 99, 235, 0.1);
+        color: #1d4ed8;
+      }
+      .price-tag {
+        background: rgba(16, 185, 129, 0.17);
+        color: #047857;
+        padding: 0.2rem 0.55rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      dl {
+        margin: 0.75rem 0 0;
+      }
+      dt {
+        font-weight: 600;
+        margin-top: 0.85rem;
+      }
+      dd {
+        margin: 0.2rem 0 0.35rem;
+        color: var(--muted);
+      }
+      ul {
+        margin: 0.35rem 0;
+        padding-left: 1.1rem;
+      }
+      .price-source {
+        border-left: 3px solid rgba(37, 99, 235, 0.3);
+        padding-left: 0.5rem;
+        margin-top: 0.35rem;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--muted);
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Inventory Preview</h1>
+          <div id="summary" class="pill">Loading…</div>
+        </div>
+        <div>
+          <button id="refreshBtn">Refresh from Sheet</button>
+          <div id="status"></div>
+        </div>
+      </header>
+
+      <section class="controls">
+        <label>
+          Search
+          <input type="search" id="searchInput" placeholder="Name, description, etc." />
+        </label>
+        <label>
+          Category
+          <select id="categoryFilter">
+            <option value="">All categories</option>
+          </select>
+        </label>
+        <label>
+          Status
+          <select id="statusFilter">
+            <option value="">All statuses</option>
+          </select>
+        </label>
+        <label>
+          Sort
+          <select id="sortSelect">
+            <option value="default">Newest</option>
+            <option value="title">Title A → Z</option>
+            <option value="priceAsc">Price: low → high</option>
+            <option value="priceDesc">Price: high → low</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="inventory-grid" id="inventoryGrid"></section>
+    </main>
+
+    <script>
+      const SHEET_CSV_URL =
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vTI049G2HSfD96mpETHybatzIvMQpmTJPOjfXfZ9QaW0HHTBFTr8AysLzKmk3AO79ANJ7IBME3Ns4V_/pub?gid=970183065&single=true&output=csv';
+
+      const refreshBtn = document.getElementById('refreshBtn');
+      const statusEl = document.getElementById('status');
+      const summaryEl = document.getElementById('summary');
+      const inventoryGrid = document.getElementById('inventoryGrid');
+      const searchInput = document.getElementById('searchInput');
+      const categoryFilter = document.getElementById('categoryFilter');
+      const statusFilter = document.getElementById('statusFilter');
+      const sortSelect = document.getElementById('sortSelect');
+
+      let inventoryData = [];
+
+      async function loadInventory() {
+        setBusy(true, 'Loading latest data…');
+        try {
+          const response = await fetch(SHEET_CSV_URL + '&t=' + Date.now(), {
+            cache: 'no-store',
+            mode: 'cors'
+          });
+          const csvText = await response.text();
+          const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+          inventoryData = parsed.data.filter((item) => item.id && item.title);
+          buildFilterOptions();
+          applyFilters();
+          setBusy(false, `Loaded ${inventoryData.length} items from sheet.`);
+        } catch (err) {
+          console.error(err);
+          setBusy(false, 'Failed to load sheet. Check console for details.');
+        }
+      }
+
+      function buildFilterOptions() {
+        fillSelect(categoryFilter, [...new Set(inventoryData.map((item) => item.category).filter(Boolean))]);
+        fillSelect(statusFilter, [...new Set(inventoryData.map((item) => item.status).filter(Boolean))]);
+      }
+
+      function fillSelect(selectEl, values) {
+        const selected = selectEl.value;
+        selectEl.innerHTML = `<option value="">All</option>`;
+        values.sort().forEach((value) => {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = value;
+          if (value === selected) option.selected = true;
+          selectEl.appendChild(option);
+        });
+      }
+
+      function applyFilters() {
+        const query = searchInput.value.trim().toLowerCase();
+        const category = categoryFilter.value;
+        const status = statusFilter.value;
+        const sort = sortSelect.value;
+
+        let items = inventoryData.filter((item) => {
+          const matchesQuery =
+            !query ||
+            [item.title, item.description, item.included_items]
+              .filter(Boolean)
+              .some((field) => field.toLowerCase().includes(query));
+          const matchesCategory = !category || item.category === category;
+          const matchesStatus = !status || item.status === status;
+          return matchesQuery && matchesCategory && matchesStatus;
+        });
+
+        items = sortItems(items, sort);
+
+        updateSummary(items);
+        renderCards(items);
+      }
+
+      function sortItems(items, sortValue) {
+        const list = [...items];
+        if (sortValue === 'title') {
+          list.sort((a, b) => a.title.localeCompare(b.title));
+        } else if (sortValue === 'priceAsc') {
+          list.sort((a, b) => toNumber(a.asking_price_thb) - toNumber(b.asking_price_thb));
+        } else if (sortValue === 'priceDesc') {
+          list.sort((a, b) => toNumber(b.asking_price_thb) - toNumber(a.asking_price_thb));
+        } else {
+          list.sort((a, b) => new Date(b.last_updated || 0) - new Date(a.last_updated || 0));
+        }
+        return list;
+      }
+
+      function updateSummary(items) {
+        if (!items.length) {
+          summaryEl.textContent = 'No items match your filters.';
+          return;
+        }
+        const available = items.filter((item) => item.status?.toLowerCase() === 'available').length;
+        summaryEl.textContent = `${items.length} items · ${available} available`;
+      }
+
+      function renderCards(items) {
+        inventoryGrid.innerHTML = '';
+        if (!items.length) {
+          inventoryGrid.innerHTML = '<div class="empty-state">No results. Adjust the filters above.</div>';
+          return;
+        }
+
+        items.forEach((item) => {
+          const card = document.createElement('article');
+          card.className = 'card';
+          const photoSrc = getFirstPhoto(item.photos);
+          card.innerHTML = `
+            <figure>
+              ${
+                photoSrc
+                  ? `<img src="${escapeHtml(photoSrc)}" alt="${escapeHtml(item.title)}" loading="lazy" />`
+                  : ''
+              }
+            </figure>
+            <div class="content">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+                <h2>${escapeHtml(item.title)}</h2>
+                ${
+                  item.asking_price_thb
+                    ? `<span class="price-tag">${Number(item.asking_price_thb).toLocaleString()} THB</span>`
+                    : ''
+                }
+              </div>
+              <div>
+                <span class="chip">${escapeHtml(item.category || 'uncategorized')}</span>
+                ${item.status ? `<span class="chip">${escapeHtml(item.status)}</span>` : ''}
+              </div>
+              <dl>
+                <dt>Description</dt>
+                <dd>${escapeHtml(item.description || '—')}</dd>
+                ${
+                  item.included_items
+                    ? `<dt>Included items</dt><dd>${renderList(item.included_items)}</dd>`
+                    : ''
+                }
+                ${
+                  item.photos ? `<dt>Photos</dt><dd>${renderList(item.photos, true)}</dd>` : ''
+                }
+                ${renderPriceSource(item, 1)}
+                ${renderPriceSource(item, 2)}
+              </dl>
+            </div>
+          `;
+          inventoryGrid.appendChild(card);
+        });
+      }
+
+      function renderPriceSource(item, idx) {
+        const name = item[`price_source_${idx}_name`];
+        const url = item[`price_source_${idx}_url`];
+        const price = item[`price_source_${idx}_price_thb`];
+        const notes = item[`price_source_${idx}_notes`];
+        if (!name && !url && !price && !notes) return '';
+        const priceText = price ? `${Number(price).toLocaleString()} THB` : '—';
+        const link = url ? `<a href="${url}" target="_blank" rel="noopener">${escapeHtml(name || url)}</a>` : escapeHtml(name || 'Source');
+        return `
+          <dt>Price source ${idx}</dt>
+          <dd class="price-source">
+            ${link}<br/>
+            <small>${priceText}${notes ? ` · ${escapeHtml(notes)}` : ''}</small>
+          </dd>
+        `;
+      }
+
+      function renderList(value, isPhoto = false) {
+        const items = value.split(isPhoto ? ',' : '|').map((entry) => entry.trim()).filter(Boolean);
+        if (!items.length) return '—';
+        if (isPhoto) {
+          return `<ul>${items
+            .map((path) => `<li><a href="${escapeHtml(path)}" target="_blank" rel="noopener">${escapeHtml(path)}</a></li>`)
+            .join('')}</ul>`;
+        }
+        return `<ul>${items.map((entry) => `<li>${escapeHtml(entry)}</li>`).join('')}</ul>`;
+      }
+
+      function getFirstPhoto(photos = '') {
+        const list = photos.split(',').map((entry) => entry.trim()).filter(Boolean);
+        return list[0] || '';
+      }
+
+      function toNumber(value) {
+        const num = Number(value);
+        return Number.isFinite(num) ? num : 0;
+      }
+
+      function escapeHtml(str = '') {
+        return str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function setBusy(state, message) {
+        refreshBtn.disabled = state;
+        statusEl.textContent = message;
+      }
+
+      refreshBtn.addEventListener('click', loadInventory);
+      searchInput.addEventListener('input', () => applyFilters());
+      categoryFilter.addEventListener('change', applyFilters);
+      statusFilter.addEventListener('change', applyFilters);
+      sortSelect.addEventListener('change', applyFilters);
+
+      window.addEventListener('DOMContentLoaded', loadInventory);
+    </script>
+  </body>
+</html>
