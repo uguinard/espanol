@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Items to Sell – Sheet Preview</title>
+    <title>Sergio's Sale</title>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" defer></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -25,6 +25,7 @@
         background: radial-gradient(circle at top, rgba(37, 99, 235, 0.28), transparent 45%),
           radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.12), transparent 40%),
           linear-gradient(135deg, var(--bg-start), var(--bg-end));
+        background-attachment: fixed;
         color: var(--text);
         min-height: 100vh;
       }
@@ -105,7 +106,17 @@
         margin-top: 2.5rem;
         display: grid;
         gap: 1.5rem;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 768px) {
+        .inventory-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (min-width: 1024px) {
+        .inventory-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
       }
       .card {
         background: var(--card-bg);
@@ -116,6 +127,7 @@
         display: flex;
         flex-direction: column;
         transition: transform 0.15s ease, box-shadow 0.2s ease;
+        will-change: transform, box-shadow;
       }
       .card:hover {
         transform: translateY(-4px);
@@ -126,12 +138,17 @@
         aspect-ratio: 16 / 9;
         background: #cbd5f5;
         overflow: hidden;
+        position: relative;
       }
       .card figure img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         display: block;
+      }
+      .card figure.sold img {
+        filter: grayscale(100%);
+        opacity: 0.6;
       }
       .card .content {
         padding: 1.2rem 1.4rem 1.35rem;
@@ -153,7 +170,40 @@
       }
       .chip.condition-new { background: rgba(22, 163, 74, 0.15); color: #15803d; }
       .chip.condition-used { background: rgba(217, 119, 6, 0.15); color: #b45309; }
+      .chip.status-sold { background: rgba(220, 38, 38, 0.15); color: #b91c1c; }
       
+      .thumbnail-chip {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--muted);
+        padding: 0.3rem 0.65rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        font-size: 0.8rem;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(0,0,0,0.05);
+      }
+      .thumbnail-chip.status-sold {
+        background: rgba(220, 38, 38, 0.85);
+        color: #fff;
+      }
+
+      .thumbnail-price-tag {
+        position: absolute;
+        bottom: 0.75rem;
+        right: 0.75rem;
+        background: rgba(16, 185, 129, 0.9);
+        color: #fff;
+        padding: 0.3rem 0.65rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255,255,255,0.2);
+      }
+
       .price-tag {
         background: rgba(16, 185, 129, 0.17);
         color: #047857;
@@ -208,11 +258,88 @@
         border: 1px solid var(--card-border);
         box-shadow: var(--shadow);
         width: 100%;
-        max-width: 800px;
+        max-width: 1100px;
         max-height: 90vh;
         overflow-y: auto;
         position: relative;
         padding: 2rem;
+      }
+      .modal-body {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      @media (min-width: 768px) {
+        .modal-body {
+          grid-template-columns: 3fr 2fr;
+        }
+      }
+      .gallery {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .main-photo {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 1rem;
+        overflow: hidden;
+        position: relative;
+        background: #e2e8f0;
+      }
+      .main-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .photo-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.8);
+        border: 1px solid rgba(0,0,0,0.1);
+        cursor: pointer;
+        font-size: 1.5rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .photo-nav.prev { left: 0.5rem; }
+      .photo-nav.next { right: 0.5rem; }
+      .thumbnails {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 0.5rem;
+      }
+      .thumbnails img {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: border-color 0.2s;
+      }
+      .thumbnails img.active {
+        border-color: var(--accent);
+      }
+      .item-info h1 {
+        margin: 0;
+        font-size: 1.75rem;
+      }
+      .item-info .price-tag {
+        font-size: 1.2rem;
+        margin-top: 0.5rem;
+        display: inline-block;
+      }
+      .item-info hr {
+        border: none; 
+        border-top: 1px solid var(--card-border); 
+        margin: 1.25rem 0;
       }
       .modal-close {
         position: absolute;
@@ -246,7 +373,7 @@
     <main>
       <header>
         <div>
-          <h1>Inventory Preview</h1>
+          <h1>Sergio's sale</h1>
           <div id="summary" class="pill">Loading…</div>
         </div>
         <div>
@@ -293,7 +420,8 @@
     </div>
 
     <script>
-      const SHEET_CSV_URL = 'inventory_export.csv';
+      const INVENTORY_CSV_URL = 'inventory_export.csv';
+      const PHOTOS_CSV_URL = 'photo_paths.csv';
 
       const statusEl = document.getElementById('status');
       const summaryEl = document.getElementById('summary');
@@ -309,21 +437,43 @@
       let inventoryData = [];
 
       async function loadInventory() {
-        setBusy(true, 'Loading latest data…');
+        setBusy(true, 'Loading inventory data…');
         try {
-          const response = await fetch(SHEET_CSV_URL + '?t=' + Date.now(), {
-            cache: 'no-store',
-            mode: 'cors'
+          const [inventoryResponse, photosResponse] = await Promise.all([
+            fetch(INVENTORY_CSV_URL + '?t=' + Date.now()),
+            fetch(PHOTOS_CSV_URL + '?t=' + Date.now()),
+          ]);
+
+          const inventoryCsvText = await inventoryResponse.text();
+          const photosCsvText = await photosResponse.text();
+
+          const inventoryResult = Papa.parse(inventoryCsvText, { header: true, skipEmptyLines: true });
+          const photosResult = Papa.parse(photosCsvText, { header: true, skipEmptyLines: true });
+          
+          const photoMap = new Map();
+          photosResult.data.forEach((row) => {
+            if (row.ItemID && row.PhotoPaths) {
+              photoMap.set(row.ItemID, row.PhotoPaths);
+            }
           });
-          const csvText = await response.text();
-          const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-          inventoryData = parsed.data.filter((item) => item.id && item.title);
+
+          inventoryData = inventoryResult.data
+            .filter((item) => item.id && item.title)
+            .map((item) => {
+              const itemID = item.id.trim();
+              const photoPaths = photoMap.get(itemID);
+              return {
+                ...item,
+                photos: photoPaths || '', // Overwrite photos property
+              };
+            });
+
           buildFilterOptions();
           applyFilters();
-          setBusy(false, `Loaded ${inventoryData.length} items from CSV.`);
+          setBusy(false, `Loaded ${inventoryData.length} items.`);
         } catch (err) {
           console.error(err);
-          setBusy(false, 'Failed to load CSV. Check console for details.');
+          setBusy(false, 'Failed to load data. Check console for details.');
         }
       }
 
@@ -402,27 +552,28 @@
           card.className = 'card';
           card.addEventListener('click', () => showModal(item));
           const photoSrc = getFirstPhoto(item);
+          const isSold = item.status?.toLowerCase() === 'sold';
           card.innerHTML = `
-            <figure>
+            <figure class="${isSold ? 'sold' : ''}">
               ${
                 photoSrc
                   ? `<img src="${escapeHtml(photoSrc)}" alt="${escapeHtml(item.title)}" loading="lazy" />`
+                  : ''
+              }
+              ${renderStatusChip(item.status, true)}
+              ${
+                item.asking_price_thb
+                  ? `<div class="thumbnail-price-tag">${Number(item.asking_price_thb).toLocaleString()} THB</div>`
                   : ''
               }
             </figure>
             <div class="content">
               <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
                 <h2>${escapeHtml(item.title)}</h2>
-                ${
-                  item.asking_price_thb
-                    ? `<span class="price-tag">${Number(item.asking_price_thb).toLocaleString()} THB</span>`
-                    : ''
-                }
               </div>
               <div>
                 <span class="chip">${escapeHtml(item.category || 'uncategorized')}</span>
                 ${renderConditionChip(item.condition)}
-                ${item.status ? `<span class="chip">${escapeHtml(item.status)}</span>` : ''}
               </div>
               <dl>
                 <dt>Description</dt>
@@ -437,8 +588,7 @@
                     ? `<dt>Included items</dt><dd>${renderList(item.included_items)}</dd>`
                     : ''
                 }
-                ${renderPriceSource(item, 1)}
-                ${renderPriceSource(item, 2)}
+                ${renderPriceSource(item)}
               </dl>
             </div>
           `;
@@ -447,39 +597,97 @@
       }
 
       function showModal(item) {
-        let photosHtml = '<p>No photos provided.</p>';
         const photoList = item.photos.split(',').map(p => p.trim()).filter(Boolean);
-        if (photoList.length > 0) {
-          photosHtml = photoList.map(photo => `<a href="${escapeHtml(photo)}" target="_blank" rel="noopener"><img src="${escapeHtml(photo)}" alt="Photo of ${escapeHtml(item.title)}" loading="lazy"/></a>`).join('');
-        }
+        let currentIndex = 0;
 
         modalContent.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
-            <h1 style="margin-right: auto;">${escapeHtml(item.title)}</h1>
-            ${item.asking_price_thb ? `<span class="price-tag" style="font-size:1.2rem;">${Number(item.asking_price_thb).toLocaleString()} THB</span>` : ''}
+          <div class="modal-body">
+            <div class="gallery">
+              <div class="main-photo" id="mainPhotoContainer"></div>
+              <div class="thumbnails" id="thumbnailContainer"></div>
+            </div>
+            <div class="item-info">
+              <h1>${escapeHtml(item.title)}</h1>
+              ${item.asking_price_thb ? `<div class="price-tag">${Number(item.asking_price_thb).toLocaleString()} THB</div>` : ''}
+              <hr />
+              <div>
+                <span class="chip">${escapeHtml(item.category || 'uncategorized')}</span>
+                ${renderConditionChip(item.condition)}
+                ${renderStatusChip(item.status)}
+              </div>
+              <dl>
+                <dt>Description</dt>
+                <dd>${escapeHtml(item.description || '—')}</dd>
+                ${item.purchase_location ? `<dt>Purchased At</dt><dd>${escapeHtml(item.purchase_location)}</dd>` : ''}
+                ${item.purchase_year ? `<dt>Purchase Year</dt><dd>${escapeHtml(item.purchase_year)}</dd>` : ''}
+                ${item.included_items ? `<dt>Included items</dt><dd>${renderList(item.included_items)}</dd>` : ''}
+                ${renderPriceSource(item)}
+              </dl>
+            </div>
           </div>
-          <div>
-            <span class="chip">${escapeHtml(item.category || 'uncategorized')}</span>
-            ${renderConditionChip(item.condition)}
-            ${item.status ? `<span class="chip">${escapeHtml(item.status)}</span>` : ''}
-          </div>
-          <hr style="border:none; border-top: 1px solid var(--card-border); margin: 1.5rem 0;" />
-          <div class="modal-photos">${photosHtml}</div>
-          <dl>
-            <dt>Description</dt>
-            <dd>${escapeHtml(item.description || '—')}</dd>
-            ${item.purchase_location ? `<dt>Purchased At</dt><dd>${escapeHtml(item.purchase_location)}</dd>` : ''}
-            ${item.purchase_year ? `<dt>Purchase Year</dt><dd>${escapeHtml(item.purchase_year)}</dd>` : ''}
-            ${item.included_items ? `<dt>Included items</dt><dd>${renderList(item.included_items)}</dd>` : ''}
-            ${renderPriceSource(item, 1)}
-            ${renderPriceSource(item, 2)}
-          </dl>
         `;
+
+        const mainPhotoContainer = document.getElementById('mainPhotoContainer');
+        const thumbnailContainer = document.getElementById('thumbnailContainer');
+
+        function updateGallery() {
+          if (photoList.length === 0) {
+            mainPhotoContainer.innerHTML = '<p style="text-align:center; padding: 2rem;">No photo</p>';
+            return;
+          }
+
+          // Main Photo
+          mainPhotoContainer.innerHTML = `
+            <a href="${escapeHtml(photoList[currentIndex])}" target="_blank" rel="noopener" title="View full image">
+              <img src="${escapeHtml(photoList[currentIndex])}" alt="Main photo of ${escapeHtml(item.title)}">
+            </a>
+            ${photoList.length > 1 ? `
+              <button class="photo-nav prev">&lt;</button>
+              <button class="photo-nav next">&gt;</button>
+            ` : ''}
+          `;
+
+          // Thumbnails
+          thumbnailContainer.innerHTML = photoList.map((photo, index) => `
+            <img src="${escapeHtml(photo)}" alt="Thumbnail ${index + 1}" class="${index === currentIndex ? 'active' : ''}" data-index="${index}">
+          `).join('');
+
+          // Event Listeners
+          thumbnailContainer.querySelectorAll('img').forEach(img => {
+            img.addEventListener('click', (e) => {
+              currentIndex = parseInt(e.target.dataset.index);
+              updateGallery();
+            });
+          });
+
+          if (photoList.length > 1) {
+            mainPhotoContainer.querySelector('.prev').addEventListener('click', () => {
+              currentIndex = (currentIndex - 1 + photoList.length) % photoList.length;
+              updateGallery();
+            });
+            mainPhotoContainer.querySelector('.next').addEventListener('click', () => {
+              currentIndex = (currentIndex + 1) % photoList.length;
+              updateGallery();
+            });
+          }
+        }
+
+        updateGallery();
         modalOverlay.style.display = 'flex';
       }
 
       function hideModal() {
         modalOverlay.style.display = 'none';
+      }
+
+      function renderStatusChip(status, isThumbnail = false) {
+        if (!status) return '';
+        const cleanStatus = status.trim().toLowerCase();
+        let className = isThumbnail ? 'thumbnail-chip' : 'chip';
+        if (cleanStatus === 'sold') {
+          className += ' status-sold';
+        }
+        return `<span class="${className}">${escapeHtml(status)}</span>`;
       }
 
       function renderConditionChip(condition) {
@@ -494,19 +702,25 @@
         return `<span class="${className}">${escapeHtml(condition)}</span>`;
       }
 
-      function renderPriceSource(item, idx) {
-        const name = item[`price_source_${idx}_name`];
-        const url = item[`price_source_${idx}_url`];
-        const price = item[`price_source_${idx}_price_thb`];
-        const notes = item[`price_source_${idx}_notes`];
-        if (!name && !url && !price && !notes) return '';
-        const priceText = price ? `${Number(price).toLocaleString()} THB` : '—';
-        const link = url ? `<a href="${url}" target="_blank" rel="noopener">${escapeHtml(name || url)}</a>` : escapeHtml(name || 'Source');
+      function renderPriceSource(item) {
+        const name = item[`price_source_1_name`];
+        const url = item[`price_source_1_url`];
+        const price = item[`price_source_1_price_thb`];
+        const notes = item[`price_source_1_notes`];
+        if (!name && !url && !price) return '';
+        
+        const priceText = price ? ` &gt; ${Number(price).toLocaleString()} THB` : '';
+        const content = `${escapeHtml(name || 'Source')}${priceText}`;
+        
+        const link = url 
+          ? `<a href="${url}" target="_blank" rel="noopener">${content}</a>` 
+          : content;
+
         return `
-          <dt>Price source ${idx}</dt>
+          <dt>Price source</dt>
           <dd class="price-source">
-            ${link}<br/>
-            <small>${priceText}${notes ? ` · ${escapeHtml(notes)}` : ''}</small>
+            ${link}
+            ${notes ? `<br /><small>${escapeHtml(notes)}</small>` : ''}
           </dd>
         `;
       }

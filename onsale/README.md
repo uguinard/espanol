@@ -27,7 +27,9 @@ Because web browsers have security restrictions that prevent loading local data 
 You should now see your inventory page, fully loaded with data from `inventory_export.csv`.
 
 ### 3. Updating Photo Paths
-To avoid writing every photo path by hand, you can use the included Node.js helper script.
+The photo paths for each item are loaded automatically from the `inventory/` directory structure. This is managed by the `generate-photo-paths.js` script.
+
+If you add, remove, or rename photos or item folders, you must run this script to regenerate the `photo_paths.csv` file that the webpage uses.
 
 **Prerequisite:** You must have Node.js installed.
 
@@ -37,4 +39,4 @@ To avoid writing every photo path by hand, you can use the included Node.js help
     ```bash
     node generate-photo-paths.js
     ```
-3.  This will create a `photo_paths.csv` file. You can copy the generated paths from this file and paste them into your main `inventory_export.csv` file.
+3.  This will automatically update `photo_paths.csv`, and the changes will appear the next time you load the `onsale.html` page in your browser. You no longer need to manually copy and paste paths.

@@ -6,7 +6,7 @@ const outputFile = path.join(__dirname, 'photo_paths.csv');
 const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
 
 try {
-  const categoryFolders = fs.readdirSync(inventoryDir, { withFileTypes: true })
+  const itemFolders = fs.readdirSync(inventoryDir, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name);
 
@@ -14,41 +14,38 @@ try {
   csvRows.push('ItemID,PhotoPaths'); // CSV Header
   let itemCount = 0;
 
-  for (const categoryName of categoryFolders) {
-    const categoryPath = path.join(inventoryDir, categoryName);
-    const itemFolders = fs.readdirSync(categoryPath, { withFileTypes: true })
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
-
-    for (const itemName of itemFolders) {
-      const itemPath = path.join(categoryPath, itemName);
-      const photosPath = path.join(itemPath, 'photos'); // Look inside the 'photos' subdirectory
-      
-      try {
-        // Check if the photos subdirectory exists
-        if (fs.existsSync(photosPath) && fs.lstatSync(photosPath).isDirectory()) {
-          const files = fs.readdirSync(photosPath);
-          const photoPaths = files
-            .filter(file => imageExtensions.includes(path.extname(file).toLowerCase()))
-            .map(file => `inventory/${categoryName}/${itemName}/photos/${file}`); // Create the full relative path
-
-          if (photoPaths.length > 0) {
-            itemCount++;
-            csvRows.push(`"${categoryName}/${itemName}","${photoPaths.join(',')}"`);
+  for (const itemName of itemFolders) {
+    const itemPath = path.join(inventoryDir, itemName);
+    
+    try {
+      const files = fs.readdirSync(itemPath, { withFileTypes: true });
+      const photoPaths = files
+        .filter(dirent => dirent.isFile() && imageExtensions.includes(path.extname(dirent.name).toLowerCase()))
+        .map(dirent => {
+          const safeFilename = dirent.name.replace(/\s+/g, '-');
+          const oldPath = path.join(itemPath, dirent.name);
+          const newPath = path.join(itemPath, safeFilename);
+          if (oldPath !== newPath) {
+            fs.renameSync(oldPath, newPath);
           }
-        }
-      } catch (err) {
-        console.error(`Could not read files in directory: ${photosPath}`, err);
+          return `inventory/${itemName}/${safeFilename}`;
+        });
+
+      if (photoPaths.length > 0) {
+        itemCount++;
+        csvRows.push(`"${itemName}","${photoPaths.join(',')}"`);
       }
+    } catch (err) {
+      console.error(`Could not read files in directory: ${itemPath}`, err);
     }
   }
 
-  // Write the collected rows to a CSV file
-  fs.writeFileSync(outputFile, csvRows.join('\\n'));
+  fs.writeFileSync(outputFile, csvRows.join('\n'));
 
   console.log(`Successfully generated photo paths CSV at: ${outputFile}`);
   console.log(`Found photo paths for ${itemCount} items.`);
 
-} catch (err) {
+} catch (err)
+ {
   console.error('Failed to read the inventory directory.', err);
 }
