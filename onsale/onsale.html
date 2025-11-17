@@ -336,6 +336,21 @@
         margin-top: 0.5rem;
         display: inline-block;
       }
+      .buy-button {
+        display: inline-block;
+        margin-top: 1.25rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        background: #25d366;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: background-color 0.2s;
+      }
+      .buy-button:hover {
+        background: #128c7e;
+      }
       .item-info hr {
         border: none; 
         border-top: 1px solid var(--card-border); 
@@ -399,12 +414,18 @@
           </select>
         </label>
         <label>
+          Condition
+          <select id="conditionFilter">
+            <option value="">All conditions</option>
+          </select>
+        </label>
+        <label>
           Sort
           <select id="sortSelect">
-            <option value="default">Newest</option>
-            <option value="title">Title A → Z</option>
-            <option value="priceAsc">Price: low → high</option>
+            <option value="default">Featured</option>
             <option value="priceDesc">Price: high → low</option>
+            <option value="priceAsc">Price: low → high</option>
+            <option value="title">Title A → Z</option>
           </select>
         </label>
       </section>
@@ -429,6 +450,7 @@
       const searchInput = document.getElementById('searchInput');
       const categoryFilter = document.getElementById('categoryFilter');
       const statusFilter = document.getElementById('statusFilter');
+      const conditionFilter = document.getElementById('conditionFilter');
       const sortSelect = document.getElementById('sortSelect');
       const modalOverlay = document.getElementById('modalOverlay');
       const modalContent = document.getElementById('modalContent');
@@ -470,7 +492,7 @@
 
           buildFilterOptions();
           applyFilters();
-          setBusy(false, `Loaded ${inventoryData.length} items.`);
+          setBusy(false, '');
         } catch (err) {
           console.error(err);
           setBusy(false, 'Failed to load data. Check console for details.');
@@ -480,6 +502,7 @@
       function buildFilterOptions() {
         fillSelect(categoryFilter, [...new Set(inventoryData.map((item) => item.category).filter(Boolean))]);
         fillSelect(statusFilter, [...new Set(inventoryData.map((item) => item.status).filter(Boolean))]);
+        fillSelect(conditionFilter, [...new Set(inventoryData.map((item) => item.condition).filter(Boolean))]);
       }
 
       function fillSelect(selectEl, values) {
@@ -498,6 +521,7 @@
         const query = searchInput.value.trim().toLowerCase();
         const category = categoryFilter.value;
         const status = statusFilter.value;
+        const condition = conditionFilter.value;
         const sort = sortSelect.value;
 
         let items = inventoryData.filter((item) => {
@@ -508,7 +532,8 @@
               .some((field) => field.toLowerCase().includes(query));
           const matchesCategory = !category || item.category === category;
           const matchesStatus = !status || item.status === status;
-          return matchesQuery && matchesCategory && matchesStatus;
+          const matchesCondition = !condition || item.condition === condition;
+          return matchesQuery && matchesCategory && matchesStatus && matchesCondition;
         });
 
         items = sortItems(items, sort);
@@ -519,14 +544,31 @@
 
       function sortItems(items, sortValue) {
         const list = [...items];
+        
+        const statusOrder = {
+          'available': 1,
+          'pending-info': 2,
+          'sold': 3,
+        };
+
+        const getStatusRank = (item) => statusOrder[item.status?.toLowerCase()] || 99;
+
         if (sortValue === 'title') {
           list.sort((a, b) => a.title.localeCompare(b.title));
         } else if (sortValue === 'priceAsc') {
           list.sort((a, b) => toNumber(a.asking_price_thb) - toNumber(b.asking_price_thb));
         } else if (sortValue === 'priceDesc') {
           list.sort((a, b) => toNumber(b.asking_price_thb) - toNumber(a.asking_price_thb));
-        } else {
-          list.sort((a, b) => new Date(b.last_updated || 0) - new Date(a.last_updated || 0));
+        } else { // default sort
+          list.sort((a, b) => {
+            const rankA = getStatusRank(a);
+            const rankB = getStatusRank(b);
+            if (rankA !== rankB) {
+              return rankA - rankB;
+            }
+            // If status is the same, sort by price descending
+            return toNumber(b.asking_price_thb) - toNumber(a.asking_price_thb);
+          });
         }
         return list;
       }
@@ -623,6 +665,12 @@
                 ${item.included_items ? `<dt>Included items</dt><dd>${renderList(item.included_items)}</dd>` : ''}
                 ${renderPriceSource(item)}
               </dl>
+              <a href="https://wa.me/34666209033?text=Hi%20Sergio%2C%20I'm%20interested%20in%20buying%20the%20${encodeURIComponent(item.title)}." 
+                target="_blank" 
+                rel="noopener"
+                class="buy-button">
+                Buy on WhatsApp
+              </a>
             </div>
           </div>
         `;
@@ -770,6 +818,7 @@
       searchInput.addEventListener('input', () => applyFilters());
       categoryFilter.addEventListener('change', applyFilters);
       statusFilter.addEventListener('change', applyFilters);
+      conditionFilter.addEventListener('change', applyFilters);
       sortSelect.addEventListener('change', applyFilters);
 
       modalOverlay.addEventListener('click', (e) => {
