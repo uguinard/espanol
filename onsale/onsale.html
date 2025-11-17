@@ -250,7 +250,6 @@
           <div id="summary" class="pill">Loading…</div>
         </div>
         <div>
-          <button id="refreshBtn">Refresh from Sheet</button>
           <div id="status"></div>
         </div>
       </header>
@@ -294,10 +293,8 @@
     </div>
 
     <script>
-      const SHEET_CSV_URL =
-        'https://docs.google.com/spreadsheets/d/e/2PACX-1vTI049G2HSfD96mpETHybatzIvMQpmTJPOjfXfZ9QaW0HHTBFTr8AysLzKmk3AO79ANJ7IBME3Ns4V_/pub?gid=970183065&single=true&output=csv';
+      const SHEET_CSV_URL = 'inventory_export.csv';
 
-      const refreshBtn = document.getElementById('refreshBtn');
       const statusEl = document.getElementById('status');
       const summaryEl = document.getElementById('summary');
       const inventoryGrid = document.getElementById('inventoryGrid');
@@ -314,7 +311,7 @@
       async function loadInventory() {
         setBusy(true, 'Loading latest data…');
         try {
-          const response = await fetch(SHEET_CSV_URL + '&t=' + Date.now(), {
+          const response = await fetch(SHEET_CSV_URL + '?t=' + Date.now(), {
             cache: 'no-store',
             mode: 'cors'
           });
@@ -323,10 +320,10 @@
           inventoryData = parsed.data.filter((item) => item.id && item.title);
           buildFilterOptions();
           applyFilters();
-          setBusy(false, `Loaded ${inventoryData.length} items from sheet.`);
+          setBusy(false, `Loaded ${inventoryData.length} items from CSV.`);
         } catch (err) {
           console.error(err);
-          setBusy(false, 'Failed to load sheet. Check console for details.');
+          setBusy(false, 'Failed to load CSV. Check console for details.');
         }
       }
 
@@ -404,7 +401,7 @@
           const card = document.createElement('article');
           card.className = 'card';
           card.addEventListener('click', () => showModal(item));
-          const photoSrc = getFirstPhoto(item.photos);
+          const photoSrc = getFirstPhoto(item);
           card.innerHTML = `
             <figure>
               ${
@@ -525,9 +522,17 @@
         return `<ul>${items.map((entry) => `<li>${escapeHtml(entry)}</li>`).join('')}</ul>`;
       }
 
-      function getFirstPhoto(photos = '') {
+      function getFirstPhoto(item) {
+        const photos = item.photos || '';
         const list = photos.split(',').map((entry) => entry.trim()).filter(Boolean);
-        return list[0] || '';
+        if (!list.length) return '';
+
+        const priorityPhoto = list.find((path) => {
+          const filename = path.split('/').pop();
+          return filename.startsWith('1');
+        });
+
+        return priorityPhoto || list[0];
       }
 
       function toNumber(value) {
@@ -545,11 +550,9 @@
       }
 
       function setBusy(state, message) {
-        refreshBtn.disabled = state;
         statusEl.textContent = message;
       }
 
-      refreshBtn.addEventListener('click', loadInventory);
       searchInput.addEventListener('input', () => applyFilters());
       categoryFilter.addEventListener('change', applyFilters);
       statusFilter.addEventListener('change', applyFilters);
