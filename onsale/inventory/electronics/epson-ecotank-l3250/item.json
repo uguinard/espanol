@@ -4,13 +4,22 @@
   "category": "electronics",
   "condition": "",
   "photos": [
-    "Photos-1-001/IMG_20251116_163647.jpg",
-    "Photos-1-001/IMG_20251116_173154.jpg"
+    "inventory/electronics/epson-ecotank-l3250/photos/IMG_20251116_163643.jpg",
+    "inventory/electronics/epson-ecotank-l3250/photos/IMG_20251116_163647.jpg",
+    "inventory/electronics/epson-ecotank-l3250/photos/IMG_20251116_163656.jpg",
+    "inventory/electronics/epson-ecotank-l3250/photos/IMG_20251116_173154.jpg"
   ],
   "included_items": [],
   "purchase_year": null,
   "asking_price_thb": null,
-  "price_sources": [],
+  "price_sources": [
+    {
+      "name": "Power Buy Thailand (New)",
+      "url": "https://www.powerbuy.co.th/en/product/epson-printer-ink-tank-all-in-one-l3250-wi-fi-296537",
+      "price_thb": 5290,
+      "notes": "Official retailer price for a new unit."
+    }
+  ],
   "description": "Box highlights Print/Copy/Scan with Wi-Fi and Smart Panel support; ink yield quoted at 4,500 mono / 7,500 colour pages.",
   "ocr_extracts": {
     "Photos-1-001/IMG_20251116_173154.jpg": "Print Copy/Scan Wi-Fi, Smart Panel badge, 4,500 / 7,500 pages"

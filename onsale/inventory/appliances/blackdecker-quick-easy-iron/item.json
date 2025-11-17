@@ -4,7 +4,8 @@
   "category": "appliances",
   "condition": "",
   "photos": [
-    "Photos-1-001/IMG_20251116_170020.jpg"
+    "inventory/appliances/blackdecker-quick-easy-iron/photos/IMG_20251116_170020.jpg",
+    "inventory/appliances/blackdecker-quick-easy-iron/photos/IMG_20251116_170034.jpg"
   ],
   "included_items": [],
   "purchase_year": null,
@@ -15,5 +16,6 @@
     "Photos-1-001/IMG_20251116_170020.jpg": "Quick & EASY, Duraglide nonstick soleplate"
   },
   "status": "pending-info",
-  "last_updated": "2025-11-16"
+  "last_updated": "2025-11-16",
+  "purchase_location": "Lotus's Thailand"
 }

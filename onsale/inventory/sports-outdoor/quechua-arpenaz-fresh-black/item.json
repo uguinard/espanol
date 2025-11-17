@@ -4,7 +4,9 @@
   "category": "sports-outdoor",
   "condition": "",
   "photos": [
-    "Photos-1-001/IMG_20251116_171445.jpg"
+    "inventory/sports-outdoor/quechua-arpenaz-fresh-black/photos/IMG_20251116_171445.jpg",
+    "inventory/sports-outdoor/quechua-arpenaz-fresh-black/photos/IMG_20251116_171450.jpg",
+    "inventory/sports-outdoor/quechua-arpenaz-fresh-black/photos/IMG_20251116_171455.jpg"
   ],
   "included_items": [],
   "purchase_year": null,
@@ -15,5 +17,6 @@
     "Photos-1-001/IMG_20251116_171445.jpg": "Fresh & Black, fiber poles, 3.2kg"
   },
   "status": "pending-info",
-  "last_updated": "2025-11-16"
+  "last_updated": "2025-11-16",
+  "purchase_location": "Decathlon Thailand"
 }

@@ -4,8 +4,8 @@
   "category": "sports-outdoor",
   "condition": "",
   "photos": [
-    "Photos-1-001/bottleholder/IMG_20251116_171849.jpg",
-    "Photos-1-001/bottleholder/IMG_20251116_171906.jpg"
+    "inventory/sports-outdoor/decathlon-bottle-holder/photos/IMG_20251116_171849.jpg",
+    "inventory/sports-outdoor/decathlon-bottle-holder/photos/IMG_20251116_171906.jpg"
   ],
   "included_items": [],
   "purchase_year": null,
@@ -13,5 +13,6 @@
   "price_sources": [],
   "description": "Photos captured under folder 'Decathlon bottle holder'.",
   "status": "pending-info",
-  "last_updated": "2025-11-16"
+  "last_updated": "2025-11-16",
+  "purchase_location": "Decathlon Thailand"
 }

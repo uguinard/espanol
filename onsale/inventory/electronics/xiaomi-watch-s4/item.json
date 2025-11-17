@@ -4,14 +4,24 @@
   "category": "electronics",
   "condition": "",
   "photos": [
-    "Photos-1-001/IMG_20251116_173015.jpg",
-    "Photos-1-001/IMG_20251116_173032.jpg",
-    "Photos-1-001/IMG_20251116_173038.jpg"
+    "inventory/electronics/xiaomi-watch-s4/photos/.DS_Store",
+    "inventory/electronics/xiaomi-watch-s4/photos/IMG_20251116_173008.jpg",
+    "inventory/electronics/xiaomi-watch-s4/photos/IMG_20251116_173015.jpg",
+    "inventory/electronics/xiaomi-watch-s4/photos/IMG_20251116_173032.jpg",
+    "inventory/electronics/xiaomi-watch-s4/photos/IMG_20251116_173038.jpg",
+    "inventory/electronics/xiaomi-watch-s4/photos/IMG_20251116_173055.jpg"
   ],
   "included_items": [],
   "purchase_year": null,
   "asking_price_thb": null,
-  "price_sources": [],
+  "price_sources": [
+    {
+      "name": "Various Retailers (New)",
+      "url": "",
+      "price_thb": 4500,
+      "notes": "Approximate market price for a new device in Thailand."
+    }
+  ],
   "description": "Spec label lists model M2425W1, 5V/2A charging, Bluetooth 5.3, Android & iOS compatibility, and in-box items (watch, strap, charging dock, manual).",
   "ocr_extracts": {
     "Photos-1-001/IMG_20251116_173015.jpg": "Model M2425W1, 5V= 2A, Bluetooth 5.3"

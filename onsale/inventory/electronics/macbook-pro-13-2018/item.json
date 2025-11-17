@@ -1,12 +1,12 @@
 {
   "id": "macbook-pro-13-2018",
-  "title": "Apple MacBook Pro 13\" (2018, 4× Thunderbolt 3)",
+  "title": "Apple MacBook Pro 13\" (2018, 4\u00d7 Thunderbolt 3)",
   "category": "electronics",
   "condition": "",
   "photos": [
-    "Photos-1-001/IMG_20251116_164941.jpg",
-    "Photos-1-001/IMG_20251116_164942.jpg",
-    "Photos-1-001/IMG_20251116_165307.jpg"
+    "inventory/electronics/macbook-pro-13-2018/photos/IMG_20251116_164941.jpg",
+    "inventory/electronics/macbook-pro-13-2018/photos/IMG_20251116_164942.jpg",
+    "inventory/electronics/macbook-pro-13-2018/photos/IMG_20251116_165307.jpg"
   ],
   "included_items": [],
   "purchase_year": null,
@@ -17,5 +17,6 @@
     "Photos-1-001/IMG_20251116_164941.jpg": "About This Mac panel with CPU, RAM, GPU, serial"
   },
   "status": "pending-info",
-  "last_updated": "2025-11-16"
+  "last_updated": "2025-11-16",
+  "purchase_location": "Spain"
 }

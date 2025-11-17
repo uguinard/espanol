@@ -4,11 +4,11 @@
   "category": "sports-outdoor",
   "condition": "",
   "photos": [
-    "Photos-1-001/bicycle helmet/IMG_20251116_171542.jpg",
-    "Photos-1-001/bicycle helmet/IMG_20251116_171558.jpg",
-    "Photos-1-001/bicycle helmet/IMG_20251116_171604.jpg",
-    "Photos-1-001/bicycle helmet/IMG_20251116_171611.jpg",
-    "Photos-1-001/bicycle helmet/IMG_20251116_171622.jpg"
+    "inventory/sports-outdoor/decathlon-van-rysel-helmet/photos/IMG_20251116_171542.jpg",
+    "inventory/sports-outdoor/decathlon-van-rysel-helmet/photos/IMG_20251116_171558.jpg",
+    "inventory/sports-outdoor/decathlon-van-rysel-helmet/photos/IMG_20251116_171604.jpg",
+    "inventory/sports-outdoor/decathlon-van-rysel-helmet/photos/IMG_20251116_171611.jpg",
+    "inventory/sports-outdoor/decathlon-van-rysel-helmet/photos/IMG_20251116_171622.jpg"
   ],
   "included_items": [],
   "purchase_year": null,
@@ -16,5 +16,6 @@
   "price_sources": [],
   "description": "Photos captured under folder 'Decathlon Van Rysel helmet'.",
   "status": "pending-info",
-  "last_updated": "2025-11-16"
+  "last_updated": "2025-11-16",
+  "purchase_location": "Decathlon Thailand"
 }
