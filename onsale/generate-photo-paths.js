@@ -1,12 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
-const inventoryDir = path.join(__dirname, 'inventory');
-const optimizedDir = path.join(__dirname, 'inventory_optimized');
+const inventoryDir = path.join(__dirname, 'inventory_optimized'); // Changed this line
 const outputFile = path.join(__dirname, 'photo_paths.csv');
-const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'];
+const imageExtensions = ['.webp']; // Changed to only look for .webp
 
 try {
+  if (!fs.existsSync(inventoryDir)) {
+    console.error(`Error: Source directory not found at ${inventoryDir}`);
+    console.error('Please ensure the inventory_optimized directory exists and contains your image folders.');
+    return;
+  }
+
   const itemFolders = fs.readdirSync(inventoryDir, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name);
@@ -17,31 +22,13 @@ try {
 
   for (const itemName of itemFolders) {
     const itemPath = path.join(inventoryDir, itemName);
-    const optimizedItemPath = path.join(optimizedDir, itemName);
     
     try {
       const files = fs.readdirSync(itemPath, { withFileTypes: true });
       const photoPaths = files
         .filter(dirent => dirent.isFile() && imageExtensions.includes(path.extname(dirent.name).toLowerCase()))
         .map(dirent => {
-          const originalFilename = dirent.name;
-          const safeFilename = originalFilename.replace(/\s+/g, '-');
-          const oldPath = path.join(itemPath, originalFilename);
-          const newPath = path.join(itemPath, safeFilename);
-
-          if (oldPath !== newPath) {
-            fs.renameSync(oldPath, newPath);
-          }
-
-          const ext = path.extname(safeFilename);
-          const base = path.basename(safeFilename, ext);
-          const optimizedPhoto = `${base}.webp`;
-          const optimizedPhotoPath = path.join(optimizedItemPath, optimizedPhoto);
-
-          if (fs.existsSync(optimizedPhotoPath)) {
-            return `inventory_optimized/${itemName}/${optimizedPhoto}`;
-          }
-          return `inventory/${itemName}/${safeFilename}`;
+          return `inventory_optimized/${itemName}/${dirent.name}`;
         });
 
       if (photoPaths.length > 0) {

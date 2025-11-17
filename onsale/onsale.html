@@ -484,9 +484,14 @@
             .map((item) => {
               const itemID = item.id.trim();
               const photoPaths = photoMap.get(itemID);
+              const total_quantity = toNumber(item.total_quantity, 1);
+              const sold_quantity = toNumber(item.sold_quantity, 0);
               return {
                 ...item,
                 photos: photoPaths || '', // Overwrite photos property
+                total_quantity,
+                sold_quantity,
+                available_quantity: total_quantity - sold_quantity,
               };
             });
 
@@ -531,8 +536,20 @@
               .filter(Boolean)
               .some((field) => field.toLowerCase().includes(query));
           const matchesCategory = !category || item.category === category;
-          const matchesStatus = !status || item.status === status;
           const matchesCondition = !condition || item.condition === condition;
+
+          let matchesStatus = !status; // if no status filter, matches all
+          if (status) {
+            const itemStatus = item.status?.toLowerCase();
+            if (status === 'sold') {
+                matchesStatus = itemStatus === 'sold' || item.available_quantity <= 0;
+            } else if (status === 'available') {
+                matchesStatus = item.available_quantity > 0 && itemStatus !== 'sold' && itemStatus !== 'pending-info';
+            } else {
+                matchesStatus = itemStatus === status;
+            }
+          }
+
           return matchesQuery && matchesCategory && matchesStatus && matchesCondition;
         });
 
@@ -551,7 +568,12 @@
           'pending-info': 3,
         };
 
-        const getStatusRank = (item) => statusOrder[item.status?.toLowerCase()] || 99;
+        const getStatusRank = (item) => {
+          const itemStatus = item.status?.toLowerCase();
+          if (itemStatus === 'pending-info') return statusOrder['pending-info'];
+          if (item.available_quantity <= 0 || itemStatus === 'sold') return statusOrder['sold'];
+          return statusOrder['available'];
+        };
 
         list.sort((a, b) => {
           const rankA = getStatusRank(a);
@@ -582,7 +604,10 @@
           summaryEl.textContent = 'No items match your filters.';
           return;
         }
-        const available = items.filter((item) => item.status?.toLowerCase() === 'available').length;
+        const available = items.filter(item => {
+          const itemStatus = item.status?.toLowerCase();
+          return item.available_quantity > 0 && itemStatus !== 'sold' && itemStatus !== 'pending-info';
+        }).length;
         summaryEl.textContent = `${items.length} items · ${available} available`;
       }
 
@@ -598,7 +623,7 @@
           card.className = 'card';
           card.addEventListener('click', () => showModal(item));
           const photoSrc = getFirstPhoto(item);
-          const isSold = item.status?.toLowerCase() === 'sold';
+          const isSold = item.status?.toLowerCase() === 'sold' || item.available_quantity <= 0;
 
           let imageHtml = '';
           if (photoSrc) {
@@ -630,6 +655,7 @@
               <div>
                 <span class="chip">${escapeHtml(item.category || 'uncategorized')}</span>
                 ${renderConditionChip(item.condition)}
+                ${item.total_quantity > 1 ? `<span class="chip">${item.available_quantity} / ${item.total_quantity} left</span>` : ''}
               </div>
               <dl>
                 <dt>Description</dt>
@@ -665,6 +691,7 @@
             <div class="item-info">
               <h1>${escapeHtml(item.title)}</h1>
               ${item.asking_price_thb ? `<div class="price-tag">${Number(item.asking_price_thb).toLocaleString()} THB</div>` : ''}
+              ${item.total_quantity > 1 ? `<div><span class="chip">${item.available_quantity} of ${item.total_quantity} available</span></div>` : ''}
               <hr />
               <div>
                 <span class="chip">${escapeHtml(item.category || 'uncategorized')}</span>
@@ -849,9 +876,10 @@
         return `${optimizedDirname}/${base}.webp`;
       }
 
-      function toNumber(value) {
+      function toNumber(value, fallback = 0) {
+        if (value === undefined || value === null || String(value).trim() === '') return fallback;
         const num = Number(value);
-        return Number.isFinite(num) ? num : 0;
+        return Number.isFinite(num) ? num : fallback;
       }
 
       function escapeHtml(str = '') {
