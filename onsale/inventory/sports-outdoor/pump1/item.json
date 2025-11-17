@@ -1,0 +1,20 @@
+{
+  "id": "pump1",
+  "title": "Pump1",
+  "category": "sports-outdoor",
+  "condition": "",
+  "photos": [
+    "Photos-1-001/pump1/IMG_20251116_171645.jpg",
+    "Photos-1-001/pump1/IMG_20251116_171650.jpg",
+    "Photos-1-001/pump1/IMG_20251116_171655.jpg",
+    "Photos-1-001/pump1/IMG_20251116_171655_1.jpg",
+    "Photos-1-001/pump1/IMG_20251116_171703.jpg"
+  ],
+  "included_items": [],
+  "purchase_year": null,
+  "asking_price_thb": null,
+  "price_sources": [],
+  "description": "Photos captured under folder 'pump1'.",
+  "status": "pending-info",
+  "last_updated": "2025-11-16"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "dell-optiplex-7060-sff",
+  "title": "Dell OptiPlex 7060 Small Form Factor",
+  "category": "electronics",
+  "condition": "",
+  "photos": [
+    "Photos-1-001/IMG_20251116_165504.jpg",
+    "Photos-1-001/IMG_20251116_165538.jpg"
+  ],
+  "included_items": [],
+  "purchase_year": null,
+  "asking_price_thb": null,
+  "price_sources": [],
+  "description": "Service tag CSAA2W2 / service code 26710470434, manufactured 2019-04-05 per rear chassis label.",
+  "ocr_extracts": {
+    "Photos-1-001/IMG_20251116_165538.jpg": "Service Tag csaa2w2, Service Code 26710470434, Mfg Date 20190405"
+  },
+  "status": "pending-info",
+  "last_updated": "2025-11-16"
+}
