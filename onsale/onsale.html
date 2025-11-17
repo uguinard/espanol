@@ -115,6 +115,11 @@
         box-shadow: var(--shadow);
         display: flex;
         flex-direction: column;
+        transition: transform 0.15s ease, box-shadow 0.2s ease;
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 25px 45px -20px rgba(15, 23, 42, 0.7);
       }
       .card figure {
         margin: 0;
@@ -130,6 +135,7 @@
       }
       .card .content {
         padding: 1.2rem 1.4rem 1.35rem;
+        flex-grow: 1;
       }
       .card h2 {
         margin: 0 0 0.35rem;
@@ -141,9 +147,13 @@
         padding: 0.2rem 0.7rem;
         font-size: 0.85rem;
         margin-right: 0.4rem;
+        margin-bottom: 0.4rem;
         background: rgba(37, 99, 235, 0.1);
         color: #1d4ed8;
       }
+      .chip.condition-new { background: rgba(22, 163, 74, 0.15); color: #15803d; }
+      .chip.condition-used { background: rgba(217, 119, 6, 0.15); color: #b45309; }
+      
       .price-tag {
         background: rgba(16, 185, 129, 0.17);
         color: #047857;
@@ -180,6 +190,55 @@
       a {
         color: var(--accent);
         text-decoration: none;
+      }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(8px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 1000;
+      }
+      .modal {
+        background: var(--card-bg);
+        border-radius: 1.5rem;
+        border: 1px solid var(--card-border);
+        box-shadow: var(--shadow);
+        width: 100%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        padding: 2rem;
+      }
+      .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--accent-soft);
+        border: none;
+        border-radius: 999px;
+        width: 2.5rem;
+        height: 2.5rem;
+        cursor: pointer;
+        font-size: 1.5rem;
+        line-height: 1;
+        color: var(--accent);
+      }
+      .modal-photos {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+      .modal-photos img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0.75rem;
       }
     </style>
   </head>
@@ -227,6 +286,13 @@
       <section class="inventory-grid" id="inventoryGrid"></section>
     </main>
 
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal" id="modal">
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
+        <div id="modalContent"></div>
+      </div>
+    </div>
+
     <script>
       const SHEET_CSV_URL =
         'https://docs.google.com/spreadsheets/d/e/2PACX-1vTI049G2HSfD96mpETHybatzIvMQpmTJPOjfXfZ9QaW0HHTBFTr8AysLzKmk3AO79ANJ7IBME3Ns4V_/pub?gid=970183065&single=true&output=csv';
@@ -239,6 +305,9 @@
       const categoryFilter = document.getElementById('categoryFilter');
       const statusFilter = document.getElementById('statusFilter');
       const sortSelect = document.getElementById('sortSelect');
+      const modalOverlay = document.getElementById('modalOverlay');
+      const modalContent = document.getElementById('modalContent');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
 
       let inventoryData = [];
 
@@ -334,6 +403,7 @@
         items.forEach((item) => {
           const card = document.createElement('article');
           card.className = 'card';
+          card.addEventListener('click', () => showModal(item));
           const photoSrc = getFirstPhoto(item.photos);
           card.innerHTML = `
             <figure>
@@ -344,7 +414,7 @@
               }
             </figure>
             <div class="content">
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;">
                 <h2>${escapeHtml(item.title)}</h2>
                 ${
                   item.asking_price_thb
@@ -354,18 +424,21 @@
               </div>
               <div>
                 <span class="chip">${escapeHtml(item.category || 'uncategorized')}</span>
+                ${renderConditionChip(item.condition)}
                 ${item.status ? `<span class="chip">${escapeHtml(item.status)}</span>` : ''}
               </div>
               <dl>
                 <dt>Description</dt>
                 <dd>${escapeHtml(item.description || '—')}</dd>
                 ${
-                  item.included_items
-                    ? `<dt>Included items</dt><dd>${renderList(item.included_items)}</dd>`
+                  item.purchase_location
+                    ? `<dt>Purchased At</dt><dd>${escapeHtml(item.purchase_location)}</dd>`
                     : ''
                 }
                 ${
-                  item.photos ? `<dt>Photos</dt><dd>${renderList(item.photos, true)}</dd>` : ''
+                  item.included_items
+                    ? `<dt>Included items</dt><dd>${renderList(item.included_items)}</dd>`
+                    : ''
                 }
                 ${renderPriceSource(item, 1)}
                 ${renderPriceSource(item, 2)}
@@ -374,6 +447,54 @@
           `;
           inventoryGrid.appendChild(card);
         });
+      }
+
+      function showModal(item) {
+        let photosHtml = '<p>No photos provided.</p>';
+        const photoList = item.photos.split(',').map(p => p.trim()).filter(Boolean);
+        if (photoList.length > 0) {
+          photosHtml = photoList.map(photo => `<a href="${escapeHtml(photo)}" target="_blank" rel="noopener"><img src="${escapeHtml(photo)}" alt="Photo of ${escapeHtml(item.title)}" loading="lazy"/></a>`).join('');
+        }
+
+        modalContent.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+            <h1 style="margin-right: auto;">${escapeHtml(item.title)}</h1>
+            ${item.asking_price_thb ? `<span class="price-tag" style="font-size:1.2rem;">${Number(item.asking_price_thb).toLocaleString()} THB</span>` : ''}
+          </div>
+          <div>
+            <span class="chip">${escapeHtml(item.category || 'uncategorized')}</span>
+            ${renderConditionChip(item.condition)}
+            ${item.status ? `<span class="chip">${escapeHtml(item.status)}</span>` : ''}
+          </div>
+          <hr style="border:none; border-top: 1px solid var(--card-border); margin: 1.5rem 0;" />
+          <div class="modal-photos">${photosHtml}</div>
+          <dl>
+            <dt>Description</dt>
+            <dd>${escapeHtml(item.description || '—')}</dd>
+            ${item.purchase_location ? `<dt>Purchased At</dt><dd>${escapeHtml(item.purchase_location)}</dd>` : ''}
+            ${item.purchase_year ? `<dt>Purchase Year</dt><dd>${escapeHtml(item.purchase_year)}</dd>` : ''}
+            ${item.included_items ? `<dt>Included items</dt><dd>${renderList(item.included_items)}</dd>` : ''}
+            ${renderPriceSource(item, 1)}
+            ${renderPriceSource(item, 2)}
+          </dl>
+        `;
+        modalOverlay.style.display = 'flex';
+      }
+
+      function hideModal() {
+        modalOverlay.style.display = 'none';
+      }
+
+      function renderConditionChip(condition) {
+        if (!condition) return '';
+        const cleanCondition = condition.trim().toLowerCase();
+        let className = 'chip';
+        if (cleanCondition.includes('new') || cleanCondition.includes('mint')) {
+          className += ' condition-new';
+        } else if (cleanCondition.includes('used')) {
+          className += ' condition-used';
+        }
+        return `<span class="${className}">${escapeHtml(condition)}</span>`;
       }
 
       function renderPriceSource(item, idx) {
@@ -433,6 +554,13 @@
       categoryFilter.addEventListener('change', applyFilters);
       statusFilter.addEventListener('change', applyFilters);
       sortSelect.addEventListener('change', applyFilters);
+
+      modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) {
+          hideModal();
+        }
+      });
+      modalCloseBtn.addEventListener('click', hideModal);
 
       window.addEventListener('DOMContentLoaded', loadInventory);
     </script>
