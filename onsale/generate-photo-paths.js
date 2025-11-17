@@ -2,8 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 const inventoryDir = path.join(__dirname, 'inventory');
+const optimizedDir = path.join(__dirname, 'inventory_optimized');
 const outputFile = path.join(__dirname, 'photo_paths.csv');
-const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif'];
 
 try {
   const itemFolders = fs.readdirSync(inventoryDir, { withFileTypes: true })
@@ -16,17 +17,29 @@ try {
 
   for (const itemName of itemFolders) {
     const itemPath = path.join(inventoryDir, itemName);
+    const optimizedItemPath = path.join(optimizedDir, itemName);
     
     try {
       const files = fs.readdirSync(itemPath, { withFileTypes: true });
       const photoPaths = files
         .filter(dirent => dirent.isFile() && imageExtensions.includes(path.extname(dirent.name).toLowerCase()))
         .map(dirent => {
-          const safeFilename = dirent.name.replace(/\s+/g, '-');
-          const oldPath = path.join(itemPath, dirent.name);
+          const originalFilename = dirent.name;
+          const safeFilename = originalFilename.replace(/\s+/g, '-');
+          const oldPath = path.join(itemPath, originalFilename);
           const newPath = path.join(itemPath, safeFilename);
+
           if (oldPath !== newPath) {
             fs.renameSync(oldPath, newPath);
+          }
+
+          const ext = path.extname(safeFilename);
+          const base = path.basename(safeFilename, ext);
+          const optimizedPhoto = `${base}.webp`;
+          const optimizedPhotoPath = path.join(optimizedItemPath, optimizedPhoto);
+
+          if (fs.existsSync(optimizedPhotoPath)) {
+            return `inventory_optimized/${itemName}/${optimizedPhoto}`;
           }
           return `inventory/${itemName}/${safeFilename}`;
         });
@@ -46,6 +59,6 @@ try {
   console.log(`Found photo paths for ${itemCount} items.`);
 
 } catch (err)
- {
+{
   console.error('Failed to read the inventory directory.', err);
 }
