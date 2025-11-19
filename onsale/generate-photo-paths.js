@@ -38,7 +38,7 @@ try {
 
       if (photoPaths.length > 0) {
         itemCount++;
-        csvRows.push(`"${itemName}","${photoPaths.join(';')}"`);
+        csvRows.push(`"${itemName}","${photoPaths.join(',')}"`);
       }
     } catch (err) {
       console.error(`Could not read files in directory: ${itemPath}`, err);
