@@ -506,7 +506,21 @@
 
       function buildFilterOptions() {
         fillSelect(categoryFilter, [...new Set(inventoryData.map((item) => item.category).filter(Boolean))]);
-        fillSelect(statusFilter, [...new Set(inventoryData.map((item) => item.status).filter(Boolean))]);
+        
+        // Build status filter with computed statuses
+        const statusValues = new Set();
+        inventoryData.forEach((item) => {
+          const itemStatus = item.status?.toLowerCase();
+          if (itemStatus === 'pending-info') {
+            statusValues.add('pending-info');
+          } else if (itemStatus === 'sold' || item.available_quantity <= 0) {
+            statusValues.add('sold');
+          } else {
+            statusValues.add('available');
+          }
+        });
+        fillSelect(statusFilter, [...statusValues]);
+        
         fillSelect(conditionFilter, [...new Set(inventoryData.map((item) => item.condition).filter(Boolean))]);
       }
 
@@ -604,11 +618,23 @@
           summaryEl.textContent = 'No items match your filters.';
           return;
         }
+        
         const available = items.filter(item => {
           const itemStatus = item.status?.toLowerCase();
           return item.available_quantity > 0 && itemStatus !== 'sold' && itemStatus !== 'pending-info';
         }).length;
-        summaryEl.textContent = `${items.length} items · ${available} available`;
+        
+        const sold = items.filter(item => {
+          const itemStatus = item.status?.toLowerCase();
+          return itemStatus === 'sold' || item.available_quantity <= 0;
+        }).length;
+        
+        const pendingInfo = items.filter(item => {
+          const itemStatus = item.status?.toLowerCase();
+          return itemStatus === 'pending-info';
+        }).length;
+        
+        summaryEl.textContent = `${items.length} items · ${available} available · ${sold} sold · ${pendingInfo} pending-info`;
       }
 
       function renderCards(items) {
