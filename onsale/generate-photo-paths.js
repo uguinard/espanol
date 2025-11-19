@@ -9,12 +9,17 @@ try {
   if (!fs.existsSync(inventoryDir)) {
     console.error(`Error: Source directory not found at ${inventoryDir}`);
     console.error('Please ensure the inventory_optimized directory exists and contains your image folders.');
-    return;
+    process.exit(1);
   }
 
   const itemFolders = fs.readdirSync(inventoryDir, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory())
     .map(dirent => dirent.name);
+
+  if (itemFolders.length === 0) {
+    console.error('No item folders found in inventory_optimized directory.');
+    process.exit(1);
+  }
 
   const csvRows = [];
   csvRows.push('ItemID,PhotoPaths'); // CSV Header
@@ -33,19 +38,22 @@ try {
 
       if (photoPaths.length > 0) {
         itemCount++;
-        csvRows.push(`"${itemName}","${photoPaths.join(',')}"`);
+        csvRows.push(`"${itemName}","${photoPaths.join(';')}"`);
       }
     } catch (err) {
       console.error(`Could not read files in directory: ${itemPath}`, err);
     }
   }
 
-  fs.writeFileSync(outputFile, csvRows.join('\n'));
+  try {
+    fs.writeFileSync(outputFile, csvRows.join('\n'));
+    console.log(`Successfully generated photo paths CSV at: ${outputFile}`);
+    console.log(`Found photo paths for ${itemCount} items.`);
+  } catch (writeErr) {
+    console.error('Failed to write CSV file:', writeErr);
+    process.exit(1);
+  }
 
-  console.log(`Successfully generated photo paths CSV at: ${outputFile}`);
-  console.log(`Found photo paths for ${itemCount} items.`);
-
-} catch (err)
-{
+} catch (err) {
   console.error('Failed to read the inventory directory.', err);
 }
