@@ -3,7 +3,7 @@ const path = require('path');
 
 const inventoryDir = path.join(__dirname, 'inventory_optimized'); // Changed this line
 const outputFile = path.join(__dirname, 'photo_paths.csv');
-const imageExtensions = ['.webp']; // Changed to only look for .webp
+const imageExtensions = ['.webp', '.jpg', '.jpeg', '.png']; // Changed to only look for .webp
 
 try {
   if (!fs.existsSync(inventoryDir)) {
