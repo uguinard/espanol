@@ -422,7 +422,7 @@
         <label>
           Sort
           <select id="sortSelect">
-            <option value="default">Featured</option>
+            <option value="default">From A to Z</option>
             <option value="featured">Featured</option>
             <option value="priceDesc">Price: high → low</option>
             <option value="priceAsc">Price: low → high</option>
@@ -456,8 +456,17 @@
       const modalContent = document.getElementById('modalContent');
       const modalCloseBtn = document.getElementById('modalCloseBtn');
 
-      let inventoryData = [];
+const FEATURED_ORDER = [
+  'aprilia-sr-gt-200-scooter',
+  'quechua-arpenaz-fresh-black',
+  'classical-electro-acoustic-guitar',
+  'xiaomi-mi-monitor-27-4k',
+  'epson-ecotank-l3250',
+  'macbook-pro-13-2018',
+  'scotch-brite-eco-dual-spin-mop',
+];
 
+let inventoryData = [];
       async function loadInventory() {
         setBusy(true, 'Loading inventory data…');
         try {
@@ -601,11 +610,20 @@
           if (sortValue === 'priceAsc') {
             return toNumber(a.asking_price_thb) - toNumber(b.asking_price_thb);
           }
-          
-          if (sortValue === 'priceDesc' || sortValue === 'featured') {
+
+          if (sortValue === 'featured') {
+            const orderA = FEATURED_ORDER.indexOf(a.id);
+            const orderB = FEATURED_ORDER.indexOf(b.id);
+            if (orderA !== -1 && orderB !== -1) return orderA - orderB;
+            if (orderA !== -1) return -1;
+            if (orderB !== -1) return 1;
+            return a.title.localeCompare(b.title);
+          }
+
+          if (sortValue === 'priceDesc') {
             return toNumber(b.asking_price_thb) - toNumber(a.asking_price_thb);
           }
-          
+
           // Default sort: title
           return a.title.localeCompare(b.title);
         });
